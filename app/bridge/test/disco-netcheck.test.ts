@@ -76,7 +76,7 @@ test('STUN 探测全链路：NAT 公网映射回填 + RTT 可注入', () => {
     clock.advanceMs(50);
   });
   assert.notEqual(result, null, '配对到响应');
-  assert.deepEqual(result?.ip, new Uint8Array([156, 238, 240, 81]), '映射地址=公网 IPv4 原始字节');
+  assert.deepEqual(result?.ip, new Uint8Array([203, 0, 113, 10]), '映射地址=公网 IPv4 原始字节');
   assert.equal(result?.port, 41037);
   assert.equal(result?.rttMs, 50, 'RTT=注入时钟推进量');
   assert.equal(result?.txid.length, 12);
@@ -122,7 +122,7 @@ test('disco Ping→Pong 全链路：密封/解封 + Pong src=NAT 公网视图', 
   // 上游语义：Pong.Src = Ping 发起端被 Pong 发送端观察到的地址（A 据此学得自己的公网映射）
   assert.deepEqual(
     atA.pong?.srcIp16,
-    mapIp16FromV4(new Uint8Array([156, 238, 240, 81])),
+    mapIp16FromV4(new Uint8Array([203, 0, 113, 10])),
     'Pong src ip16=A 被 B 观察到的 v4-mapped 公网地址',
   );
   assert.equal(atA.pong?.srcPort, 41037);

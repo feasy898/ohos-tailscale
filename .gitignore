@@ -42,3 +42,7 @@ Thumbs.db
 *.p7b
 *.p12
 *.keystore
+
+# zcode 会话产物
+.zcode/
+.wt/
