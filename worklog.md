@@ -30,3 +30,9 @@
   - 测试：packages/control 新增 test/{localapi,magicdns,peerapi}.test.ts 共 42 用例；app/bridge 新增 test/{localapi,peerapi-tun}.test.ts 共 16 用例（中文用例名+协议语义断言消息，对齐既有风格）。validate-shell.mjs 新增 V9 组 12 检（bridge 三文件在盘/无 node: 导入/无时钟随机直读/localapi+peerapi 经 control 包/mock-tun 锚定 net/tstun/两测试文件在盘/barrel 导出面），54→66 只增。
   - 验证（实跑退出码）：node --test packages/control/test/*.test.ts（10 文件）+ app/bridge 新 2 文件 → 149 pass/0 fail；interop.test.ts 单跑 8 pass/0 fail；npm run test:bridge → 29 pass/0 fail（13 基线不回归）；npm run typecheck → EXIT=0；npm run typecheck:bridge → EXIT=0；npm run validate:shell → 66 pass/0 fail EXIT=0；新文件 P4/D4 grep（Date.now/Math.random/node: 导入/Buffer/process）零命中。未跑全仓 npm test（并行任务有未完成文件，按本轮纪律）。
   - 遗留/移交：DNS wire format（dnsmessage 打包，/dns-query 的 Bytes 字段与 PeerAPI POST DoH 以 501/结构化视图表达，已在测试锚定偏差）；PacketFilter 四元组过滤函数体（二期另一件，mock 以注入谓词锚定挂点）；4via6 合成名（tsdns.go:841-900）；MagicDNS 落 control 包未动 D1/D2 拓扑（研究笔记 §5-8 的架构师裁定项，建议 AU 清单增补时追认）。
+
+- 2026-10-02 收口（主代理接手）：工作流 dwfrun-d92a8909 在终门 G0 阶段被供应商瞬态环境问题中断，前 4 阶段 17/18 步已全部 settle 并入库（共 1.78 亿 token，glossary 阶段全部成功）；主代理接管剩余收口：
+  - 脱敏修复：本轮 B/C 实现新增测试期望与 oracle 协议笔记中残留的真实外网 IP（`223.198.166.92`、`172.16.105.2`）替换为 TEST-NET（`203.0.113.10`、`198.51.100.20`）；D-interop-plan 原始研究纪实含内部主机 IP，生成对外版 `2026-10-02-D-interop-plan-public.md`，原文件仅仓库内可见不入公仓 commit 链。
+  - 终门五门机检（实跑）：npm test **495 pass / 0 fail**（基线 280，净增 +215）；typecheck exit=0；test:bridge **29 pass / 0 fail**（基线 13）；validate:shell **66 passed / 0 failed**（基线 54）；D4/P4 grep（packages/ 非测试源码 node:/Date.now/Math.random/网络特征）零命中。
+  - 入库：commit 1c9b85b（实现+脱敏批）、本研究纪事。
+  - 遗留/移交：Mimosa 安全扫描在 `app/bridge/src/mock-peerapi.ts:175` 标出 [high] 疑似 SQL 注入（answerDns）与跨文件污点（mock-peerapi.ts:175 [medium]）；`interop/upload_server.py:26` [high] 路径穿越、`interop/arkts-check.js:24` [high] 路径穿越（上线遗留）。mock-peerapi.ts 在本批次为纯 TS mock 接线，按 mock 语义理解不直接接 SQL，但「跨文件污点」需要安全复审；最终报告必须如实呈现给主代理与用户。
