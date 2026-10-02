@@ -101,7 +101,7 @@ test('disco Ping→Pong 全链路：密封/解封 + Pong src=NAT 公网视图', 
   const aKeys: CryptoKeyPair = discoKeys(0xa1);
   const bKeys: CryptoKeyPair = discoKeys(0xb2);
   const aNat: string = '203.0.113.10:41037';
-  const bNat: string = '223.198.166.92:30387';
+  const bNat: string = '203.0.113.10:30387';
   const clientA: ShellDiscoClient = makeDiscoClient(bus, '198.51.100.20:41641', aNat, aKeys, bKeys.publicKey, new ArrayRng(new Uint8Array(64).fill(0x31)));
   const clientB: ShellDiscoClient = makeDiscoClient(bus, '10.0.0.8:41641', bNat, bKeys, aKeys.publicKey, new ArrayRng(new Uint8Array(64).fill(0x32)));
   clientA.peerEndpoint = '10.0.0.8:41641';
@@ -134,7 +134,7 @@ test('disco CallMeMaybe：端点列表经总线往返等价', () => {
   const aKeys: CryptoKeyPair = discoKeys(0xa1);
   const bKeys: CryptoKeyPair = discoKeys(0xb2);
   const clientA: ShellDiscoClient = makeDiscoClient(bus, '198.51.100.20:41641', '203.0.113.10:41037', aKeys, bKeys.publicKey, new ArrayRng(new Uint8Array(64).fill(0x41)));
-  const clientB: ShellDiscoClient = makeDiscoClient(bus, '10.0.0.8:41641', '223.198.166.92:30387', bKeys, aKeys.publicKey, new ArrayRng(new Uint8Array(64).fill(0x42)));
+  const clientB: ShellDiscoClient = makeDiscoClient(bus, '10.0.0.8:41641', '203.0.113.10:30387', bKeys, aKeys.publicKey, new ArrayRng(new Uint8Array(64).fill(0x42)));
   clientA.peerEndpoint = '10.0.0.8:41641';
   clientB.peerEndpoint = '203.0.113.10:41037';
 

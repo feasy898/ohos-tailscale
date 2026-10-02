@@ -177,7 +177,7 @@ test('NetworkMap 往返：映射级字段 + 两 peer（可选字段有无混合�
     seqNo: 1n + 0x0000000fffffffffn,
     packetFilter: filter,
     peers: [
-      { nodeKey: keyA(20), discoKey: keyA(21), endpoints: ['223.198.166.92:30387', '172.16.105.2:41641'], homeDerpRegionId: 17 },
+      { nodeKey: keyA(20), discoKey: keyA(21), endpoints: ['203.0.113.10:30387', '198.51.100.20:41641'], homeDerpRegionId: 17 },
       { nodeKey: keyA(30), discoKey: keyA(31), endpoints: [], homeDerpRegionId: 0 },
     ],
   };

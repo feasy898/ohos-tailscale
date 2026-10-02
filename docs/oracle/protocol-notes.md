@@ -117,7 +117,7 @@
 `status --json` 中该 peer：`Online:false`，`LastSeen: 2026-09-10T11:15:50+08:00`，`Relay:"lax"`，
 `TailscaleIPs:[100.100.0.4, fd7a:115c:a1e0::4]`，`Active:false`，`CurAddr:""`。
 netmap（`raw/netmap-trimmed.json`，ID=4 全量保留）补充：`HomeDERP:17`(lax)、
-`Endpoints:["223.198.166.92:30387","172.16.105.2:41641"]`、`DiscoKey:discokey:2f153b4c…`、
+`Endpoints:["<NAT-PUBLIC-IP>:30387","<LAN-IP>:41641"]`、`DiscoKey:discokey:2f153b4c…`、
 `Hostinfo`: openEuler 24.03 / arm64 / aarch64 / 内核 6.6.0、`NetInfo`: `WorkingUDP:true`、
 `MappingVariesByDestIP:false`、`PreferredDERP:17`、`DERPLatency` 覆盖 26 个官方 region。
 即：**节点离线后其端点、disco 公钥、home DERP 仍在 netmap 中保留**，客户端必须能处理"对端离线、

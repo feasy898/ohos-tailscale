@@ -136,6 +136,7 @@ function mkNode(): DerpNode {
     ipv6: '',
     stunPort: 3478,
     derpPort: 443,
+    stunOnly: false, // B3 增补（上游 DERPNode.STUNOnly，derpmap.go:235-237）
     canPort80: false,
   };
   return n;

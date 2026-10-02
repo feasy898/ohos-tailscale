@@ -6,3 +6,4 @@ export * from './frame.ts';
 export * from './region.ts';
 export * from './connection.ts';
 export * from './client.ts';
+export * from './regiondial.ts';
