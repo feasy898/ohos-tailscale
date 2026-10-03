@@ -51,3 +51,6 @@ Thumbs.db
 __pycache__/
 *.pyc
 *.pyo
+# 证据目录例外（P0-7/R5 限定式豁免；仅放行 evidence/ 前缀，禁全局 !*.log）
+!evidence/
+!evidence/**/*.log
