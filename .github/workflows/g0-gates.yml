@@ -70,24 +70,7 @@ jobs:
         shell: bash
         run: |
           set -eu
-          echo "--- P4: Date.now / Math.random（非注释行）---"
-          P4=$(grep -rEn 'Date\.now|Math\.random' packages/ --include='*.ts' \
-               | grep -v '^\s*//' | grep -v ':\s*//' | grep -v ' \* ' || true)
-          if [ -n "$P4" ]; then echo "P4 命中：$P4"; exit 1; fi
-
-          echo "--- P4/D4: 非测试源码 node: 导入 ---"
-          # 过滤格式：grep -n 输出形如 `path/to/file.ts:line:content`——行末是行号而非文件名。
-          # 路径段以 `\:` 分隔，要排除测试文件须匹配路径里的 `.test.ts:` 而不是行末的 `$`。
-          NOD=$(grep -rEn "from ['\"]node:" packages/ --include='*.ts' \
-                | grep -v '\.test\.ts:' || true)
-          if [ -n "$NOD" ]; then echo "node: 导入命中：$NOD"; exit 1; fi
-
-          echo "--- D4: 网络/builtin 特征（仅 src） ---"
-          NET=$(grep -rEn 'fetch\(|XMLHttpRequest|WebSocket|from ['\"](net|dgram|http|https|tls|dns|fs|path|os|child_process|crypto)['\"]' \
-                packages/ --include='*.ts' | grep -v '\.test\.ts:' \
-                | grep -v '^\s*//' || true)
-          if [ -n "$NET" ]; then echo "D4 命中：$NET"; exit 1; fi
-          echo "D4/P4 全 0 命中 ✓"
+          node scripts/gate-d4-p4.mjs
 
   # 文档口径一致性（不让数字漂出去；改动 495/30/66 任一就要同步 README/CONTEXT）
   docs-consistency:
@@ -103,16 +86,17 @@ jobs:
         shell: bash
         run: |
           set -eu
-          # 抓 npm test 实际数字
-          T_OUT=$(npm test 2>&1 | grep -E '^# tests' | head -1)
-          T_TOTAL=$(echo "$T_OUT" | awk '{print $3}')
-          T_FAIL=$(echo "$T_OUT" | awk '{print $7}')
+          # 抓 npm test 实际数字（node 的 TAP 汇总每项独占一行：# tests 30 / # fail 0，
+          # 原先按「第 7 个字段」取 fail 取到的是空串——该数字从未真正参与过任何断言）
+          T_OUT=$(npm test 2>&1 | grep -E '^# (tests|fail) ')
+          T_TOTAL=$(echo "$T_OUT" | grep -E '^# tests ' | head -1 | cut -d' ' -f3)
+          T_FAIL=$(echo "$T_OUT" | grep -E '^# fail ' | head -1 | cut -d' ' -f3)
           echo "实测：tests=$T_TOTAL fail=$T_FAIL"
 
           # 桥测试
-          B_OUT=$(npm run test:bridge 2>&1 | grep -E '^# tests' | head -1)
-          B_TOTAL=$(echo "$B_OUT" | awk '{print $3}')
-          B_FAIL=$(echo "$B_OUT" | awk '{print $7}')
+          B_OUT=$(npm run test:bridge 2>&1 | grep -E '^# (tests|fail) ')
+          B_TOTAL=$(echo "$B_OUT" | grep -E '^# tests ' | head -1 | cut -d' ' -f3)
+          B_FAIL=$(echo "$B_OUT" | grep -E '^# fail ' | head -1 | cut -d' ' -f3)
           echo "实测：bridge=$B_TOTAL fail=$B_FAIL"
 
           # 校验脚本
