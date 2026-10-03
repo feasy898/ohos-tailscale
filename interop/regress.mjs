@@ -12,12 +12,12 @@
  *   DERP INTEROP PASS    —— 阶段 2 通过
  *
  * 用法：
- *   node interop/regress.mjs                       # 默认 HS=http://127.0.0.1:8080
- *   HS=http://127.0.0.1:18080 node interop/regress.mjs
+ *   HS_PREAUTHKEY=<key> node interop/regress.mjs     # 默认 HS=http://127.0.0.1:8080
+ *   HS=http://127.0.0.1:18080 HS_PREAUTHKEY=<key> node interop/regress.mjs
  *
  * 红线（见 docs/handover/agent-interop-regression.md）：
  *   - 仅在隔离 headscale 实例上跑（监听 127.0.0.1）
- *   - preauthkey 用后即弃、不入仓
+ *   - preauthkey 只经环境变量传入、用后即弃、不入仓（本脚本内不得出现任何字面量 key）
  *   - 私钥永不进 evidence/
  */
 import { spawnSync } from 'node:child_process';
@@ -26,6 +26,15 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 const HS = process.env.HS || 'http://127.0.0.1:8080';
+// preauthkey 只走环境变量：入仓的是一把用后即弃的隔离实例 key，硬编码的假 key
+// 会被真实 headscale 直接 401，失败原因淹没在协议栈深处，不可归因。
+const authKey = process.env.HS_PREAUTHKEY || '';
+if (authKey === '') {
+  console.error('FAIL: 未设置 HS_PREAUTHKEY。');
+  console.error('      用法：HS_PREAUTHKEY=<key> node interop/regress.mjs');
+  console.error('      取法：headscale preauthkeys create --reuse --expiration 24h（用后即弃、不入仓）。');
+  process.exit(1);
+}
 
 // 阶段 1：注册 + MapRequest（要求 interop/register.node.ts 已就绪）
 function runStage(label, args) {
@@ -49,13 +58,15 @@ const out = {
 };
 
 out.stages.register = runStage('控制面注册（RegisterRequest + MapRequest）', [
-  'interop/register.node.ts', HS, 'regress-dummy-preauthkey',
+  'interop/register.node.ts', HS, authKey,
 ]);
+// derp/h2c 的 usage 契约同为 <baseUrl> <authKey>——少传 authKey 时子脚本只 print
+// usage 后退出，「stdout 非空」判据会把 usage 页当成功（批次一三缺陷之二）。
 out.stages.derp = runStage('DERP 客户端 + Ping/Pong', [
-  'interop/derp.node.ts', HS,
+  'interop/derp.node.ts', HS, authKey,
 ]);
 out.stages.h2c = runStage('HTTP/2 over Noise（h2c）', [
-  'interop/h2c.node.ts', HS,
+  'interop/h2c.node.ts', HS, authKey,
 ]);
 
 const ok = out.stages.register && out.stages.derp && out.stages.h2c;
