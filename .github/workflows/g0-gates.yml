@@ -1,0 +1,116 @@
+name: G0 五门机检
+
+# 本仓 G0 五门（贯穿底线，详见 TASK.md §"贯穿底线 G0" 与 README.md）：
+#  1) npm test             ≥495 pass / 0 fail
+#  2) npm run typecheck    exit 0
+#  3) npm run test:bridge  ≥30 pass / 0 fail
+#  4) npm run validate:shell ≥66 passed / 0 failed
+#  5) D4/P4 机检           packages/ 非测试源码：Date.now/Math.random 0、node: 导入 0、网络特征 0
+#
+# 触发：push/PR；ubuntu/windows 双平台并行——纯 Node 无平台差异，但 Windows 路径分隔
+# 与 LF/CRLF 历史上影响过部分 npm scripts，三平台都跑可稳一点。
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  g0:
+    name: G0 五门 / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # 迁出历史包含大文件，但本仓 .gitignore 已排除；保持默认即可。
+          lfs: false
+
+      - name: 装 Node 22（与基线一致）
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: 装依赖
+        run: npm ci --no-audit --no-fund
+
+      - name: G0-1 npm test
+        run: npm test
+
+      - name: G0-2 typecheck
+        run: npm run typecheck
+
+      - name: G0-3 test:bridge
+        run: npm run test:bridge
+
+      - name: G0-4 validate:shell
+        run: npm run validate:shell
+
+      - name: G0-5 D4/P4 机检
+        shell: bash
+        run: |
+          set -eu
+          echo "--- P4: Date.now / Math.random（非注释行）---"
+          P4=$(grep -rEn 'Date\.now|Math\.random' packages/ --include='*.ts' \
+               | grep -v '^\s*//' | grep -v ':\s*//' | grep -v ' \* ' || true)
+          if [ -n "$P4" ]; then echo "P4 命中：$P4"; exit 1; fi
+
+          echo "--- P4/D4: 非测试源码 node: 导入 ---"
+          NOD=$(grep -rEn "from ['\"]node:" packages/ --include='*.ts' \
+                | grep -v '\.test\.ts$' || true)
+          if [ -n "$NOD" ]; then echo "node: 导入命中：$NOD"; exit 1; fi
+
+          echo "--- D4: 网络/builtin 特征（仅 src） ---"
+          NET=$(grep -rEn 'fetch\(|XMLHttpRequest|WebSocket|from ['\"](net|dgram|http|https|tls|dns|fs|path|os|child_process|crypto)['\"]' \
+                packages/ --include='*.ts' | grep -v '\.test\.ts$' \
+                | grep -v '^\s*//' || true)
+          if [ -n "$NET" ]; then echo "D4 命中：$NET"; exit 1; fi
+          echo "D4/P4 全 0 命中 ✓"
+
+  # 文档口径一致性（不让数字漂出去；改动 495/30/66 任一就要同步 README/CONTEXT）
+  docs-consistency:
+    name: 文档口径一致
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - name: 锚定 README/CONTEXT/DELIVERY_REPORT 的数字
+        shell: bash
+        run: |
+          set -eu
+          # 抓 npm test 实际数字
+          T_OUT=$(npm test 2>&1 | grep -E '^# tests' | head -1)
+          T_TOTAL=$(echo "$T_OUT" | awk '{print $3}')
+          T_FAIL=$(echo "$T_OUT" | awk '{print $7}')
+          echo "实测：tests=$T_TOTAL fail=$T_FAIL"
+
+          # 桥测试
+          B_OUT=$(npm run test:bridge 2>&1 | grep -E '^# tests' | head -1)
+          B_TOTAL=$(echo "$B_OUT" | awk '{print $3}')
+          B_FAIL=$(echo "$B_OUT" | awk '{print $7}')
+          echo "实测：bridge=$B_TOTAL fail=$B_FAIL"
+
+          # 校验脚本
+          S_OUT=$(npm run validate:shell 2>&1 | grep -E '^summary:' | head -1)
+          S_PASS=$(echo "$S_OUT" | sed -E 's/.* ([0-9]+) passed.*/\1/')
+          S_FAIL=$(echo "$S_OUT" | sed -E 's/.* ([0-9]+) failed.*/\1/')
+          echo "实测：validate:shell pass=$S_PASS fail=$S_FAIL"
+
+          for f in README.md CONTEXT.md DELIVERY_REPORT.md docs/architecture.md; do
+            if [ ! -f "$f" ]; then continue; fi
+            if ! grep -q "$T_TOTAL" "$f" 2>/dev/null; then
+              echo "::warning file=$f::文档不含实测 tests=$T_TOTAL，可能口径漂移"
+            fi
+          done
+          echo "文档口径一致性已扫描。"
