@@ -55,3 +55,6 @@
 - T-P0-5-c：红→绿（P0-5 之3，h2c.node.ts CLI 入口 process.argv 3 处）
 
 翻转后基线：node scripts/test-plan.mjs → 16 文件｜GREEN_OK 39｜ANCHOR_RED_OK 40｜UNEXPECTED_RED 0｜STALE 0｜UNKNOWN 0，exit 0（TDD 健康态；总数 79 不变，expected.json 为唯一真值源）。
+- OT-0003 P0-7+P0-8 收口 · batch1 closeout · GREEN_OK 39 / ANCHOR_RED_OK 37 / STALE 3 / UNEXPECTED_RED 0 / UNKNOWN 0 · exit=1（STALE 正确形态）
+- OT-0003 验收收口（planner 调度侧，TESTS §0.7）：T-P0-7-a 红→绿（P0-7 .gitignore 两行限定式豁免，G1 八路探针 1/1/0/0/0/0/0/1 亲跑）；T-P0-8-a 红→绿（三档 exit 0+SKIP+点名变量亲跑）；T-P0-8-b 红→绿（exit 2+可读错亲跑）
+- 登记新增：T-P0-8-c 第二档断言（R10/§2.9-3——仓根样本 exit 2 受控码+无栈帧+无 node:internal；非崩维度补齐 OT3-FACTS 假绿洞）；同批 T-P0-8-b 断言补 exit 2 退出码维度（标题未变）

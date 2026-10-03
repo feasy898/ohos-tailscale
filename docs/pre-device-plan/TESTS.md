@@ -411,7 +411,7 @@ handoff-scanner / tree-check / env-ready-validator 是本套件自带、且已�
 |---|---|---|---|---|
 | 1 | T-P0-4-g 等价 grep 绿地板同步扩 `app/bridge/src` 段（R9——扩绿地板覆盖=扩规格，先登记 expected.json 再改；两端现值均 0 命中，结果不变） | 调度 agent（§0.7） | P0-4 落地时（批次一） | 待执行 |
 | 2 | P0-3/P0-4 落地时各新增一条「--root 副本运行与仓内等价」可见断言（R2——先登记 expected.json） | 调度 agent | 批次一/二对应门落地时 | 待执行 |
-| 3 | P0-8 落地时新增第二档断言（R10——存在但非 SDK 目录→可读错非崩，行为级；先登记） | 调度 agent | 批次一（P0-8） | 待执行 |
+| 3 | P0-8 落地时新增第二档断言（R10——存在但非 SDK 目录→可读错非崩，行为级；先登记） | 调度 agent | 批次一（P0-8） | **已执行（2026-10-04）**：登记 T-P0-8-c（仓根样本；非崩维度=exit 2 受控码+无栈帧行+无 node:internal 帧+无崩溃类报错字样）；同批 T-P0-8-b 补退出码维度 exit 2（OT3-FACTS 假绿洞处置，卡验收 G2-2/G2-3 先行把关） |
 | 4 | P1-9 落地时给 headscale.device.yaml 加「非 0.0.0.0」负断言（O3 附加——思考员2 发现的可见面 gap；先登记） | 调度 agent | 批次三（P1-9，须 O3 已签署） | 待执行 |
 | 5 | env-alias-premature 规则处置（收窄或保留+清理 handover 两文件 10 处命中）——与 owner O7 答复同批（见 §2.7 增注）；改 lib/handoff-scanner.mjs 属规格变更，worklog 记理由 | 调度 agent + owner 答复 | owner O7 答复落地时 | 待 owner |
 | 6 | P1-12 落地时 env-ready schema 增 `s6.headscale_waiver_id`/`s6.host_pseudonym` 两键（R11——若同步更新 lib/env-ready-validator.mjs 的演练样本属规格变更） | 调度 agent | 批次三（P1-12） | 待执行 |
