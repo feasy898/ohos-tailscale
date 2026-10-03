@@ -26,7 +26,10 @@ npm run test:bridge
 npm run validate:shell
 # D4/P4 grep（macOS/Linux/Windows 通用）
 grep -rEn 'Date\.now|Math\.random' packages/ --include='*.ts' | grep -v '^\s*//' | grep -v ':\s*//' | grep -v ' \* '
-grep -rEn "from ['\"]node:" packages/ --include='*.ts' | grep -v '\.test\.ts$'
+# 过滤格式说明：grep -n 输出形如 `path/to/file.ts:line:content`；路径以 `\:` 分隔，
+# 要排除测试文件须匹配路径里的 `.test.ts:` 而不是行末的 `$`（行末是行号）。CI 与本手册同此约定。
+grep -rEn "from ['\"]node:" packages/ --include='*.ts' | grep -v '\.test\.ts:'
+grep -rEn 'fetch\(|XMLHttpRequest|WebSocket|from ['"'"'](net|dgram|http|https|tls|dns|fs|path|os|child_process|crypto)['"'"']' packages/ --include='*.ts' | grep -v '\.test\.ts:' | grep -v '^\s*//'
 ```
 
 **实际跑**，不要相信自报数字。基线（2026-10-02 末轮）：495 / 0 · 0 · 30 / 0 · 66 / 0 · 0 / 0。

@@ -58,8 +58,9 @@ CU6 是「ets loader 是否接受 `.ts` specifier」——本仓所有 import �
 
 ```bash
 hvigorw assembleHap --mode module -p product=default
-hdc install entry/build/default/outputs/default/entry-default-signed-signed.hap
-hdc shell am start -n com.example.ohos_tailscale/.EntryAbility
+# bundleName 来自 app/AppScope/app.json5:3（"com.ohostailscale.app"）；EntryAbility 是 entry 模块的默认入口。
+hdc install entry/build/default/outputs/default/entry-default-signed.hap
+hdc shell am start -n com.ohostailscale.app/.EntryAbility
 # 真机上点 VPN 权限授权 → 注册到隔离 headscale → 验证 peer 互连
 ```
 

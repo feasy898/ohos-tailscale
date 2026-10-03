@@ -26,10 +26,19 @@ function walk(dir, ext, out) {
 const scanExt = process.env.SCAN_EXT || '.ts';
 const scanRootEnv = process.env.SCAN_ROOT || path.join(repo, 'packages');
 // 二次校验：scanRoot 必须落在 repoReal 下；否则拒绝启动。
+// 例外：`ARKTS_SCAN_ALLOW_EXTERNAL=1` 由 arkts-mirror.sh 显式声明，因为该脚本
+// 在 $HOME/arkts-scan/ 下做 .ts → .ets 镜像后扫描（属于 A-2 复建路径的离线工作流）；
+// 没有该环境变量时 SCAN_ROOT 逃逸出仓库直接退出。
+const allowExternal = process.env.ARKTS_SCAN_ALLOW_EXTERNAL === '1';
 const scanRootReal = fs.realpathSync(scanRootEnv);
 if (!(scanRootReal === repoReal || scanRootReal.startsWith(repoReal + path.sep))) {
-  console.error('SCAN_ROOT escapes repo root: ' + scanRootEnv + ' -> ' + scanRootReal);
-  process.exit(2);
+  if (!allowExternal) {
+    console.error('SCAN_ROOT escapes repo root: ' + scanRootEnv + ' -> ' + scanRootReal);
+    console.error('提示：本仓库内扫描使用默认值即可；若通过 arkts-mirror.sh 做 .ets 镜像后离线扫描，');
+    console.error('     请设 ARKTS_SCAN_ALLOW_EXTERNAL=1 显式声明（见 docs/arkts-linter-rebuild.md）。');
+    process.exit(2);
+  }
+  console.warn('SCAN_ROOT escapes repo root but ARKTS_SCAN_ALLOW_EXTERNAL=1：' + scanRootReal);
 }
 const files = walk(scanRootReal, scanExt, []);
 console.log('scanning ' + files.length + ' ' + scanExt + ' files under ' + scanRootReal);

@@ -64,13 +64,15 @@ jobs:
           if [ -n "$P4" ]; then echo "P4 命中：$P4"; exit 1; fi
 
           echo "--- P4/D4: 非测试源码 node: 导入 ---"
+          # 过滤格式：grep -n 输出形如 `path/to/file.ts:line:content`——行末是行号而非文件名。
+          # 路径段以 `\:` 分隔，要排除测试文件须匹配路径里的 `.test.ts:` 而不是行末的 `$`。
           NOD=$(grep -rEn "from ['\"]node:" packages/ --include='*.ts' \
-                | grep -v '\.test\.ts$' || true)
+                | grep -v '\.test\.ts:' || true)
           if [ -n "$NOD" ]; then echo "node: 导入命中：$NOD"; exit 1; fi
 
           echo "--- D4: 网络/builtin 特征（仅 src） ---"
           NET=$(grep -rEn 'fetch\(|XMLHttpRequest|WebSocket|from ['\"](net|dgram|http|https|tls|dns|fs|path|os|child_process|crypto)['\"]' \
-                packages/ --include='*.ts' | grep -v '\.test\.ts$' \
+                packages/ --include='*.ts' | grep -v '\.test\.ts:' \
                 | grep -v '^\s*//' || true)
           if [ -n "$NET" ]; then echo "D4 命中：$NET"; exit 1; fi
           echo "D4/P4 全 0 命中 ✓"
