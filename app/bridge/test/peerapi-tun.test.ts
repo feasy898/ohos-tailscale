@@ -239,6 +239,22 @@ test('ExitDNS：授权链放行/拒绝 + 注入应答；POST 501；无能力 503
   assert.equal(missing.status, 400, '缺 q → 400');
 });
 
+test('ExitDNS：name 跨包污点边界（mock-peerapi → control ResolverCore）', () => {
+  // Mimosa SQL 注入误报之实锤：路径不含 SQL 拼接，仅函数调用；这里以负例锚定校验。
+  const server: MockPeerApiServer = makePeerServer({
+    selfAddresses: ['100.64.0.9/32', 'fd7a:115c:a1e0::9/128'],
+    peerPackets: [],
+    listeners: [{ ip: '100.64.0.9', port: 40001 }],
+    answerDns: null,
+    offersExitNodeOrAppConnector: true,
+    filterAcceptsTcp53: false,
+  });
+  for (const bad of ['..', 'a..b', '.', '', 'a'.repeat(254), 'a b', 'a/b', 'a\\b', 'a\x00b']) {
+    const r = server.handle(peerRequest({ path: '/dns-query', params: { q: bad }, isSelfQuery: true }));
+    assert.equal(r.status, 400, '畸形/越界 q=' + JSON.stringify(bad) + ' → 400（mock-peerapi 校验兜底，不透传到 ResolverCore）');
+  }
+});
+
 // ---- TUN 数据面 ----
 
 test('FakeTunDevice：NewFake 语义（写恒接受、读恒无包、MTU 1500、名 FakeTUN、isFake）', () => {

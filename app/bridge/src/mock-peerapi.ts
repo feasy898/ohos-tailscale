@@ -168,6 +168,23 @@ export class MockPeerApiServer {
     if (name === undefined || name === '') {
       return this.text(400, 'missing q');
     }
+    // 输入校验（mock-peerapi → control ResolverCore 跨包污点边界）：
+    //  1) 长度上限 253B（单 FQDN 最长 253 字节，per RFC 1035 §2.3.4）；超长直接拒绝。
+    //  2) 字符集收紧到 RFC 1035 LDH + .：仅 [A-Za-z0-9._-]；不含空字节/控制符；
+    //     mock 不解析 IDN/punycode/转义，超集字符一律拒绝而非透传给 answerDns。
+    //  3) 拒绝 `..` 段（FQDN 禁止 ..，路径前缀敏感）；允许末尾 `.`（absolute FQDN，RFC 1035 §3.1）；
+    //     不允许以 `.` 开头（label 必须以字母或数字开头/结尾，RFC 1123 §2.1）。
+    // Mimosa 误判为 SQL 注入——本路径无 SQL 字符串拼接，仅是函数调用；
+    // 但跨文件污点（用户输入 → ResolverCore）是真的，故显式校验兜底。
+    if (
+      name.length === 0 ||
+      name.length > 253 ||
+      !/^[A-Za-z0-9._-]+$/.test(name) ||
+      name.includes('..') ||
+      name.startsWith('.')
+    ) {
+      return this.text(400, 'malformed q');
+    }
     let qtype: number = DnsType.A;
     if (fields['t'] === 'aaaa') {
       qtype = DnsType.AAAA;
