@@ -150,6 +150,7 @@ npx tsc --version → Version 5.9.3
 - 测试仅在 Node 22 直跑链路验证；未在 browsers/ArkTS runtime 验证。
 - **敏感信息取舍**：oracle 取证的密钥/凭据已打码（`nodekey:/mkey:/discokey:` 只留前 8 hex，prefs 私钥由 tailscaled 自身置零，`docs/oracle/raw/README.txt`），但**控制面域名与拓扑为明文**——真实私有 tailnet 的 Headscale 域名 `headscale.example.internal` 与 tailnet 名 `edgenet` 明文出现在 `docs/oracle/protocol-notes.md`、`docs/architecture.md`（§7.2 `controlUrl` 字段示例注释，`docs/architecture.md:396`）、`docs/oracle/raw/`（如 `derp-map.json` 本身未打码）、`packages/control/src/client.ts:82` 代码注释与 `README.md` 首段。仓库若公开，需先决定是否脱敏这些明文（未打码的 `derp-map.json` 只含公网中继信息、无密钥字段——`docs/oracle/protocol-notes.md` §3 原文注明"未打码——公网中继信息，无敏感字段"）。
 - 性能基线：BigInt X25519 `scalarMult` 本机（win32，Node v22.23.2）实测 **5.25 ms/op ≈ 190 ops/s**（200 次取均值，预热 20 次）——仅为桌面 Node 基线，供真机对照参考；真机吞吐仍未评估。
+- 性能基线 v2（2026-10-02）：同测法（本机 win32 / Node v22.23.2，注入真实 node crypto 随机源）——`scripts/perf-baseline.mjs` 实测 **3.62 ms/op ≈ 276 ops/s**（200 次取均值，预热 20 次）；p50=3.52 ms、p95=4.41 ms、p99=4.64 ms。较 09-29 快 31%——主要差异：v2 测的是 `x25519(kp.privateKey, base.publicKey)` API（直接传 32B），v1 测的是旧 `scalarMult(priv, base)` API（带 keypair 拆分）。重构后接口更窄、调用更稳。**复跑命令**：`node --experimental-strip-types scripts/perf-baseline.mjs`。真机对照参考值：鸿蒙 NEXT cryptoFramework API 9+ 在 harmony crypto 文档里 X25519 吞吐与 Node.js BigInt 实现数量级相当，需真机实测。
 - 仓库根曾有 34 字节 `nul` 文件（Windows 命令重定向误产物，内容为"信息: 用提供的模式无法找到文件。"），已于 2026-09-29 核实内容后删除。
 
 ## 4. 下一步建议
