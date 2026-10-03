@@ -45,6 +45,15 @@ jobs:
       - name: G0-1 npm test
         run: npm test
 
+      - name: G0-6 upload_server.py 路径穿越防御实证
+        # upload_server.py 是真服务端（Python），CI 装 Python 起 driver，调用 H.do_POST，
+        # 对 7 条攻击向量断言：必拒（403/400），合法请求落 DST 仅 x.bmp。
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 跑 upload_server 实证
+        run: npm run --silent interop:test:upload
+
       - name: G0-2 typecheck
         run: npm run typecheck
 

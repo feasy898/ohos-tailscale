@@ -16,12 +16,29 @@ class H(BaseHTTPRequestHandler):
     _NAME_RE = re.compile(r"^[A-Za-z0-9._-]{1,255}$")
 
     def do_POST(self):
-        parts = self.path.strip("/").split("/")
+        # 关键次序：必须先对整段 path 做 unquote，再 split+strip。否则：
+        #   path = "/upload/<token>/..%2fetc%2fpasswd"
+        #   parts = path.strip("/").split("/")          → parts[2] == "..%2fetc%2fpasswd"（字面，未解码）
+        #   basename(unquote(parts[2]))                → "passwd"（绕过 `..` 拒绝，但仍落 DST 覆盖任意同名单文件）
+        # 正确：unquote → split → 拒 parts[2] 含 `/` 或 `\` 残留 → basename → 白名单 → realpath。
+        raw_path = urllib.parse.unquote(self.path)
+        parts = raw_path.strip("/").split("/")
         if len(parts) != 3 or parts[0] != "upload" or parts[1] != TOKEN:
             self.send_error(403)
             return
-        name = os.path.basename(urllib.parse.unquote(parts[2]))
-        if not name or not self._NAME_RE.match(name) or name in (".", ".."):
+        # 拒任何解码后仍含路径分隔符的"看似文件名其实带路径"的值：
+        # 这覆盖了 `..%2fpasswd`、`foo/bar`、`foo\\bar`、空串、纯 `.`/`..`。
+        if (
+            not parts[2]
+            or parts[2] != parts[2].strip()
+            or "/" in parts[2]
+            or "\\" in parts[2]
+            or "\x00" in parts[2]
+        ):
+            self.send_error(400)
+            return
+        name = parts[2]
+        if not self._NAME_RE.match(name) or name in (".", ".."):
             self.send_error(400)
             return
         # 防御性二次校验：拼接后的最终路径仍必须在 DST 下（防 basename 之外的越界，
