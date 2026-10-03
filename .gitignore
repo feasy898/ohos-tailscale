@@ -46,3 +46,8 @@ Thumbs.db
 # zcode 会话产物
 .zcode/
 .wt/
+
+# Python 字节码（实证脚本驱动 upload_server.py 时生成）
+__pycache__/
+*.pyc
+*.pyo
