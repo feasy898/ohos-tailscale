@@ -60,6 +60,9 @@ jobs:
       - name: G0-3 test:bridge
         run: npm run test:bridge
 
+      - name: G0-3b typecheck:bridge（壳类型检查）
+        run: npm run typecheck:bridge
+
       - name: G0-4 validate:shell
         run: npm run validate:shell
 

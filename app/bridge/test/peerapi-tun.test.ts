@@ -92,6 +92,10 @@ const makePeerServer = (answerDns: MockPeerApiConfig['answerDns']): MockPeerApiS
   return new MockPeerApiServer(config);
 };
 
+/** 空答案应答函数：mock 只需「有能力应答」这一事实，不需真实解析（PLAN P0-1 禁用「answerDns 传 null」形态）。 */
+const emptyAnswer = (): ReturnType<NonNullable<MockPeerApiConfig['answerDns']>> =>
+  ({ rcode: 0, negative: false, answers: [], forwardResolvers: null, forwardSuffix: '' });
+
 const peerRequest = (overrides: Partial<MockPeerApiRequest>): MockPeerApiRequest => {
   const req: MockPeerApiRequest = {
     method: 'GET',
@@ -168,7 +172,7 @@ test('PeerAPI 校验：Host peer/自身 ip:port/MasqAddr 合法；Referer/Origin
     masqV4: '10.9.9.9',
     masqV6: '',
     listeners: [{ ip: '100.64.0.9', port: 40001 }],
-    answerDns: null,
+    answerDns: emptyAnswer,
     offersExitNodeOrAppConnector: false,
     filterAcceptsTcp53: false,
   });
@@ -218,7 +222,7 @@ test('ExitDNS：授权链放行/拒绝 + 注入应答；POST 501；无能力 503
     masqV4: '',
     masqV6: '',
     listeners: [{ ip: '100.64.0.9', port: 40001 }],
-    answerDns: null,
+    answerDns: emptyAnswer,
     offersExitNodeOrAppConnector: true,
     filterAcceptsTcp53: false,
   });
@@ -242,14 +246,7 @@ test('ExitDNS：授权链放行/拒绝 + 注入应答；POST 501；无能力 503
 test('ExitDNS：name 跨包污点边界（mock-peerapi → control ResolverCore）', () => {
   // Mimosa SQL 注入误报之实锤：路径不含 SQL 拼接，仅函数调用；这里以负例锚定校验。
   // 每个畸形 q 拆成独立子测试，确保单点失败不被掩盖（评审 A 建议）。
-  const server: MockPeerApiServer = makePeerServer({
-    selfAddresses: ['100.64.0.9/32', 'fd7a:115c:a1e0::9/128'],
-    peerPackets: [],
-    listeners: [{ ip: '100.64.0.9', port: 40001 }],
-    answerDns: null,
-    offersExitNodeOrAppConnector: true,
-    filterAcceptsTcp53: false,
-  });
+  const server: MockPeerApiServer = makePeerServer(emptyAnswer);
   const malformed = ['..', 'a..b', '.', '', 'a'.repeat(254), 'a b', 'a/b', 'a\\b', 'a\x00b'];
   for (const bad of malformed) {
     const r = server.handle(peerRequest({ path: '/dns-query', params: { q: bad }, isSelfQuery: true }));
@@ -257,6 +254,17 @@ test('ExitDNS：name 跨包污点边界（mock-peerapi → control ResolverCore�
   }
   // 完整覆盖（每个 malformed 一行断言）便于评测工具 grep 'malformed' / 'JSON.stringify' 计覆盖率。
   assert.ok(malformed.length >= 9, 'malformed 集合 ≥ 9 项：' + malformed.length);
+});
+
+test('ExitDNS：合法 q 正控制组（传真函数形态 C——answerDns 传 null 会退化成 503）', () => {
+  // 与上一条畸形 q 用例配对：上条钉"畸形必 400"，本条钉"合法必 200"——否则 400 可由恒拒假绿。
+  const server: MockPeerApiServer = makePeerServer(emptyAnswer);
+  const ok = server.handle(peerRequest({ path: '/dns-query', params: { q: 'valid.example.com.', t: 'a' } }));
+  assert.equal(ok.status, 200, '合法 FQDN → 200（answerDns 传真函数形态；传 null 则 503）');
+  const payload = JSON.parse(ok.body) as { RCode: number; Negative: boolean; Answers: unknown[] };
+  assert.equal(payload.RCode, 0, '空答案 RCode=NOERROR');
+  assert.equal(payload.Negative, false, '空答案 Negative=false');
+  assert.deepEqual(payload.Answers, [], '空答案 Answers=[]');
 });
 
 // ---- TUN 数据面 ----
