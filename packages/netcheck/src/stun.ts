@@ -173,7 +173,8 @@ interface StunAttrView {
 }
 
 /** 属性遍历（上游 foreachAttr：len 按 4B 对齐推进；不足 4B/越界 → MALFORMED）。 */
-function* foreachAttr(attrs: Uint8Array): Generator<StunAttrView> {
+function foreachAttr(attrs: Uint8Array): StunAttrView[] {
+  const out: StunAttrView[] = [];
   let off: number = 0;
   while (off < attrs.length) {
     if (attrs.length - off < 4) {
@@ -187,9 +188,10 @@ function* foreachAttr(attrs: Uint8Array): Generator<StunAttrView> {
       throw new StunError('MALFORMED', 'stun: attribute overruns message') as Error;
     }
     const view: StunAttrView = { type: type, value: attrs.slice(off, off + len) };
-    yield view;
+    out.push(view);
     off += padded;
   }
+  return out;
 }
 
 /** 解析 Binding Request（服务端视角；上游 ParseBindingRequest 校验链）。 */
@@ -212,10 +214,7 @@ export function stunParseBindingRequest(b: Uint8Array): Uint8Array {
   let softwareOk: boolean = false;
   let lastAttr: number = -1;
   let gotFp: number | null = null;
-  const walker: Generator<StunAttrView> = foreachAttr(attrs);
-  let step: IteratorResult<StunAttrView> = walker.next();
-  while (!step.done) {
-    const attr: StunAttrView = step.value;
+  for (const attr of foreachAttr(attrs)) {
     lastAttr = attr.type;
     if (attr.type === ATTR_SOFTWARE) {
       const want: Uint8Array = utf8Encode(STUN_SOFTWARE);
@@ -233,7 +232,6 @@ export function stunParseBindingRequest(b: Uint8Array): Uint8Array {
     if (attr.type === ATTR_FINGERPRINT && attr.value.length === 4) {
       gotFp = readU32be(attr.value, 0);
     }
-    step = walker.next();
   }
   if (!softwareOk) {
     throw new StunError('WRONG_SOFTWARE', 'stun: request came from non-tailscale software') as Error;
@@ -379,16 +377,12 @@ export function stunParseResponse(b: Uint8Array): StunParsedResponse {
   }
   let addr: { ip: Uint8Array; port: number } | null = null;
   let fallback: { ip: Uint8Array; port: number } | null = null;
-  const walker: Generator<StunAttrView> = foreachAttr(attrs);
-  let step: IteratorResult<StunAttrView> = walker.next();
-  while (!step.done) {
-    const attr: StunAttrView = step.value;
+  for (const attr of foreachAttr(attrs)) {
     if (attr.type === ATTR_XOR_MAPPED_ADDRESS || attr.type === ATTR_XOR_MAPPED_ADDRESS_ALT) {
       addr = xorMapped(txid, attr.value);
     } else if (attr.type === ATTR_MAPPED_ADDRESS) {
       fallback = mappedAddress(attr.value);
     }
-    step = walker.next();
   }
   const chosen = addr !== null ? addr : fallback;
   if (chosen === null) {
