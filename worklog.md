@@ -36,3 +36,22 @@
   - 终门五门机检（实跑）：npm test **495 pass / 0 fail**（基线 280，净增 +215）；typecheck exit=0；test:bridge **29 pass / 0 fail**（基线 13）；validate:shell **66 passed / 0 failed**（基线 54）；D4/P4 grep（packages/ 非测试源码 node:/Date.now/Math.random/网络特征）零命中。
   - 入库：commit 1c9b85b（实现+脱敏批）、本研究纪事。
   - 遗留/移交：Mimosa 安全扫描在 `app/bridge/src/mock-peerapi.ts:175` 标出 [high] 疑似 SQL 注入（answerDns）与跨文件污点（mock-peerapi.ts:175 [medium]）；`interop/upload_server.py:26` [high] 路径穿越、`interop/arkts-check.js:24` [high] 路径穿越（上线遗留）。mock-peerapi.ts 在本批次为纯 TS mock 接线，按 mock 语义理解不直接接 SQL，但「跨文件污点」需要安全复审；最终报告必须如实呈现给主代理与用户。
+
+## 2026-10-03 23:5x · planner-glm（调度侧锚点翻转，TESTS §0.7/§2.3 授权；14 条全部逐条亲验确因实现落地后翻转）
+
+- T-REG-4：红→绿（P0-4，G0-5 内联块替换后 3 处 `|| true` 消失，planner grep 亲验 0 命中）
+- T-P0-1-a：红→绿（P0-1，planner 亲跑 npm run typecheck:bridge exit 0）
+- T-P0-1-d：红→绿（P0-1，peerapi-tun.test.ts 禁则四模式 planner grep 0 命中）
+- T-P0-1-e：红→绿（P0-1，test( 计数=10 planner 亲数）
+- T-P0-1-f：红→绿（P0-1，g0-gates.yml 含 typecheck:bridge step planner grep 2 命中）
+- T-P0-2-a：红→绿（P0-2，packages/*/src generator 残留 planner grep 0 命中）
+- T-P0-4-a：红→绿（P0-4，package.json gate:d4 在）
+- T-P0-4-b：红→绿（P0-4，scripts/gate-d4-p4.mjs 在盘）
+- T-P0-4-c：红→绿（P0-4，planner 亲跑 npm run gate:d4 exit 0 且 0 命中）
+- T-P0-4-d：红→绿（P0-4，yml G0-5 段改调 gate-d4-p4.mjs）
+- T-P0-4-e：红→绿（P0-4，yml 裸 grep -rE/awk planner grep 0 命中）
+- T-P0-4-f：红→绿（P0-4，run 块过 bash -n）
+- T-P0-5-b：红→绿（P0-5 之1，interop/ dummy preauthkey 硬编码清零，planner grep 0 命中）
+- T-P0-5-c：红→绿（P0-5 之3，h2c.node.ts CLI 入口 process.argv 3 处）
+
+翻转后基线：node scripts/test-plan.mjs → 16 文件｜GREEN_OK 39｜ANCHOR_RED_OK 40｜UNEXPECTED_RED 0｜STALE 0｜UNKNOWN 0，exit 0（TDD 健康态；总数 79 不变，expected.json 为唯一真值源）。
