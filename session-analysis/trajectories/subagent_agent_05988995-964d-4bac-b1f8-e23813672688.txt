@@ -1,0 +1,207 @@
+# SESSION sess_subagent_agent_05988995-964d-4bac-b1f8-e23813672688
+title: 任务：为 Factory Board（srv-1 上的 /opt/factory-board/app.py，单文件...
+dir: D:\workspace\全面迁移\tools\factory-board
+time: 10-02 21:59 -> 10-02 22:24 | parts: 197
+================================================================================
+
+[TEXT @10-02 21:59] 任务：为 Factory Board（srv-1 上的 /opt/factory-board/app.py，单文件 Python3.11 标准库 + SQLite）实现并部署 vault 短周期凭证端点，完成到真实网关的端到端验证。你是 coordinator 的工程子代理，可以 ssh 内网（这是你被选中的原因）。 背景与铁律： - 板：https://board.hkmingdajiaoyu.com（公网视图）；srv-1 上 ssh -o BatchMode=yes -o ControlPath=None -i C:/Users/Administrator/.ssh/wsl_key root@159.75.21.149（用 ~/.ssh/wsl_key），服务 factory-board（systemd，127.0.0.1:8300，caddy 反代）。 - broker 已在 srv-1:8310 运行（vaultbroker 用户、systemd 单元 vault-broker），共享密钥 VAULT_HMAC_SECRET 在 /etc/vault-broker/broker.env（600）。**任何密钥值不得打印到输出/文件/对话**；broker.env 只许被进程读取。 - 已有 /api/vault/proxy 中继端点（app.py 内，转发到 127.0.0.1:8310，已实测通）。共用签发原语在 srv-1 /opt/vault-broker/vault_token.py（mint/verify，HMAC token tk_...）。 要实现的 wire 契约（来自联调脚本，必须逐字段一致）： 1. POST /api/vault/request {agent, scope, purpose, agent_pub}（agent_pub=X25519 公钥 b64url）→ 200 {request_id, claim_nonce}；claim_nonce 只返回一次；请求记录持久化（sqlite 新表：request_id/agent/pub/nonce哈希/scope/purpose/created_at/used）。 2. POST /api/vault/claim {agent, request_id, claim_nonce, ttl_seconds}（默认 3600，上限 3600）→ 200 {sealed:{...}, token_fp, ttl_seconds}；token 用 vault_token.mint(agent, scope, ttl, VAULT_HMAC_SECRET) 生成，**绝不能明文出现在响应里**（联调断言：响应不得含 "token" 字段名与 "tk_" 子串——注意 token_fp 是指纹可以用）；sealed 为 X25519 ECDH(临时密钥,agent_pub) + AES-256-GCM 封装 token 的密文盒，字段名自定但要在客户端实现里一致；同 request 二次 claim → 403；nonce 错 → 403；token 生成后立即丢弃明文（不落库不打日志）。 3. GET /api/vault/audit → {ok, issued:[{request_id,agent,scope,ttl_seconds,token_fp,claimed_at}...]}（无任何密钥/token 明文）。 4. 同时写客户端模块 board_vault.py…[截断]
+
+[TEXT @10-02 22:02] src-4 参考实现到达，密封格式须对齐 重要更新：mavis 已把参考实现 board_vault.py 交付到板上 docs/work-10-src-4（分片格式与你已知的 src-1/2/3 相同：`## \`文件名\`` 段首 + SHA-256 行 + fenced code）。 变更要求：客户端辅助函数（new_agent_keypair/open_sealed/B64E/FP）与 sealed box 的字段格式**必须与这份参考实现完全一致**——因为外部联调方 verify_live.py 会 import 它们自己的 board_vault 副本去解我们板发出的密文，任何字段名/封装差异都会导致联调失败。所以： 1. 先按既定方法提取 work-10-src-4（哈希复核），读通它的 seal/open_sealed 格式； 2. 板端 request/claim/audit 端点的 sealed 输出直接采用该格式（服务端逻辑可自写，但封装格式逐字段对齐；如参考实现里已含板端 mixin，优先移植它的实现，你的自研版降级为对照测试）； 3. B64E/FP 若与 vault_token.py 重复定义，以参考实现为准。 4. 其余任务要求不变（部署、E2E 到真实网关 200、零密钥输出）。 提取方法提示（与 src-1/2/3 同一解析器逻辑，board_client import 路径不变）：GET /api/docs/work-10-src-4 后按 `## \`` 段分割提取。
+
+[TEXT @10-02 22:05] The TodoWrite tool hasn't been used recently. If you're working on tasks that would benefit from tracking progress, consider using the TodoWrite tool to track progress. Also consider cleaning up the todo list if has become stale and no longer matches what you are working on. Only use it if it's relevant to the current work. This is just a gentle reminder - ignore if not applicable. Here are the existing contents of your todo list: [1. [in_progress] 读取本地权威副本（app.py / board_client.py） 2. [pending] ssh srv-1：读 vault_token.py、线上 app.py、factory-board.service、确认 broker 3. [pending] 本地实现 board_vault.py（X25519+AESGCM 封装/解封） 4. [pending] 本地改 app.py：request/claim/audit 三端点 + sqlite 新表 5. [pending] 更新 factory-board.service（venv + EnvironmentFile） 6. [pending] 部署：scp + python 驱动（venv 装 cryptography、重启服务） 7. [pending] 验证：冒烟(request→claim→解封→二次claim 403) + E2E proxy 200/usage + audit 8. [pending] 上板汇报 + 返回 {deployed, e2e, files, notes}]
+
+[TEXT @10-02 22:13] The TodoWrite tool hasn't been used recently. If you're working on tasks that would benefit from tracking progress, consider using the TodoWrite tool to track progress. Also consider cleaning up the todo list if has become stale and no longer matches what you are working on. Only use it if it's relevant to the current work. This is just a gentle reminder - ignore if not applicable. Here are the existing contents of your todo list: [1. [completed] 读取本地权威副本 + srv-1 现状 + vault_token 原语 2. [completed] 提取并哈希复核参考实现 work-10-src-4（e330fdcf…，10988B） 3. [in_progress] 写 board_vault.py 镜像（逐字节对齐参考） 4. [pending] 改 app.py：request/claim/audit/revoke + 新表 + leak_scan 闸 5. [pending] 更新 factory-board.service（venv + EnvironmentFile） 6. [pending] 写部署驱动 + scp + 远程执行（venv 装 cryptography、重启） 7. [pending] E2E：冒烟(403 二次/错nonce) + proxy 真 200/usage + audit，零密钥输出 8. [pending] 上板汇报 + 返回 {deployed, e2e, files, notes}]
+
+[TEXT @10-02 22:18] The TodoWrite tool hasn't been used recently. If you're working on tasks that would benefit from tracking progress, consider using the TodoWrite tool to track progress. Also consider cleaning up the todo list if has become stale and no longer matches what you are working on. Only use it if it's relevant to the current work. This is just a gentle reminder - ignore if not applicable. Here are the existing contents of your todo list: [1. [completed] 读取本地权威副本 + srv-1 现状 + vault_token 原语 2. [completed] 提取并哈希复核参考实现 work-10-src-4（e330fdcf…，10988B） 3. [completed] 写 board_vault.py 镜像（逐字节对齐参考） 4. [in_progress] 改 app.py：request/claim/audit/revoke + 新表 + leak_scan 闸 5. [pending] 更新 factory-board.service（venv + EnvironmentFile） 6. [pending] 写部署驱动 + scp + 远程执行（venv 装 cryptography、重启） 7. [pending] E2E：冒烟(403 二次/错nonce) + proxy 真 200/usage + audit，零密钥输出 8. [pending] 上板汇报 + 返回 {deployed, e2e, files, notes}]
+
+[TOOL Bash completed] in: {"command": "ls -la \"D:/workspace/全面迁移/tools/factory-board/\"", "description": "List local factory-board workspace files"}
+  out: total 106 drwxr-xr-x 1 Administrator 197121 0 Oct 2 21:21 . drwxr-xr-x 1 Administrator 197121 0 Oct 2 21:52 .. drwxr-xr-x 1 Administrator 197121 0 Oct 2 19:24 .mimosa drwxr-xr-x 1 Administrator 197121 0 Oct 2 20:44 __pycache__ -rw-r--r-- 1 Administrator 197121 37376 Oct 2 21:21 a…[截断]
+
+[TOOL Read completed] in: {"file_path": "D:\\workspace\\全面迁移\\tools\\factory-board\\app.py"}
+  out: 1 # -*- coding: utf-8 -*- 2 """ 3 Factory Board — 多环境 agent 协作看板（讨论区） 4 单文件、零依赖（Python 3.11 标准库 + SQLite WAL）。 5 运行：python3 app.py → 监听 0.0.0.0:8300 6 对外：经 caddy 以 https://board.hkmingdajiaoyu.com 发布（TLS 由 caddy 负责）。 7 """ 8 import json 9 import os 10 import sqlite3 11 import tim…[截断]
+
+[TOOL Bash completed] in: {"command": "cd \"D:/workspace/全面迁移/tools/factory-board\" && python extract_src4.py work-10-src-4", "description": "Fetch and hash-verify reference board_vault.py shards from board docs"}
+  out: Exit code 1 {"doc": {"slug": "work-10-src-4", "title": "T2.5b 代码交付分片 4/4（board_vault.py 板端实现 + cryptography依赖退化方案）", "updated_by": "mavis-m3flash", "updated_at": 1790949492}, "bytes": 11867} {"ok": false, "error": "no shards parsed"}
+
+[TOOL Read completed] in: {"file_path": "D:\\workspace\\全面迁移\\tools\\factory-board\\src4\\board_vault.py"}
+  out: 1 # -*- coding: utf-8 -*- 2 """ 3 board 端 key 领取端点（可移植实现） 4 ------------------------------------------------------------------ 5 设计要点（针对真实约束）： 6 * 真实网关 = istio-envoy(Higress) + Caddy，consumer key 是**静态无 TTL** 的 7 （实测 401: `www-authenticate: Key realm=MSE Gateway`, content-length:…[截断]
+
+[TOOL Bash completed] in: {"command": "cd \"D:/workspace/全面迁移/tools/factory-board\" && python -c \"\n# 用参考字节直接写镜像文件，避免手抄误差（此为部署原件的精确拷贝）\nimport shutil, hashlib\nshutil.copyfile('src4/board_vault.py', 'board_vault.py')\nh = hashlib.sha256(open('bo…[截断]
+  out: mirror board_vault.py sha256: e330fdcf8e4e39380102f0583e0b69de3efe8f3bdd9dceeb1afdfc518ff85189 match published: True
+
+[TOOL Edit completed] in: {"file_path": "D:\\workspace\\全面迁移\\tools\\factory-board\\app.py", "new_string": " CREATE INDEX IF NOT EXISTS idx_msg_chan ON messages(channel, id);\n -- T2.5b vault：请求记录（nonce 只存哈希，明文永不落库）与审计事件（只有指纹）\n CREATE TABLE IF N…[截断]
+  out: The file D:\workspace\全面迁移\tools\factory-board\app.py has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Edit completed] in: {"file_path": "D:\\workspace\\全面迁移\\tools\\factory-board\\app.py", "new_string": " if not (slug and title and content):\n raise ValueError(\"slug/title/content required\")\n hits = leak_scan({\"title\": title, \"content\…[截断]
+  out: The file D:\workspace\全面迁移\tools\factory-board\app.py has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TEXT @10-02 22:11] 现在我来添加 `vault` store 子类和单例，将其放置在 `Board` 类之后（在 `BOARD_HTML` 部分之前）。
+
+[TOOL Edit error] in: {"file_path": "D:\\workspace\\全面迁移\\tools\\factory-board\\app.py", "new_string": " elif u.path == \"/api/vault/audit\":\n self._vault(u.path, {})\n else:\n self._json({\"ok\": False, \"error\": \"not found\"}, 404)", "ol…[截断]
+  out: 
+
+[TOOL Edit completed] in: {"file_path": "D:\\workspace\\全面迁移\\tools\\factory-board\\app.py", "new_string": " data = json.loads(raw.decode(\"utf-8\", \"replace\") or \"{}\")\n if u.path.startswith(\"/api/vault/\"):\n try:\n self._vault(u.path, dat…[截断]
+  out: The file D:\workspace\全面迁移\tools\factory-board\app.py has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL TodoWrite completed] in: {"todos": [{"content": "读取本地权威副本 + srv-1 现状 + vault_token 原语", "priority": "high", "status": "completed"}, {"content": "提取并哈希复核参考实现 work-10-src-4（e330fdcf…，10988B）", "priority": "high", "status": "completed"}, {"content"…[截断]
+  out: {"oldTodos":[{"content":"读取本地权威副本 + srv-1 现状 + vault_token 原语","status":"completed","priority":"high"},{"content":"提取并哈希复核参考实现 work-10-src-4（e330fdcf…，10988B）","status":"completed","priority":"high"},{"content":"写 board_vault.py 镜像（逐字节对齐参考）","status":"in_progress","priority":"hig…[截断]
+
+[TEXT @10-02 22:13] app.py 改完，本地做语法与导入冒烟（模拟缺失依赖路径 + 正常路径）。
+
+[TOOL Write completed] in: {"content": "# -*- coding: utf-8 -*-\n\"\"\"srv-1 部署驱动（在 /tmp/fbdeploy 下以 root 执行：python3 deploy_fb.py）。\n\n步骤：备份线上 app.py → 放置 board_vault.py（哈希必须与 mavis 发布件一致）→ 放置 app.py\n→ 建 venv 并从阿里公网镜像装 cryptography → 生成并安装 system…[截断]
+  out: File created successfully at: D:\workspace\全面迁移\tools\factory-board\deploy_fb.py (file state is current in your context — no need to Read it back)
+
+[TOOL Bash completed] in: {"command": "ssh -o BatchMode=yes -o ControlPath=None -i C:/Users/Administrator/.ssh/wsl_key root@159.75.21.149 \"python3 /tmp/fbdeploy/deploy_fb.py\" 2>&1 | grep -v \"post-quantum\\|store now\\|upgraded\"", "description…[截断]
+  out: {"steps": [{"step": "backup", "ok": true, "detail": "/opt/factory-board/app.py.bak.20261002-221527"}, {"step": "board_vault_sha", "ok": true, "detail": "e330fdcf8e4e3938..."}, {"step": "app_copy", "ok": true, "detail": "47974 bytes"}, {"step": "venv_create", "ok": true, "detail":…[截断]
+
+[TOOL Write completed] in: {"content": "# -*- coding: utf-8 -*-\n\"\"\"srv-1 快速更新驱动：仅替换 app.py → 重启 → 健康检查 + proxy 存活探测。\"\"\"\nimport json\nimport shutil\nimport subprocess\nimport sys\nimport time\nimport urllib.request\n\nAPP = \"/opt/factory-b…[截断]
+  out: File created successfully at: D:\workspace\全面迁移\tools\factory-board\update_app.py (file state is current in your context — no need to Read it back)
+
+[TOOL TodoWrite completed] in: {"todos": [{"content": "读取本地权威副本 + srv-1 现状 + vault_token 原语", "priority": "high", "status": "completed"}, {"content": "提取并哈希复核参考实现 work-10-src-4（e330fdcf…，10988B）", "priority": "high", "status": "completed"}, {"content"…[截断]
+  out: {"oldTodos":[{"content":"读取本地权威副本 + srv-1 现状 + vault_token 原语","status":"completed","priority":"high"},{"content":"提取并哈希复核参考实现 work-10-src-4（e330fdcf…，10988B）","status":"completed","priority":"high"},{"content":"写 board_vault.py 镜像（逐字节对齐参考）","status":"completed","priority":"high"…[截断]
+
+[TOOL Bash completed] in: {"command": "cd \"D:/workspace/全面迁移/tools/factory-board\" && python -m py_compile app.py && scp -o BatchMode=yes -o ControlPath=None -i C:/Users/Administrator/.ssh/wsl_key app.py update_app.py root@159.75.21.149:/tmp/fbd…[截断]
+  out: {"steps": [{"step": "backup", "ok": true, "detail": "/opt/factory-board/app.py.bak.20261002-221935"}, {"step": "app_copy", "ok": true, "detail": "48113 bytes"}, {"step": "service_healthy", "ok": true}, {"step": "proxy_alive", "ok": true, "detail": "status=401"}], "ok": true}
+
+[TOOL Bash completed] in: {"command": "cd \"D:/workspace/全面迁移/tools/factory-board\" && python e2e_vault.py", "description": "Re-run full E2E with inference scope through real gateway", "timeout": 120000}
+  out: { "e2e": "request:200 -> claim:200 -> open_sealed:fp_match -> reclaim:403 -> bad_nonce:403 -> proxy:200 -> audit:200", "statuses": { "request": 200, "claim": 200, "reclaim": 403, "bad_nonce": 403, "proxy": 200, "audit": 200 }, "model": "step-3.5-flash", "usage": { "prompt_tokens"…[截断]
+
+[TOOL Bash completed] in: {"command": "cd \"D:/workspace/全面迁移/tools/factory-board\" && python post_progress.py", "description": "Post T2.5b progress report to board general channel"}
+  out: {'ok': True, 'id': 70, 'error': None}
+
+[TOOL TodoWrite completed] in: {"todos": [{"content": "读取本地权威副本 + srv-1 现状 + vault_token 原语", "priority": "high", "status": "completed"}, {"content": "提取并哈希复核参考实现 work-10-src-4（e330fdcf…，10988B）", "priority": "high", "status": "completed"}, {"content"…[截断]
+  out: {"oldTodos":[{"content":"读取本地权威副本 + srv-1 现状 + vault_token 原语","status":"completed","priority":"high"},{"content":"提取并哈希复核参考实现 work-10-src-4（e330fdcf…，10988B）","status":"completed","priority":"high"},{"content":"写 board_vault.py 镜像（逐字节对齐参考）","status":"completed","priority":"high"…[截断]
+
+[TOOL TodoWrite completed] in: {"todos": [{"content": "读取本地权威副本（app.py / board_client.py）", "priority": "high", "status": "in_progress"}, {"content": "ssh srv-1：读 vault_token.py、线上 app.py、factory-board.service、确认 broker", "priority": "high", "status":…[截断]
+  out: {"oldTodos":[],"todos":[{"content":"读取本地权威副本（app.py / board_client.py）","status":"in_progress","priority":"high"},{"content":"ssh srv-1：读 vault_token.py、线上 app.py、factory-board.service、确认 broker","status":"pending","priority":"high"},{"content":"本地实现 board_vault.py（X25519+AESGCM …[截断]
+
+[TOOL Bash completed] in: {"command": "ssh -o BatchMode=yes -o ControlPath=None -i C:/Users/Administrator/.ssh/wsl_key root@159.75.21.149 \"cat /opt/vault-broker/vault_token.py\"", "description": "Read vault_token.py mint/verify primitives from s…[截断]
+  out: ** WARNING: connection is not using a post-quantum key exchange algorithm. ** This session may be vulnerable to "store now, decrypt later" attacks. ** The server may need to be upgraded. See https://openssh.com/pq.html # -*- coding: utf-8 -*- """ 短周期凭证原语（board 与 broker 共用的唯一实现） -…[截断]
+
+[TOOL Read completed] in: {"file_path": "D:\\workspace\\全面迁移\\tools\\factory-board\\board_client.py"}
+  out: 1 # -*- coding: utf-8 -*- 2 """Factory Board 统一 HTTP 客户端（值班脚本共用）。 3 4 SSRF 防线（全量）： 5 1. 协议锁定 https； 6 2. 目标主机锁定常量域名（不接受调用方传 URL）； 7 3. DNS 解析后逐 IP 校验：拒绝私网/环回/链路本地/保留/组播地址； 8 4. IP 锚定：解析结果必须落在 DNSPod 固定解析集内（防 DNS rebinding）； 9 5. 禁用 HTTP 重定向跟随。 10 """ 11 import ipaddress 12 import…[截断]
+
+[TEXT @10-02 22:00] 本地权威副本与 vault_token 原语已读。B64E/FINGERPRINT 签名明确。现在探查 srv-1 侧现状（只读，不碰密钥值）。
+
+[TEXT @10-02 22:02] 收到 coordinator 更新：mavis 的参考实现已上板 `work-10-src-4`，密封格式必须逐字段对齐。先提取并哈希复核这份参考实现，再据此定实现。
+
+[TEXT @10-02 22:03] 分片解析没命中，先看原文实际结构。
+
+[TEXT @10-02 22:03] 分片头格式与预期不同（`## 文件 \`路径\``+反引号哈希）。更新提取器前先看全部结构。
+
+[TOOL Bash completed] in: {"command": "cd \"D:/workspace/全面迁移/tools/factory-board\" && python -c \"\nimport sys, os, re, hashlib; sys.path.insert(0, '.')\nfrom board_client import board_call\nc = board_call('GET', '/api/docs/work-10-src-4')['cont…[截断]
+  out: Exit code 1 Traceback (most recent call last): File "<string>", line 14, in <module> FileNotFoundError: [Errno 2] No such file or directory: 'src4/board_vault.py' raw 10988 e330fdcf8e4e39380102f0583e0b69de3efe8f3bdd9dceeb1afdfc518ff85189 True
+
+[TEXT @10-02 22:05] 哈希完全命中（10,988 字节）。目录不存在导致保存失败，补建再存。
+
+[TEXT @10-02 22:05] 参考实现已读透，关键格式定案： - `B64E` = **标准 base64**（非 urlsafe）、`FP`=sha256[:8]、`INFO=b"t2.5/vault/claim/v1"`、salt=None、AAD=None - sealed box = `{epk, nonce, ct, alg:"X25519-HKDF-SHA256-AES256GCM"}` - `new_agent_keypair()` → `(X25519PrivateKey, pub_raw_bytes)`；`open_sealed(sk, box)`；标准 b64 无下划线，天然杜绝响应中出现 `tk_` 子串 - 板端移植其 VaultStore 逻辑 + leak_scan 出板闸（注意其 mixin 的 `_json` 签名与现有 Handler 冲突，只移植 store/原语，路由在 app.py 自写适配） 检查本地 cryptography 可用性与 caddy 配置。
+
+[TEXT @10-02 22:07] 本地已装 cryptography 50.0.1（E2E 可在本机直打公网全链路），caddy 全量反代 `/api/*`，参考文件哈希复核通过。现在落地代码。先写 `board_vault.py` 镜像（逐字节对齐参考实现）。
+
+[TEXT @10-02 22:11] 镜像与发布哈希一致。现在改 app.py（权威副本）。
+
+[TOOL Edit completed] in: {"file_path": "D:\\workspace\\全面迁移\\tools\\factory-board\\app.py", "new_string": " if parent_id is not None:\n parent_id = int(parent_id)\n hits = leak_scan({\"content\": content}) if VAULT_READY else []\n if hits:\n rai…[截断]
+  out: The file D:\workspace\全面迁移\tools\factory-board\app.py has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Edit completed] in: {"file_path": "D:\\workspace\\全面迁移\\tools\\factory-board\\app.py", "new_string": "# ---------------------------------------------------------------- Vault（T2.5b 板端签发）\n\nclass BoardVaultStore(VaultStore):\n \"\"\"参考实现 Va…[截断]
+  out: The file D:\workspace\全面迁移\tools\factory-board\app.py has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TEXT @10-02 22:12] 现在给 Handler 加 vault 处理方法与路由。
+
+[TOOL Edit completed] in: {"file_path": "D:\\workspace\\全面迁移\\tools\\factory-board\\app.py", "new_string": " elif u.path.startswith(\"/api/docs/\"):\n slug = u.path[len(\"/api/docs/\"):]\n doc = Board.get_doc(slug)\n self._json(doc if doc else {\…[截断]
+  out: The file D:\workspace\全面迁移\tools\factory-board\app.py has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Bash completed] in: {"command": "cd \"D:/workspace/全面迁移/tools/factory-board\" && python -m py_compile app.py && echo \"COMPILE OK\" && python -c \"\nimport ast, sys\nsrc = open('app.py', encoding='utf-8').read()\ntree = ast.parse(src)\nname…[截断]
+  out: COMPILE OK defs ok routes ok
+
+[TEXT @10-02 22:13] 更新 service 单元文件（venv python + EnvironmentFile）。
+
+[TEXT @10-02 22:13] 部署驱动就绪。写 E2E 验证脚本（本机直打公网全链路：caddy→board→broker→真网关）。
+
+[TEXT @10-02 22:14] 部署：先传文件到 srv-1，再远程执行部署驱动。
+
+[TEXT @10-02 22:17] 部署一次通过：venv + cryptography 就绪、unit 已用 venv python、服务 healthy、vault_ready=true。先快速探一下新端点（不打印任何值），再跑本机 E2E。
+
+[TEXT @10-02 22:17] 进程确认 venv python + EnvironmentFile 挂载，audit 200、坏公钥 400。跑完整 E2E（本机→公网→真网关）。
+
+[TEXT @10-02 22:18] 发现我引入的回归：`/api/vault/*` 前缀分发把已有的 `/api/vault/proxy` 中继劫持成 404 了。立即修复（proxy 例外放行），重新部署。
+
+[TEXT @10-02 22:19] 修复生效（proxy 回到 401 而非 404）。重跑完整 E2E。
+
+[TEXT @10-02 22:20] proxy 到达了 broker 但回 403。读 broker_prod.py 的校验逻辑（代码文本，无密钥）定位原因。
+
+[TEXT @10-02 22:20] 原因明确：broker 第 233 行要求 token scope ∈ {`inference`, `*`}，否则 `scope_denied` 403。我的 E2E 用了自定义 scope。把 E2E 的 scope 改为 `inference` 重跑（板端端点本身不限 scope，策略由 broker 侧执行，符合分层设计）。
+
+[TEXT @10-02 22:21] E2E 全绿：`request:200 → claim:200 → 解封指纹一致 → 二次claim:403 → 错nonce:403 → proxy:200（真网关 usage=25 tokens）→ audit:200`。最后做日志零泄漏核查 + 上板汇报。
+
+[TEXT @10-02 22:22] 日志零泄漏（journal 无 `tk_`），库内只有指纹与 nonce 哈希。上板汇报。
+
+[TEXT @10-02 22:22] 上板成功（消息 #70，同时证明 leak_scan 不误伤正常内容与发帖链路完好）。最后确认远端交付物在位。
+
+[TEXT @10-02 22:23] 任务完成。最终报告： **{deployed: true}** **e2e（全程零密钥输出的证据链，本机→公网 caddy→board→broker→真实网关）** ``` request:200 → claim:200(密文盒,无token字段,无tk_子串,alg=X25519-HKDF-SHA256-AES256GCM) → open_sealed 解回 token 且 FP(token)==token_fp(4a40ca60) → 同request二次claim:403 → 错nonce:403 → proxy(解封token调step-3.5-flash, max_tokens=8): HTTP 200 usage={prompt:17, completion:8, total:25} → GET /api/vault/audit:200（issued 含 req_b7120c9f430b39ae 指纹吻合；全响应无明文） 日志核查：journalctl -u factory-board 零 "tk_"；库内仅 nonce 哈希+8位指纹 ``` **files（本地权威副本，均在 D:\workspace\全面迁移\tools\factory-board\）** - `app.py` — 新增 /api/vault/request|claim|audit|revoke、vault_request/vault_audit 两张幂等新表、leak_scan 出板闸、两段式领取（防 mint 中途失败卡死）；已修复 `/api/vault/*` 前缀分发对既有 `/api/vault/proxy` 的劫持回归（proxy 例外放行，已实测回 401） - `board_vault.py` — 与 mavis 参考实现（板 docs/work-10-src-4）**逐字节一致**，SHA-256 复核通过 e330fdcf…（10988B）；`src4\` 为提取原件 - `factory-board.service` — ExecStart 改 venv python + EnvironmentFile=/etc/vault-broker/broker.env - `deploy_fb.py`/`update_app.py`/`e2e_vault.py`/`post_progress.py` — 部署驱动与验证脚本 - 远端：/opt/factory-board/{app.py, board_vault.py, venv(cryptography@阿里源)}；旧版备份 app.py.bak.20261002-221527 / -221935；服务 factory-board、vault-broker 均 active **notes（可直上板的汇报，86字）** > vault 短周期凭证板端签发已上线：request/claim/audit 三端点 + 密文盒交付零明文，E2E 实测真实网关 200+usage（25 tokens），二次领取/错 nonce 均 403，日志零泄漏。下一步：等 mavis 补片交叉校验 + verify_live 联调。 **给 coordinator 的两个关键提醒**：① broker 侧（broker_prod.py:233）只放行 scope ∈ {`inference`, `*`}，verify_live 申请时 scope 必须用 `inference`，否则 proxy 403 scope_…[截断]
+
+[TOOL Read completed] in: {"file_path": "D:\\workspace\\全面迁移\\tools\\factory-board\\factory-board.service"}
+  out: 1 [Unit] 2 Description=Factory Board (multi-agent collaboration kanban) 3 After=network.target 4 5 [Service] 6 ExecStart=/usr/bin/python3 /opt/factory-board/app.py 7 WorkingDirectory=/opt/factory-board 8 Environment=BOARD_PORT=8300 9 Environment=BOARD_DB=/opt/factory-board/board.…[截断]
+
+[TOOL Bash completed] in: {"command": "ssh -o BatchMode=yes -o ControlPath=None -i C:/Users/Administrator/.ssh/wsl_key root@159.75.21.149 \"\nsystemctl is-active factory-board vault-broker\necho ---\nsystemctl cat vault-broker | sed 's/=.*SECRET=…[截断]
+  out: active active --- # /etc/systemd/system/vault-broker.service # T2.5b vault-broker — systemd unit # 安装： sudo cp vault-broker.service /etc/systemd/system/ # sudo systemctl daemon-reload && sudo systemctl enable --now vault-broker # 环境变量走 EnvironmentFile（权限必须 600，且**不要**进 git） [Unit…[截断]
+
+[TOOL Write completed] in: {"file_path": "D:\\workspace\\全面迁移\\tools\\factory-board\\extract_src4.py", "content": "# -*- coding: utf-8 -*-\n\"\"\"提取 work-10-src-4 分片文件：段首 `## \\\\`文件名\\\\`` + SHA-256 行 + fenced code，哈希复核后落盘。\"\"\"\nimport hashlib\…[截断]
+  out: File created successfully at: D:\workspace\全面迁移\tools\factory-board\extract_src4.py (file state is current in your context — no need to Read it back)
+
+[TOOL Bash completed] in: {"command": "cd \"D:/workspace/全面迁移/tools/factory-board\" && python -c \"\nimport sys, os; sys.path.insert(0, '.')\nfrom board_client import board_call\nd = board_call('GET', '/api/docs/work-10-src-4')\nc = d['content']\…[截断]
+  out: '# T2.5b 代码交付分片 4/4（#10 补交）· board 端实现\n\n> @coordinator 这是我漏掉的一件：`board_vault.py`（客户端原语 + 板端 request/claim/audit mixin 参考实现）没在前 3 片中。\n> 本片含 **完整可移植实现**，你直接 mixin 进 board 即可。\n\n## 文件 `/workspace/t25/board_vault.py`（相对 t25/ 根）\nSHA-256: `e330fdcf8e4e39380102f0583e0b69de3efe8f3bd…[截断]
+
+[TOOL Bash completed] in: {"command": "cd \"D:/workspace/全面迁移/tools/factory-board\" && python -c \"\nimport sys, os, re; sys.path.insert(0, '.')\nfrom board_client import board_call\nc = board_call('GET', '/api/docs/work-10-src-4')['content']\nfo…[截断]
+  out: 173 '## 文件 `/workspace/t25/board_vault.py`（相对 t25/ 根）' 310 '## ⚠️ 移植前必读：一个你大概率会撞的依赖问题' 718 '### 退化方案（若 board 装不了 cryptography）——不要硬上，降级到 B 档' 1183 '## 移植要点（3 个容易踩的）' 1632 '## 客户端原语（verify_live.py 依赖，必须一起带上）' ---SHA lines--- 222 'SHA-256: `e330fdcf8e4e39380102f0583e0b69de3efe8f3bd…[截断]
+
+[TOOL Bash completed] in: {"command": "cd \"D:/workspace/全面迁移/tools/factory-board\" && mkdir -p src4 && python -c \"\nimport sys, os, hashlib; sys.path.insert(0, '.')\nfrom board_client import board_call\nc = board_call('GET', '/api/docs/work-10-…[截断]
+  out: SAVED src4/board_vault.py bytes=10988 sha256 verified
+
+[TOOL Bash completed] in: {"command": "cd \"D:/workspace/全面迁移/tools/factory-board\" && python -c \"import cryptography; print('local cryptography', cryptography.__version__)\" 2>&1; cat board.caddy; python -c \"\nimport hashlib\nh = hashlib.sha25…[截断]
+  out: local cryptography 50.0.1 board.{$DOMAIN} { reverse_proxy 172.18.0.1:8300 } src4 hash: e330fdcf8e4e39380102f0583e0b69de3efe8f3bdd9dceeb1afdfc518ff85189
+
+[TOOL TodoWrite completed] in: {"todos": [{"content": "读取本地权威副本 + srv-1 现状 + vault_token 原语", "priority": "high", "status": "completed"}, {"content": "提取并哈希复核参考实现 work-10-src-4（e330fdcf…，10988B）", "priority": "high", "status": "completed"}, {"content"…[截断]
+  out: {"oldTodos":[{"content":"读取本地权威副本（app.py / board_client.py）","status":"in_progress","priority":"high"},{"content":"ssh srv-1：读 vault_token.py、线上 app.py、factory-board.service、确认 broker","status":"pending","priority":"high"},{"content":"本地实现 board_vault.py（X25519+AESGCM 封装/解封）","st…[截断]
+
+[TOOL Edit completed] in: {"file_path": "D:\\workspace\\全面迁移\\tools\\factory-board\\app.py", "old_string": "import json\nimport os\nimport sqlite3\nimport time\nimport threading\nfrom http.server import BaseHTTPRequestHandler, ThreadingHTTPServer…[截断]
+  out: The file D:\workspace\全面迁移\tools\factory-board\app.py has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Edit completed] in: {"file_path": "D:\\workspace\\全面迁移\\tools\\factory-board\\app.py", "new_string": " def do_OPTIONS(self):\n self.send_response(204)\n self._cors()\n self.end_headers()\n\n # ---- T2.5b vault：凭证响应一律 no-store；日志只记 path，绝无 n…[截断]
+  out: The file D:\workspace\全面迁移\tools\factory-board\app.py has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"file_path": "D:\\workspace\\全面迁移\\tools\\factory-board\\factory-board.service", "content": "[Unit]\nDescription=Factory Board (multi-agent collaboration kanban)\nAfter=network.target\n\n[Service]\nExecStart=/opt/factor…[截断]
+  out: The file D:\workspace\全面迁移\tools\factory-board\factory-board.service has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "# -*- coding: utf-8 -*-\n\"\"\"T2.5b vault 端到端验证（零密钥输出）。\n\n链路：本机 → https://board.hkmingdajiaoyu.com（caddy）→ board /api/vault/*（新端点）\n → open_sealed 解回短周期 token → /api/vault/proxy（中继 broker 8310）→ 真实网关\n → G…[截断]
+  out: File created successfully at: D:\workspace\全面迁移\tools\factory-board\e2e_vault.py (file state is current in your context — no need to Read it back)
+
+[TOOL Bash completed] in: {"command": "cd \"D:/workspace/全面迁移/tools/factory-board\" && ssh -o BatchMode=yes -o ControlPath=None -i C:/Users/Administrator/.ssh/wsl_key root@159.75.21.149 \"mkdir -p /tmp/fbdeploy\" 2>&1 | grep -v \"post-quantum\\|s…[截断]
+  out: SCP_DONE
+
+[TOOL Bash completed] in: {"command": "ssh -o BatchMode=yes -o ControlPath=None -i C:/Users/Administrator/.ssh/wsl_key root@159.75.21.149 \"\nsystemctl show factory-board -p EnvironmentFiles | sed 's/=.*/=<path-only>/'\ncat /proc/\\$(systemctl sh…[截断]
+  out: EnvironmentFiles=<path-only> /opt/factory-board/venv/bin/python /opt/factory-board/app.py audit:200 request_bad_pub:400 ping:200
+
+[TOOL Bash completed] in: {"command": "cd \"D:/workspace/全面迁移/tools/factory-board\" && python e2e_vault.py", "description": "Run end-to-end vault verification against public board and real gateway", "timeout": 120000}
+  out: Exit code 1 [ { "step": "keypair", "ok": true, "detail": "" }, { "step": "request:200", "ok": true, "detail": "status=200" }, { "step": "claim:200", "ok": true, "detail": "status=200" }, { "step": "claim:no_token_field", "ok": true, "detail": "" }, { "step": "claim:no_tk_substrin…[截断]
+
+[TOOL Edit completed] in: {"file_path": "D:\\workspace\\全面迁移\\tools\\factory-board\\app.py", "new_string": " data = json.loads(raw.decode(\"utf-8\", \"replace\") or \"{}\")\n if u.path.startswith(\"/api/vault/\") and u.path != \"/api/vault/proxy\…[截断]
+  out: The file D:\workspace\全面迁移\tools\factory-board\app.py has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Bash completed] in: {"command": "cd \"D:/workspace/全面迁移/tools/factory-board\" && python e2e_vault.py", "description": "Re-run full end-to-end vault verification via public board", "timeout": 120000}
+  out: Exit code 1 [ { "step": "keypair", "ok": true, "detail": "" }, { "step": "request:200", "ok": true, "detail": "status=200" }, { "step": "claim:200", "ok": true, "detail": "status=200" }, { "step": "claim:no_token_field", "ok": true, "detail": "" }, { "step": "claim:no_tk_substrin…[截断]
+
+[TOOL Bash completed] in: {"command": "ssh -o BatchMode=yes -o ControlPath=None -i C:/Users/Administrator/.ssh/wsl_key root@159.75.21.149 \"grep -n '403\\|scope\\|allow\\|model\\|def handle\\|def do_POST\\|verify\\|revoked' /opt/vault-broker/brok…[截断]
+  out: 52:_DB = os.environ.get("REVOKE_DB", "/var/lib/vault-broker/revoked.db") 55:_db.execute("CREATE TABLE IF NOT EXISTS revoked(jti TEXT PRIMARY KEY, ts INTEGER)") 58: REVOKED = {r[0] for r in _db.execute("SELECT jti FROM revoked")} 62:A2_ALLOWED = {"schema_ver", "request_id", "task_…[截断]
+
+[TOOL Edit completed] in: {"file_path": "D:\\workspace\\全面迁移\\tools\\factory-board\\e2e_vault.py", "new_string": "AGENT = \"factory-eng\"\nSCOPE = \"inference\" # broker 侧只放行 inference/*（broker_prod.py:233），板端不限制\nPURPOSE = \"T2.5b E2E: request-c…[截断]
+  out: The file D:\workspace\全面迁移\tools\factory-board\e2e_vault.py has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Bash completed] in: {"command": "ssh -o BatchMode=yes -o ControlPath=None -i C:/Users/Administrator/.ssh/wsl_key root@159.75.21.149 \"journalctl -u factory-board --since '-30 min' --no-pager | grep -c 'tk_'; journalctl -u factory-board --si…[截断]
+  out: 0 Oct 02 22:21:24 VM-0-6-opencloudos python[1983139]: [200] GET /api/vault/audit Oct 02 22:21:58 VM-0-6-opencloudos python[1983139]: [200] POST /api/docs Oct 02 22:21:58 VM-0-6-opencloudos python[1983139]: [200] GET /api/docs/work-10-src-4 Oct 02 22:22:07 VM-0-6-opencloudos pytho…[截断]
+
+[TOOL Write completed] in: {"content": "# -*- coding: utf-8 -*-\n\"\"\"T2.5b 进度上板（经 board_client SSRF 防线，UTF-8）。\"\"\"\nimport sys\n\nfrom board_client import board_call\n\nCONTENT = (\n \"[T2.5b] vault 短周期凭证板端签发已上线并完成全链路验证：\\n\"\n \"1) POST /api/…[截断]
+  out: File created successfully at: D:\workspace\全面迁移\tools\factory-board\post_progress.py (file state is current in your context — no need to Read it back)
+
+[TOOL Bash completed] in: {"command": "ssh -o BatchMode=yes -o ControlPath=None -i C:/Users/Administrator/.ssh/wsl_key root@159.75.21.149 \"ls -la /opt/factory-board/ | grep -v '^total'; grep -E 'ExecStart|EnvironmentFile' /etc/systemd/system/fac…[截断]
+  out: drwxr-xr-x 4 root root 4096 Oct 2 22:19 . drwxr-xr-x 10 root root 177 Oct 2 21:54 .. -rw-r--r-- 1 root root 48113 Oct 2 22:19 app.py -rw-r--r-- 1 root root 37376 Oct 2 21:21 app.py.bak.20261002-221527 -rw-r--r-- 1 root root 47974 Oct 2 22:14 app.py.bak.20261002-221935 -rw-r--r-- …[截断]

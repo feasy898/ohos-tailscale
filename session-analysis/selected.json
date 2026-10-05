@@ -1,0 +1,194 @@
+[
+ {
+  "label": "ohos-tailscale",
+  "id": "sess_bf3cf7a6-49d3-4f4b-9dd0-42d8e0635a2e",
+  "title": "github.com/feasy898/agentic-factory-projects 这个项目下，有一个鸿蒙系...",
+  "msgs": 300,
+  "calls": 300,
+  "fails": 2
+ },
+ {
+  "label": "ohos-tailscale",
+  "id": "sess_subagent_agent_603dbc63-72fc-4766-b875-e0a29e4904b4",
+  "title": "你是本项目的最终测试撰写人（GLM53）。仓库：D:\\new-workspace\\ohos-tailscale（W...",
+  "msgs": 146,
+  "calls": 146,
+  "fails": 1
+ },
+ {
+  "label": "local-plane-planner",
+  "id": "sess_e63e178c-4b94-4863-baa0-ed14acf4927b",
+  "title": "读 D:\\workspace\\local-plane\\cron\\planner.md 并严格执行其中全部内容。你是...",
+  "msgs": 172,
+  "calls": 172,
+  "fails": 1
+ },
+ {
+  "label": "local-plane-worker",
+  "id": "sess_a22d7584-39bd-4b0f-8158-50141b81907b",
+  "title": "读 D:\\workspace\\local-plane\\cron\\worker-glm.md 并严格执行其中全部内容...",
+  "msgs": 119,
+  "calls": 119,
+  "fails": 1
+ },
+ {
+  "label": "local-plane-merger",
+  "id": "sess_4697ab3a-a389-4cc8-a4a2-d98c52e7330d",
+  "title": "读 D:\\workspace\\local-plane\\cron\\merger.md 并严格执行其中全部内容。你是全...",
+  "msgs": 65,
+  "calls": 65,
+  "fails": 0
+ },
+ {
+  "label": "bean-eye-vision",
+  "id": "sess_subagent_agent_0af2a5d0-8880-4525-83dc-bda218432d00",
+  "title": "视觉筛检任务：读取 D:\\new-workspace\\澄迈项目\\咖啡豆\\afp\\chenmai8\\chenmai-...",
+  "msgs": 38,
+  "calls": 38,
+  "fails": 0
+ },
+ {
+  "label": "bean-eye-vision",
+  "id": "sess_subagent_agent_39a8e18c-5959-477f-868c-62aae59eab73",
+  "title": "视觉筛检：读取 D:\\new-workspace\\澄迈项目\\咖啡豆\\afp\\chenmai8\\chenmai-be...",
+  "msgs": 29,
+  "calls": 29,
+  "fails": 0
+ },
+ {
+  "label": "opensource",
+  "id": "sess_subagent_agent_904a3de4-4357-43cb-8237-94a4b7aad481",
+  "title": "你是开源悬赏研究员。今天是2026-09-30。请只做研究，不要开发任何代码。 # 背景 用户想接开源项目的修复悬...",
+  "msgs": 102,
+  "calls": 102,
+  "fails": 0
+ },
+ {
+  "label": "opensource",
+  "id": "sess_subagent_agent_c870fbea-9634-4326-99af-1963e42b4721",
+  "title": "你是资深开源开发者（Go/wasm + Java）。今天是2026-09-30。任务：两个修复（**不推送、不建账...",
+  "msgs": 96,
+  "calls": 96,
+  "fails": 0
+ },
+ {
+  "label": "fwcmp-test",
+  "id": "sess_subagent_agent_9a54ae89-0a16-4ba8-80b3-93bac4273f82",
+  "title": "你是测试子代理。任务：按统一测试计划对 AgentScope 2.x 做真实模拟测试（用假 LLM 服务器，不用任...",
+  "msgs": 117,
+  "calls": 117,
+  "fails": 0
+ },
+ {
+  "label": "prosoft",
+  "id": "sess_subagent_agent_170e5cbe-bf4c-403d-b84e-f5f65f74683d",
+  "title": "你是一个系统开发子代理。任务：在 Windows 上原生安装并跑通 **Odoo 19 Community（企业级...",
+  "msgs": 82,
+  "calls": 82,
+  "fails": 0
+ },
+ {
+  "label": "playableads",
+  "id": "sess_f870fa8c-c8a8-4b47-8fdc-d039b5c3c928",
+  "title": "ZCode模型并发配置讨论",
+  "msgs": 178,
+  "calls": 178,
+  "fails": 1
+ },
+ {
+  "label": "factory-board",
+  "id": "sess_subagent_agent_05988995-964d-4bac-b1f8-e23813672688",
+  "title": "任务：为 Factory Board（srv-1 上的 /opt/factory-board/app.py，单文件...",
+  "msgs": 46,
+  "calls": 46,
+  "fails": 0
+ },
+ {
+  "label": "drama-baseline",
+  "id": "sess_5f748f20-8d19-48ad-b793-eb5bb6cefbc5",
+  "title": "项目能力基线盘点与多模型验证",
+  "msgs": 134,
+  "calls": 134,
+  "fails": 5
+ },
+ {
+  "label": "gov-ai-sec",
+  "id": "sess_abea545a-1846-4113-b135-6b5fde82fe83",
+  "title": "github.com/feasy898/agentic-factory-projects 该项目下，chengma...",
+  "msgs": 162,
+  "calls": 162,
+  "fails": 1
+ },
+ {
+  "label": "peidian",
+  "id": "sess_768721df-21c7-4b7d-9939-38d3cca0d970",
+  "title": "github.com/feasy898/agentic-factory-projects 这里面有一个peidia...",
+  "msgs": 570,
+  "calls": 570,
+  "fails": 0
+ },
+ {
+  "label": "srv1-migration",
+  "id": "sess_d9fc51d5-3c0c-4d9f-91f0-3872afbc16b1",
+  "title": "全面摸清srv-1治理面与GPU开发面系统架构并建立测试体系",
+  "msgs": 102,
+  "calls": 102,
+  "fails": 0
+ },
+ {
+  "label": "incident-zcode-usage",
+  "id": "sess_6d266afd-28ce-4f2d-9e30-4fa4a0c54f4e",
+  "title": "排查zcode用量更新与StepFun API网络异常",
+  "msgs": 42,
+  "calls": 42,
+  "fails": 1
+ },
+ {
+  "label": "incident-ssh",
+  "id": "sess_ab4f756e-f0cd-47fe-a1dc-85e9c17d61ab",
+  "title": "听说本来在tailscale网络里的GPU开发机：36.139.118.235 已经ssh连不上了，而且tails...",
+  "msgs": 7,
+  "calls": 7,
+  "fails": 1
+ },
+ {
+  "label": "collab-research",
+  "id": "sess_70acedeb-b1c5-47b9-9f4e-833698e6134c",
+  "title": "我是一人软件公司，我个人不会写代码，但是我的技术直觉和战略能力非常强。我基本的方法，是利用我的技术能力，与其他能力...",
+  "msgs": 158,
+  "calls": 158,
+  "fails": 3
+ },
+ {
+  "label": "higress-proxy",
+  "id": "sess_f9a5a866-d528-4694-858a-79c50d8121ca",
+  "title": "查询Higress GLM-5.3-flash转发行为",
+  "msgs": 104,
+  "calls": 104,
+  "fails": 0
+ },
+ {
+  "label": "xueqing",
+  "id": "sess_fbfe2bb1-1428-42ff-b2ec-efa4802b0b2e",
+  "title": "继续开发xuexing-agent学情诊断工作流（GLM-5.3 Flash）",
+  "msgs": 1599,
+  "calls": 1599,
+  "fails": 3
+ },
+ {
+  "label": "agentcore",
+  "id": "sess_cad6cf65-998b-4978-90a1-c14811e0c101",
+  "title": "一次性授权自动启动工作流",
+  "msgs": 273,
+  "calls": 273,
+  "fails": 1
+ },
+ {
+  "label": "agentcore",
+  "id": "sess_dwf-dwfrun-56c4fa86-eb3f-4a16-8252-682cde10fae6-actor_1_1",
+  "title": "workflow subagent actor#1@1",
+  "msgs": 109,
+  "calls": 109,
+  "fails": 0
+ }
+]
