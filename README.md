@@ -2,8 +2,6 @@
 
 > 接手文档 ｜ 任务卡见 [TASK.md](TASK.md) ｜ 项目原始自述见 [README-upstream.md](README-upstream.md)（原仓 README）
 > 仓库公开化说明见 [PUBLIC-SCRUB-NOTE.md](PUBLIC-SCRUB-NOTE.md)（历史中的真实内部地址已替换为文档保留段示例地址）
->
-> **For agents / reviewers**：见 [docs/handover/](docs/handover/) —— 三份身份对应手册（owner with real device / interop regression / PR reviewer）。
 
 ## 项目是什么
 
@@ -19,25 +17,17 @@
 
 ```bash
 npm install        # workspace 安装
-npm test           # 全仓测试（基线 495 pass / 0 fail）
+npm test           # 全仓测试（基线 280 pass / 0 fail）
 npm run typecheck  # 类型检查（exit 0）
-npm run test:bridge        # 壳↔库 bridge mock 集成（30 用例）
-npm run validate:shell     # ArkTS 禁则静态机检（66 用例）
-node --experimental-strip-types scripts/perf-baseline.mjs   # x25519 perf 重测基线
+npm run test:bridge        # 壳↔库 bridge mock 集成（13 用例）
+npm run validate:shell     # ArkTS 禁则静态机检（54 用例）
 ```
 
-互操作联调：`interop/` 内含 register / h2c / derp / start-headscale 脚本（需自建隔离 headscale 实例，禁用任何生产网络）；CI 不跑互操作，环境就绪后按 [docs/handover/agent-interop-regression.md](docs/handover/agent-interop-regression.md) 执行。
+互操作联调：`interop/` 内含 register / h2c / derp / start-headscale 脚本（需自建隔离 headscale 实例，禁用任何生产网络）。
 
-## 验收基线（2026-10-02 实测，main HEAD `0962ada`）
+## 验收基线（2026-10-01 实测）
 
 | 门 | 命令 | 基线 |
-|----|------|------|
-| G0-1 | `npm test` | **495 pass / 0 fail** |
-| G0-2 | `npm run typecheck` | exit 0 |
-| G0-3 | `npm run test:bridge` | **30 pass / 0 fail** |
-| G0-4 | `npm run validate:shell` | **66 passed / 0 failed** |
-| G0-5 | D4/P4 grep | 0 命中 |
-| perf | x25519 200 iter/20 warmup | **3.62 ms/op ≈ 276 ops/s**（基线 09-29: 5.25 ms/op ≈ 190 ops/s） |
 |---|---|---|
 | G0-1 全仓测试 | `npm test` | **280 pass / 0 fail** |
 | G0-2 类型 | `npm run typecheck` | exit 0 |

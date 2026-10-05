@@ -173,7 +173,7 @@ test('壳会话 × mock 控制面：login→pollMap 全链路，状态与 netmap
     seqNo: 42n,
     packetFilter: new Uint8Array([0x00, 0x01, 0x02, 0x03]),
     peers: [
-      { nodeKey: MockControlPlane.fixedKey(70), discoKey: MockControlPlane.fixedKey(71), endpoints: ['203.0.113.10:30387'], homeDerpRegionId: 999 },
+      { nodeKey: MockControlPlane.fixedKey(70), discoKey: MockControlPlane.fixedKey(71), endpoints: ['223.198.166.92:30387'], homeDerpRegionId: 999 },
       { nodeKey: MockControlPlane.fixedKey(80), discoKey: MockControlPlane.fixedKey(81), endpoints: [], homeDerpRegionId: 17 },
     ],
   };

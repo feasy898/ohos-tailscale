@@ -3,7 +3,7 @@
 > 建卡：编排批-线3 2026-10-01（docs/project-orchestration.md §1.1）；素材=continue-cards/ohos-tailscale.md（迁移验证 2026-10-01 实跑）+ DELIVERY_REPORT.md + docs/（架构契约/ArkTS 约束/协议取证）。
 
 ## 背景
-- 鸿蒙端 Tailscale 客户端：packages/ 八个纯 TS 协议包（common/crypto/noise/wireguard/derp/control/disco/netcheck）+ app/ HarmonyOS 工程壳（手写骨架，**从未编译**）+ docs/。
+- 鸿蒙端 Tailscale 客户端：packages/ 六个纯 TS 协议包（common/crypto/noise/wireguard 等，40 src 文件/5503 行 + 28 测试文件）+ app/ HarmonyOS 工程壳（手写骨架，**从未编译**）+ docs/。
 - 交付基线 2026-09-28 DELIVERY_REPORT；09-29 收尾清零评审遗留三项 ArkTS 合规问题（R4 tuple/A14 下标/A2 对象字面量）。
 - **未纳入 git 管理**（.gitignore 已为 git 化预留），无 CI，随迁为纯目录。
 
@@ -12,7 +12,7 @@
 2. 二期协议范围：netcheck / disco / LocalAPI / MagicDNS / PeerAPI（DELIVERY_REPORT §3.2）。
 
 ## 验收标准
-- `npm install && npm test` → **495 pass / 0 fail**（主代理 2026-10-02 实跑，本机 Node v22.23.2；交付基线 217→一期收尾 238→二期 B/C 推进后 495=当前全量）。其他门：typecheck exit 0；test:bridge **29 pass / 0 fail**；validate:shell **66 passed / 0 failed**；D4/P4 0 命中。
+- `npm install && npm test` → **238 pass / 0 fail**（GPU 2026-10-01 实跑，Node v22.23.2；交付基线 217→收尾增补后 238=当前全量）。
 - `npm run typecheck`（tsc --noEmit；GPU 未复跑，本机基线 0 错误）。
 - 未验证项如实保留：真实服务端互操作（AU1-AU3，无凭据）、app/ 编译与真机。
 

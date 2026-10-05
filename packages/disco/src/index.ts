@@ -4,5 +4,4 @@
 
 export * from './errors.ts';
 export * from './messages.ts';
-export * from './relay.ts';
 export * from './wrapper.ts';

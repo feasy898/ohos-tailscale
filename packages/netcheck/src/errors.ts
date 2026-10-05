@@ -20,19 +20,3 @@ export class StunError extends Error {
     this.code = code;
   }
 }
-
-/**
- * netcheck 引擎调度错误（A25：throw 仅 Error 子类；与 StunError 分列避免
- * 扩大既有 code 集合）。code 集合严格为：
- * - 'STATE'：会话状态非法（并发重入 / 无活动会话，上游
- *   "invalid concurrent call to GetReport" netcheck.go:861-865）；
- * - 'RANGE'：入参校验失败（OnlySTUN 与 OnlyTCP443 同设，:833-839）。
- */
-export class NetcheckError extends Error {
-  public code: string;
-
-  constructor(code: string, message: string) {
-    super(message);
-    this.code = code;
-  }
-}

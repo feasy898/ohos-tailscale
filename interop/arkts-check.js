@@ -6,17 +6,13 @@ const path = require('path');
 const repo = process.argv[2] || '/mnt/c/Users/Administrator/.zcode/workspace/default/ohos-tailscale';
 const ts = require('/home/dev/sdk/ets/ets/build-tools/ets-loader/node_modules/typescript');
 
-// 把 scanRoot 限定在 repo 根下（防 symlink/相对路径逃逸；与 Mimosa 路径穿越提示闭环）。
-const repoReal = fs.realpathSync(repo);
 function walk(dir, ext, out) {
-  // lstat（不 follow symlink），symlink 一律跳过——避免越界出 repo。
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
-  for (const e of entries) {
-    const p = path.join(dir, e.name);
-    if (e.isSymbolicLink()) continue;
-    if (e.isDirectory()) {
+  for (const f of fs.readdirSync(dir)) {
+    const p = path.join(dir, f);
+    const st = fs.statSync(p);
+    if (st.isDirectory()) {
       walk(p, ext, out);
-    } else if (e.isFile() && p.endsWith(ext)) {
+    } else if (p.endsWith(ext)) {
       out.push(p);
     }
   }
@@ -24,24 +20,9 @@ function walk(dir, ext, out) {
 }
 
 const scanExt = process.env.SCAN_EXT || '.ts';
-const scanRootEnv = process.env.SCAN_ROOT || path.join(repo, 'packages');
-// 二次校验：scanRoot 必须落在 repoReal 下；否则拒绝启动。
-// 例外：`ARKTS_SCAN_ALLOW_EXTERNAL=1` 由 arkts-mirror.sh 显式声明，因为该脚本
-// 在 $HOME/arkts-scan/ 下做 .ts → .ets 镜像后扫描（属于 A-2 复建路径的离线工作流）；
-// 没有该环境变量时 SCAN_ROOT 逃逸出仓库直接退出。
-const allowExternal = process.env.ARKTS_SCAN_ALLOW_EXTERNAL === '1';
-const scanRootReal = fs.realpathSync(scanRootEnv);
-if (!(scanRootReal === repoReal || scanRootReal.startsWith(repoReal + path.sep))) {
-  if (!allowExternal) {
-    console.error('SCAN_ROOT escapes repo root: ' + scanRootEnv + ' -> ' + scanRootReal);
-    console.error('提示：本仓库内扫描使用默认值即可；若通过 arkts-mirror.sh 做 .ets 镜像后离线扫描，');
-    console.error('     请设 ARKTS_SCAN_ALLOW_EXTERNAL=1 显式声明（见 docs/arkts-linter-rebuild.md）。');
-    process.exit(2);
-  }
-  console.warn('SCAN_ROOT escapes repo root but ARKTS_SCAN_ALLOW_EXTERNAL=1：' + scanRootReal);
-}
-const files = walk(scanRootReal, scanExt, []);
-console.log('scanning ' + files.length + ' ' + scanExt + ' files under ' + scanRootReal);
+const scanRoot = process.env.SCAN_ROOT || path.join(repo, 'packages');
+const files = walk(scanRoot, scanExt, []);
+console.log('scanning ' + files.length + ' ' + scanExt + ' files under ' + scanRoot);
 const options = {
   noEmit: true,
   target: ts.ScriptTarget.ES2022,

@@ -29,4 +29,4 @@ export function badStringIndex(s: string): string {
 EOF
 
 cd "$REPO"
-ARKTS_SCAN_ALLOW_EXTERNAL=1 SCAN_ROOT="$SCAN/packages" SCAN_EXT=.ets "$NODE" < interop/arkts-check.js 2>&1 | head -50
+SCAN_ROOT="$SCAN/packages" SCAN_EXT=.ets "$NODE" < interop/arkts-check.js 2>&1 | head -50

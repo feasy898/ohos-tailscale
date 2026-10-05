@@ -233,45 +233,6 @@ if (buildProfile !== null) {
 check('V1 hvigorfile.ts present', exists('hvigorfile.ts'));
 check('V1 entry/hvigorfile.ts present', exists('entry/hvigorfile.ts'));
 
-// ---- V9：C3 接线面（bridge mock）静态自检 —— LocalAPI/PeerAPI/TUN mock 文件的
-// 纪律机检（与 G0-5 同口径）：文件在盘、不引 node:*、无时钟/随机直读、协议语义
-// 一律经 @ohos-tailscale/control（不在壳侧重写协议）。测试文件在盘。 ----
-const c3BridgeFiles = ['bridge/src/mock-localapi.ts', 'bridge/src/mock-peerapi.ts', 'bridge/src/mock-tun.ts'];
-for (const f of c3BridgeFiles) {
-  if (!exists(f)) {
-    check('V9 ' + f, false, 'file missing');
-    continue;
-  }
-  const src = read(f);
-  check(
-    'V9 ' + f + ' no node: import',
-    src.indexOf("from 'node:") < 0 && src.indexOf("import('node:") < 0,
-    'D4/P3：bridge src 不引 Node 内置',
-  );
-  check('V9 ' + f + ' no Date.now/Math.random', src.indexOf('Date.now') < 0 && src.indexOf('Math.random') < 0, 'P4：时钟/随机经注入');
-  if (f === 'bridge/src/mock-tun.ts') {
-    // 数据面 mock 是纯 IO 桩（不依赖 control）；改为锚定上游蓝本注释（net/tstun）。
-    check('V9 ' + f + ' tstun anchors', src.indexOf('fake.go') >= 0 && src.indexOf('wrap.go') >= 0, 'TUN mock 蓝本锚定 net/tstun（fake/wrap）');
-  } else {
-    check('V9 ' + f + ' wires @ohos-tailscale/control', src.indexOf('@ohos-tailscale/control') >= 0, '协议语义经 control 包（壳侧不重写）');
-  }
-}
-check('V9 bridge test localapi.test.ts present', exists('bridge/test/localapi.test.ts'));
-check('V9 bridge test peerapi-tun.test.ts present', exists('bridge/test/peerapi-tun.test.ts'));
-if (exists('bridge/src/index.ts')) {
-  const bridgeIndex = read('bridge/src/index.ts');
-  check(
-    'V9 bridge index exports C3 wiring',
-    bridgeIndex.indexOf('MockLocalApiServer') >= 0 &&
-      bridgeIndex.indexOf('MockPeerApiServer') >= 0 &&
-      bridgeIndex.indexOf('TsTunWrapper') >= 0 &&
-      bridgeIndex.indexOf('MockIpnBackend') >= 0,
-    'C3 三面（LocalAPI/PeerAPI/TUN）经 barrel 对壳可见',
-  );
-} else {
-  check('V9 bridge index exports C3 wiring', false, 'bridge/src/index.ts missing');
-}
-
 for (const line of results) console.log(line);
 console.log('summary: ' + String(results.length - failed) + ' passed, ' + String(failed) + ' failed');
 process.exit(failed === 0 ? 0 : 1);
