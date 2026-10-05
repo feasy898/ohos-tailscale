@@ -1,0 +1,173 @@
+{
+  "$comment": [
+    "门注册表（TESTS-2026-10-03，docs/pre-device-plan/TESTS.md §2.4/§5）。",
+    "每道门显式声明 CI 归属：ci=true 必须在 .github/workflows/g0-gates.yml 中字面出现 ciCommand；",
+    "ci=false 必须带非空 reason——「不进 CI」是显式决定，不是沉默默认（typecheck:bridge 缺口#1 的病根）。",
+    "status: existing=门已在盘；planned=PLAN 工作项将建（其 ciCommand 尚未入 yml，tests/plan/gates-registry.test.mjs 以红锚钉住）。",
+    "mutationWitness: 丁类门（交付物是检查器）的负对照样本标识，P1-14 gates.mjs 须实跑并核对 exit≠0（三段式之②）。",
+    "本文件由 scripts/test-plan.mjs（可见）与仓外 holdout（ci:false 白名单复核）双向消费；开发 agent 改本文件须过 owner 审。"
+  ],
+  "version": 1,
+  "generated": "2026-10-03",
+  "source": "docs/pre-device-plan/TESTS.md",
+  "gates": [
+    {
+      "id": "A1",
+      "name": "全仓测试",
+      "script": "npm test",
+      "ciCommand": "npm test",
+      "ci": true,
+      "ciJob": "g0",
+      "status": "existing",
+      "reason": null
+    },
+    {
+      "id": "A2",
+      "name": "根类型检查",
+      "script": "npm run typecheck",
+      "ciCommand": "npm run typecheck",
+      "ci": true,
+      "ciJob": "g0",
+      "status": "existing",
+      "reason": null
+    },
+    {
+      "id": "A3",
+      "name": "壳类型检查（TS2353 修复后入 CI）",
+      "script": "npm run typecheck:bridge",
+      "ciCommand": "npm run typecheck:bridge",
+      "ci": true,
+      "ciJob": "g0",
+      "status": "planned",
+      "planItem": "P0-1",
+      "reason": "当前 exit 2（TS2353），修绿后随 P0-1 集成补丁入 CI——BASELINE 缺口#1：此门曾不在 CI，红灯无人拦截"
+    },
+    {
+      "id": "A4",
+      "name": "bridge 运行时测试",
+      "script": "npm run test:bridge",
+      "ciCommand": "npm run test:bridge",
+      "ci": true,
+      "ciJob": "g0",
+      "status": "existing",
+      "reason": null
+    },
+    {
+      "id": "A5",
+      "name": "壳静态机检",
+      "script": "npm run validate:shell",
+      "ciCommand": "npm run validate:shell",
+      "ci": true,
+      "ciJob": "g0",
+      "status": "existing",
+      "reason": null
+    },
+    {
+      "id": "A6",
+      "name": "ArkTS 双面机检门",
+      "script": "npm run validate:arkts",
+      "ciCommand": "npm run validate:arkts",
+      "ci": true,
+      "ciJob": "g0",
+      "status": "planned",
+      "planItem": "P0-3",
+      "mutationWitness": "enum / let x!: / as const / function* / @ts-ignore 五样本逐个 exit≠0（可见最小集）；变体矩阵在 holdout",
+      "reason": null
+    },
+    {
+      "id": "A7",
+      "name": "D4/P4 机检门（替换 G0-5 内联块）",
+      "script": "npm run gate:d4",
+      "ciCommand": "node scripts/gate-d4-p4.mjs",
+      "ci": true,
+      "ciJob": "g0",
+      "status": "planned",
+      "planItem": "P0-4",
+      "mutationWitness": "fixture（非注释行 Date.now() / from 'net'）注入→exit≠0 且红在可定位标识；必须支持 --root（临时副本运行）",
+      "reason": null
+    },
+    {
+      "id": "A8",
+      "name": "regress 离线 selftest",
+      "script": "npm run interop:regress -- --selftest",
+      "ciCommand": "npm run interop:regress -- --selftest",
+      "ci": true,
+      "ciJob": "g0",
+      "status": "planned",
+      "planItem": "P0-5",
+      "mutationWitness": "假 child（exit 0+stdout 无 marker）→ 判 SCRIPT_SILENT 而非 PASS（BASELINE §2.10 阶段3 原始失败形态）",
+      "reason": null
+    },
+    {
+      "id": "A9",
+      "name": "KAT 可移植层",
+      "script": "npm run test:kat",
+      "ciCommand": "npm run test:kat",
+      "ci": true,
+      "ciJob": "g0",
+      "status": "planned",
+      "planItem": "P1-1",
+      "reason": null
+    },
+    {
+      "id": "A11",
+      "name": "剧本自检门",
+      "script": "npm run check:stage-docs",
+      "ciCommand": "npm run check:stage-docs",
+      "ci": true,
+      "ciJob": "docs-consistency",
+      "status": "planned",
+      "planItem": "P0-6",
+      "ciAfter": "P1-2（活文档面清零后才准入 CI 阻断，防 R12 爆红；本地可先行）",
+      "mutationWitness": "STAGE-CHECKLIST 副本删一条命令标签→红；CU 卡副本留空分支占位→红",
+      "reason": null
+    },
+    {
+      "id": "A17",
+      "name": "meta 门自检（可见测试套件自身）",
+      "script": "node scripts/test-plan.mjs",
+      "ciCommand": "node scripts/test-plan.mjs",
+      "ci": false,
+      "status": "planned",
+      "planItem": "TESTS.md 建议新增判据",
+      "reason": "红锚在实现落地前故意红（TDD 设计），进 PR 门会长期红制造噪音（R12 教训）；批次四全绿后可由 owner 改 ci=true 收编",
+      "ciAfter": "批次四后可转 true"
+    },
+    {
+      "id": "A10",
+      "name": "gates 聚合入口",
+      "script": "npm run gates",
+      "ciCommand": "npm run gates",
+      "ci": false,
+      "status": "planned",
+      "planItem": "P1-14",
+      "reason": "本地聚合入口（聚合 A1–A9+文档门），与 CI 逐 step 语义重复，进 CI 属递归空转；真机 agent S0 与 A 类验收共用"
+    },
+    {
+      "id": "G0-6",
+      "name": "upload_server 路径穿越实证",
+      "script": "npm run --silent interop:test:upload",
+      "ciCommand": "npm run --silent interop:test:upload",
+      "ci": true,
+      "ciJob": "g0",
+      "status": "existing",
+      "reason": null
+    },
+    {
+      "id": "INTEROP-REAL",
+      "name": "interop regress 真跑（三阶段）",
+      "script": "npm run interop:regress",
+      "ci": false,
+      "status": "existing",
+      "reason": "需 headscale+docker+有效 preauthkey（B 类环境，PLAN §5.1 明确不设门）；本机只跑其 --selftest（A8）"
+    },
+    {
+      "id": "PERF",
+      "name": "perf 基线",
+      "script": "npm run perf:baseline",
+      "ci": false,
+      "status": "existing",
+      "reason": "perf 不设门（BASELINE §5.1/PLAN 沿用）：长跑 + 方差 17%（BASELINE §3.4），数字只作记录制参照（D12）"
+    }
+  ]
+}

@@ -145,7 +145,7 @@ test('CallMeMaybe 宽松语义：畸形/空/版本非 0 → 空端点列表（�
   assert.equal(callMeMaybeParse(badVer).myNumber.length, 0);
 });
 
-test('discoMessageParse：类型分发 + 未实现/未知类型抛 TYPE', () => {
+test('discoMessageParse：类型分发 + 未知/未来类型抛 TYPE（可丢弃路径，P-8）', () => {
   const decPong: ReturnType<typeof discoMessageParse> = discoMessageParse(
     pongEncode({ txid: TXID, srcIp16: IP6, srcPort: 443 }),
   );
@@ -155,12 +155,13 @@ test('discoMessageParse：类型分发 + 未实现/未知类型抛 TYPE', () => 
   assert.ok(decPong.ping === null);
   assert.ok(decPong.callMeMaybe === null);
 
-  // 上游已注册但本轮未实现的 UDP relay 家族（0x04）→ 与未知类型同途
-  const relay: Uint8Array = new Uint8Array(2 + 8);
-  relay[0] = 0x04;
+  // relay 家族 0x04–0x09 二期已实现（见 relay.test.ts）；此处锚定未知/未来
+  // 类型（0x0A+）仍走上游 unknown message type 错误路径（disco.go:106-107）
+  const future: Uint8Array = new Uint8Array(2 + 8);
+  future[0] = 0x0a;
   assert.throws(
     (): void => {
-      discoMessageParse(relay);
+      discoMessageParse(future);
     },
     (e: unknown): boolean => e instanceof DiscoError && e.code === 'TYPE',
   );

@@ -2,7 +2,7 @@
 
 - 生成日期：2026-09-28
 - 作者角色：协议库首席架构师
-- 效力：本文是 `packages/` 下六个包的**实现契约**。并行实现者必须严格照办本文签名；本文与实现冲突时，以本文为准并回报架构师修订。
+- 效力：本文是 `packages/` 下八个包（common/crypto/noise/wireguard/derp/control/disco/netcheck）的**实现契约**。并行实现者必须严格照办本文签名；本文与实现冲突时，以本文为准并回报架构师修订。
 - 上位约束：`docs/arkts-constraints.md`（语法/工程禁则，下称【约束】）与 `docs/oracle/protocol-notes.md`（协议取证，下称【取证】）。本文不重复其条文，只做引用与裁定。
 - 状态基线（本文定稿时实测）：Node v22.23.2 直接跑 `.ts`（type stripping）；根 `package.json` 已含 `"type": "module"` + `"workspaces": ["packages/*"]`（约束 P7 已满足）；根 `tsconfig.json` 已含 `erasableSyntaxOnly` + `verbatimModuleSyntax`（约束 T2 已满足）；`npm install` 已为 `packages/*` 建立 `node_modules/@ohos-tailscale/*` 链接。
 
@@ -526,7 +526,7 @@ npm run typecheck                        # tsc --noEmit -p .（T2 门禁：erasa
 
 ### 10.1 common 冻结流程
 
-- `packages/common/src/index.ts` 公开 API 自本版本**冻结**：六个包并行开发期间**只 import、不修改** common。
+- `packages/common/src/index.ts` 公开 API 自本版本**冻结**：八个包并行开发期间**只 import、不修改** common。
 - 需要新增共享能力（新注入接口、新常量）→ 向架构师提修订：改 common + 同步本文 §3 + 升小版本号，一次性合入；禁止各包私下 fork 副本。
 - 各包自己的注入接口（如 derp 的 TLS 拨号）**定义在本包内**，不进 common（不共享就不冻结）。
 
@@ -538,9 +538,16 @@ npm run typecheck                        # tsc --noEmit -p .（T2 门禁：erasa
 | U2/AU2 | DERP 帧类型码表与长度编码 | derp `DerpFrameType` 常量表、帧层 | 【已核对 ✅ 2026-09-29】实读 `derp/derp.go`、`derp_client.go`、`derphttp_client.go`：帧头第二字段为 **u32 大端**（原 uvarint 为核对前过渡形态，已改）；码表 0x01~0x15 对照（原表 Ping/Pong/KeepAlive 等错位，已纠正）；ServerKey 载荷=Magic(8B)+公钥；ClientInfo=公钥+nonce+**naclbox(json)**（标准 NaCl box：beforenm=HSalsa20(X25519,0) + secretbox，Go 布局 tag‖密文）；derive 依据已写入 frame.ts/client.ts 头注，测试按新格式重写（44/44） |
 | U3/AU3 | Headscale 对 Register/Map 的字段语义 | control `tailcfg.ts`（JSON 层） | 【已核对 ✅ 2026-09-29】实读 tailcfg.go L1318/L1372/L1436 与 headscale noise.go：注册/地图载荷为 **tailcfg JSON over HTTP/2**（POST /machine/register、/machine/map），非本包 TLV 本地契约——新增 `tailcfg.ts`（JSON 编解码，Version=148、Auth.AuthKey、NodeKey "nodekey:" 前缀）与 map 流 **4B 小端长度前缀**格式（实测锚定）；本地 TLV 层保留为学习期契约，真机联网走 tailcfg 层 |
 | AU4 | ArkTS 侧 BigInt / `.ts` specifier / 动态键遍历的真机表现 | R4/P6 的窄接口封装 | 【部分闭环 2026-09-29】已用 OpenHarmony 7.0 SDK ets-loader 内置官方 ArkTSLinter（华为魔改 TS 4.9.5）实测：**lintEtsOnly 只扫 .ets**，核心库以 .ets 形态全量可扫；src 告警 76 条（69 throw 重抛/3 any/3 字面量/1 正则）清零工作见 DELIVERY_REPORT；BigInt 等运行时项仍待真机 |
+| AU5 | disco UDP relay 家族报文 0x04–0x09 语义 | disco `relay.ts` | 【新增 2026-10-02 ✅】研究笔记 docs/research/2026-10-02-B1-disco-relay.md + 实现 packages/disco/src/relay.ts + relay.test.ts；上游实读 tailscale `disco/disco.go`、`disco/relay.go` |
+| AU6 | netcheck 引擎调度（探测序列/周期/去抖/结果聚合） | netcheck `engine.ts/plan.ts/regions.ts/report.ts` | 【新增 2026-10-02 ✅】研究笔记 docs/research/2026-10-02-B2-netcheck-engine.md；上游实读 `netcheck/netcheck.go` |
+| AU7 | DERP 选节点策略（含 region 级兜底随机与节点级按序回退） | derp `region.ts/regiondial.ts` | 【新增 2026-10-02 ✅ 经独立评审】研究笔记 docs/research/2026-10-02-B3-derp-pick.md；上游实读 `derp/derp.go`、`derphttp/derphttp.go`、对照 `ts/wgengine/magicsock/derp.go`。**注意**：原标题"region 内随机选节点"与笔记勘误后语义不符——上游节点级不做随机，是按序回退 + firstErr；随机仅在 region 级兜底（pickDERPFallback）。AU7 文本已对齐 v1.3 实测。 |
+| AU8 | netmap→WireGuard peer 推导 + 完整连接状态机 | control `netmap.ts/wgderive.ts/peerconn.ts/derproute.ts/smconsts.ts` | 【新增 2026-10-02 ✅ 经双臂独立评审】研究笔记 docs/research/2026-10-02-C1-netmap-wg.md + 2026-10-02-C2-statemachine.md；上游实读 `wgengine/routemanager/routemanager.go`、`wgengine/magicsock/magicsock.go`、`ipn/ipnlocal/local.go`、`ipn/backend.go`、`ts/wgengine/netcheck/tsaddr.go`、`ts/wgengine/.../endpoint.go` 等（笔记锚定文件；`ipn/ipnlocal/peerrel.go` 与 `types/policy/policy.go` 为评审 B 提示缺失项，已据实替换；详评注见 §10.3 v1.3 修订记录） |
+| AU9 | LocalAPI/IPC + PeerAPI + MagicDNS + 数据面 TUN mock 接线 | control `localapi.ts/peerapi.ts/magicdns.ts/netaddr.ts` + bridge `mock-localapi.ts/mock-peerapi.ts/mock-tun.ts` | 【新增 2026-10-02 ✅ 经独立评审】研究笔记 docs/research/2026-10-02-C3-localapi-etc.md；上游实读 `ipn/localapi/localapi.go`、`ipn/peerapi/peerapi.go`、`ipn/paths.go`、`ipn/paths/paths.go`、`ts/dns/dnsconfig/dnsconfig.go`、`ts/dns/fqdn/fqdn.go`。**注意**：C3 实现涉及 control 包内出现 JSON 编解码——属于 R3 演进口径（v1.3 修订记录），仅限 LocalAPI 展示层；核心控制包协议消息仍用 TLV（见 §7）。 |
 
 ### 10.3 版本记录
 
 - v1（2026-09-28）：初版定稿。common 已实现并冻结（40/40 测试绿 + tsc 零错误 + 包名导入冒烟通过）；其余五包契约发布，等待并行实现。
 - v1.1（2026-09-28）：实现阶段裁定增补（评审升级 dwfq-fe173e19-1，架构师批准）：§7.2 ControlClientConfig 增补必填字段 `serverStaticPublic`（控制面服务端 Noise IK 静态公钥，32B）——§6 NoiseIkInitiator 发起方必需 remoteStatic，原六字段下 dial() 按字面不可实现；取值来源见 §7.2 字段注释。
 - v1.2（2026-09-29）：AU1–AU3 上游核对清账（依据见 §10.2 表内证据）：①noise 包新增 `controlbase.ts`（ts2021 帧封装 + controlbase 客户端握手，版本=148）；②derp 帧层长度编码 uvarint→**u32 大端**、码表对齐上游、ServerKey 载荷含 Magic、ClientInfo 改为 naclbox 标准形态、DerpClientConfig 增补 `nodePrivateKey`；③control 包新增 `tailcfg.ts`（tailcfg JSON 编解码）与 `noisehttp.ts`（HTTP-over-Noise 帮助层，本地 TLV 契约保留）。全部改动有对应测试，全仓测试与 tsc 保持绿。
+- v1.3（2026-10-02）：二期批次推进（依据见 §10.2 AU5–AU9 增补 + DELIVERY_REPORT §6）：①disco 包新增 relay 家族（0x04–0x09）；②netcheck 包完整化（engine/plan/addr/opt/regions/report）；③derp 包 region 选节点策略；④control 包 netmap→WG 推导（wgderive）+ peerconn 完整状态机 + derproute/smconsts；⑤control 包 LocalAPI/IPC（localapi）、PeerAPI（peerapi）、MagicDNS（magicdns）；⑥bridge 同步 mock-localapi/mock-peerapi/mock-tun 接线，validate-shell V9 12 检。终门：npm test **495/495**、bridge **30/30**、validate-shell **66/66**、typecheck exit 0、D4/P4 0 命中。子线 E（app 编译+真机）保持 WAITING_EVENT 冻结未推进。
+- **v1.3 修订记录（评审 B 反馈）**：AU7 原标题"region 内随机选节点"与笔记勘误后语义不符（上游节点级不做随机，是按序回退+firstErr；随机仅 region 级兜底），已按 B3 笔记重写标题与说明；AU8 上游引用文件清单据 C1/C2 笔记实际锚定文件清单替换（移除未读的 `peerrel.go` 与 `policy.go`）；AU9 新增（C3 LocalAPI/PeerAPI/MagicDNS+TUN mock）；§7 仍写"控制包协议消息用 TLV"——R3 演进口径（control 包内仅 LocalAPI 展示层引入 JSON）见 §10.2 AU9 注释与 C3 笔记 §5-1/§6-8。

@@ -12,7 +12,11 @@
     "typecheck": "tsc --noEmit -p .",
     "test:bridge": "node --test app/bridge/test/*.test.ts",
     "typecheck:bridge": "tsc --noEmit -p app/bridge",
-    "validate:shell": "node app/tools/validate-shell.mjs"
+    "validate:shell": "node app/tools/validate-shell.mjs",
+    "gate:d4": "node scripts/gate-d4-p4.mjs",
+    "interop:regress": "node interop/regress.mjs",
+    "interop:test:upload": "node interop/upload_server.test.mjs",
+    "perf:baseline": "node --experimental-strip-types scripts/perf-baseline.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.6.3",

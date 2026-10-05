@@ -1,0 +1,43 @@
+# SESSION sess_ab4f756e-f0cd-47fe-a1dc-85e9c17d61ab
+title: 听说本来在tailscale网络里的GPU开发机：36.139.118.235 已经ssh连不上了，而且tails...
+dir: C:\Users\Administrator\.zcode\workspace\default
+time: 10-03 20:43 -> 10-03 20:45 | parts: 33
+================================================================================
+
+[TEXT @10-03 20:44] 听说本来在tailscale网络里的GPU开发机：36.139.118.235 已经ssh连不上了，而且tailscale掉了。是真的吗？看一下
+
+[TEXT @10-03 20:44] 我来实际探测一下，不猜。先看本机的 Tailscale 状态和网络可达性。
+
+[TEXT @10-03 20:44] Tailscale 本身是通的，而且 `anolis-gpu-01` 显示 active。再确认 overlay 层和 SSH 端口。
+
+[TEXT @10-03 20:44] Overlay 完全正常,12ms 直连,22 端口通。最后实际 SSH 登录一次,确认是不是真能连上。
+
+[TEXT @10-03 20:44] 第一次 SSH 用了默认用户 `Administrator`(config 里只有别名才带 `anuser`)。用正确别名重试。
+
+[TEXT @10-03 20:44] 机器完全正常。最后确认一下公网直连那条路,到底是哪里断了。
+
+[TEXT @10-03 20:45] 结论先说:**不是真的。Tailscale 没掉,GPU 机也完全在线,SSH 能正常登录。**真正断的是公网 22 端口那条路。 我实测的结果: | 检查项 | 结果 | |---|---| | 本机 Tailscale 状态 | 正常,tailnet `edgenet` 共 5 个节点,全部 active | | `anolis-gpu-01` (100.64.0.7) overlay ping | 通,**12ms 直连** `36.139.118.235:49236` | | overlay TCP 22 | 通 | | SSH 登录 `anolis-gpu-tailnet` | **成功**,返回 `hostname=anolis-gpu-01` | | 机器状态 | up 6 天 7 小时,load 0.05,10 个用户在线 | | GPU | 双 Tesla V100S 32GB 都在(显存 310MiB / 15516MiB 占用) | | 公网 ping 36.139.118.235 | 100% 丢包 | | 公网 TCP 22 | False,SSH 直接被拒(`Permission denied`) | 也就是说,`tailscale ping` 显示的是 direct 直连到公网 IP 的 49236 端口,并且有实际收发流量(tx 1.6MB / rx 1.9MB),overlay 是完全健康的。 **为什么会被误判成"连不上"**,有两个坑叠在一起: 一是**走错了地址**。`~/.ssh/config` 里 `dev-env-with-gpu` 这个别名指向的是**公网 IP** `36.139.118.235`,而公网 22 已经被拉黑了(今天 2026-10-03 新加的 `anolis-gpu-tailnet` 别名,注释里写得很明白是"公网 22 被拉黑后的替代通道")。用旧别名 `dev-env-with-gpu` 去连,当然失败——但那只说明公网入口没了,不代表机器出事。 二是**用户错了**。我第一次试 `ssh 100.64.0.7` 也失败了,报 `Permission denied (publickey...)`。原因是裸 IP 不匹配 config 里的任何 Host 块,于是用默认用户 `Administrator` 去连,而不是正确的 `anuser`。这个报错看起来像认证挂了,其实只是用户名不对。 **以后这样连:** ``` ssh anolis-gpu-tailnet ``` 走的是 100.64.0.7 + 用户 `anuser` + `wsl_key`,已验证可用。如果是从别的机器连,记得用 `anuser` 而不是 root;config 注释里写了 sudo 密码走 owner 渠道。 需要的话我可以顺手把 `dev-env-with-gpu` 这个指向公网 IP 的失效别名改掉,或者给裸 IP 补一个 `Host 100.64.0.7` 条目带默认用户,免得下次再踩这两个坑。
+
+[TOOL Bash completed] in: {"command": "where tailscale 2>/dev/null; echo \"---exit:$?---\"; tailscale status 2>&1 | head -40", "description": "Check tailscale CLI and status"}
+  out: C:\Program Files\Tailscale\tailscale.exe ---exit:0--- 100.64.0.5 windev-01 edgenet windows - 100.64.0.7 anolis-gpu-01 edgenet linux active; direct 36.139.118.235:49236, tx 1684340 rx 1944412 100.64.0.2 edge-server edgenet linux active; relay "headscale", tx 71232752 rx 3057056 10…[截断]
+
+[TOOL Bash completed] in: {"command": "tailscale ping -c 4 100.64.0.7 2>&1 | head -20", "description": "Ping GPU host over tailscale overlay", "timeout": 60000}
+  out: pong from anolis-gpu-01 (100.64.0.7) via 36.139.118.235:49236 in 12ms
+
+[TOOL Bash completed] in: {"command": "cat ~/.ssh/config 2>/dev/null | head -60; echo \"=== known_hosts entries ===\"; grep -oE \"(100\\.64\\.0\\.7|36\\.139\\.118\\.235|anolis-gpu-01)[^ ]*\" ~/.ssh/known_hosts 2>/dev/null | head", "description": …[截断]
+  out: # 2026-09-27: 原 gpumachine（OpenCloudOS 时期）已废弃，逻辑名让位 dev-env-with-gpu（Anolis 23.5） Host gpumachine-deprecated HostName 36.139.118.23 User root IdentityFile C:\Users\Administrator\.ssh\wsl_key ControlMaster auto ControlPath C:\Users\Administrator\.ssh\cm\%r@%h-%p ControlPersist 600…[截断]
+
+[TOOL Bash completed] in: {"command": "ssh -o BatchMode=yes -o ConnectTimeout=15 anolis-gpu-tailnet 'echo \"=== SSH OK ===\"; hostname; uptime; echo \"--- GPU ---\"; nvidia-smi --query-gpu=name,memory.total,memory.used,utilization.gpu --format=cs…[截断]
+  out: === SSH OK === anolis-gpu-01 20:44:55 up 6 days, 7:21, 10 users, load average: 0.05, 0.03, 0.27 --- GPU --- name, memory.total [MiB], memory.used [MiB], utilization.gpu [%] Tesla V100S-PCIE-32GB, 32768 MiB, 310 MiB, 0 % Tesla V100S-PCIE-32GB, 32768 MiB, 15516 MiB, 0 %
+
+[TOOL Bash completed] in: {"command": "echo \"--- TCP 22 公网 ---\"; powershell -NoProfile -Command \"Test-NetConnection -ComputerName 36.139.118.235 -Port 22 -WarningAction SilentlyContinue | Select-Object -ExpandProperty TcpTestSucceeded\" 2>&1 |…[截断]
+  out: --- TCP 22 公网 --- False --- SSH 公网 --- ssh: connect to host 36.139.118.235 port 22: Permission denied
+
+[TOOL Bash completed] in: {"command": "ping -n 3 36.139.118.235 2>&1 | tail -8", "description": "Ping the GPU host 3 times", "timeout": 40000}
+  out: 正在 Ping 36.139.118.235 具有 32 字节的数据: 一般故障。 一般故障。 一般故障。 36.139.118.235 的 Ping 统计信息: 数据包: 已发送 = 3，已接收 = 0，丢失 = 3 (100% 丢失)，
+
+[TOOL Bash completed] in: {"command": "powershell -NoProfile -Command \"Test-NetConnection -ComputerName 100.64.0.7 -Port 22 -InformationLevel Detailed | Format-List ComputerName,RemoteAddress,TcpTestSucceeded,NameResolutionSucceeded\" 2>&1 | hea…[截断]
+  out: ComputerName : 100.64.0.7 RemoteAddress : 100.64.0.7 TcpTestSucceeded : True NameResolutionSucceeded : True
+
+[TOOL Bash completed] in: {"command": "ssh -o BatchMode=yes -o ConnectTimeout=12 -o StrictHostKeyChecking=accept-new 100.64.0.7 'echo \"=== SSH OK ===\"; hostname; uptime; echo \"--- GPU ---\"; nvidia-smi --query-gpu=name,memory.total,memory.used…[截断]
+  out: ** WARNING: connection is not using a post-quantum key exchange algorithm. ** This session may be vulnerable to "store now, decrypt later" attacks. ** The server may need to be upgraded. See https://openssh.com/pq.html Administrator@100.64.0.7: Permission denied (publickey,gssapi…[截断]

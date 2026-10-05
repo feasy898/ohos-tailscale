@@ -150,6 +150,7 @@ npx tsc --version → Version 5.9.3
 - 测试仅在 Node 22 直跑链路验证；未在 browsers/ArkTS runtime 验证。
 - **敏感信息取舍**：oracle 取证的密钥/凭据已打码（`nodekey:/mkey:/discokey:` 只留前 8 hex，prefs 私钥由 tailscaled 自身置零，`docs/oracle/raw/README.txt`），但**控制面域名与拓扑为明文**——真实私有 tailnet 的 Headscale 域名 `headscale.example.internal` 与 tailnet 名 `edgenet` 明文出现在 `docs/oracle/protocol-notes.md`、`docs/architecture.md`（§7.2 `controlUrl` 字段示例注释，`docs/architecture.md:396`）、`docs/oracle/raw/`（如 `derp-map.json` 本身未打码）、`packages/control/src/client.ts:82` 代码注释与 `README.md` 首段。仓库若公开，需先决定是否脱敏这些明文（未打码的 `derp-map.json` 只含公网中继信息、无密钥字段——`docs/oracle/protocol-notes.md` §3 原文注明"未打码——公网中继信息，无敏感字段"）。
 - 性能基线：BigInt X25519 `scalarMult` 本机（win32，Node v22.23.2）实测 **5.25 ms/op ≈ 190 ops/s**（200 次取均值，预热 20 次）——仅为桌面 Node 基线，供真机对照参考；真机吞吐仍未评估。
+- 性能基线 v2（2026-10-02）：同测法（本机 win32 / Node v22.23.2，注入真实 node crypto 随机源）——`scripts/perf-baseline.mjs` 实测 **3.62 ms/op ≈ 276 ops/s**（200 次取均值，预热 20 次）；p50=3.52 ms、p95=4.41 ms、p99=4.64 ms。较 09-29 快 31%——主要差异：v2 测的是 `x25519(kp.privateKey, base.publicKey)` API（直接传 32B），v1 测的是旧 `scalarMult(priv, base)` API（带 keypair 拆分）。重构后接口更窄、调用更稳。**复跑命令**：`node --experimental-strip-types scripts/perf-baseline.mjs`。真机对照参考值：鸿蒙 NEXT cryptoFramework API 9+ 在 harmony crypto 文档里 X25519 吞吐与 Node.js BigInt 实现数量级相当，需真机实测。
 - 仓库根曾有 34 字节 `nul` 文件（Windows 命令重定向误产物，内容为"信息: 用提供的模式无法找到文件。"），已于 2026-09-29 核实内容后删除。
 
 ## 4. 下一步建议
@@ -206,3 +207,51 @@ npx tsc --version → Version 5.9.3
 - **controlbase 接收缓冲改为动态拼接**（互操作实测抓出的真实缺陷：固定 4096B 缓冲在 MapResponse 增大、TCP 多帧合并到达时必溢出；真机上同样会触发）。修复后 20-peer 大 MapResponse 解析通过。
 - 最终门禁（全部主会话实跑）：全量测试 **238/238 通过**、`tsc --noEmit -p .` 零错误、官方 ArkTS linter **src=0**、真实 headscale 注册互通复跑 **INTEROP PASS**、真实 DERP 双客户端包交换复跑 **DERP INTEROP PASS**。
 - 未变事项：HAP 未编译（无 DevEco Studio）、真机运行时验证（CU2 BigInt 等）仍待真机——**这些是拿到真机后第一优先级**。
+
+---
+
+## 6. 2026-10-02 二期批次验收（主代理接手）
+
+承接工作流 `dwfrun-d92a8909` 在终门 G0 阶段被供应商瞬态中断后的收口。前 4 阶段（研究 / 实现 / 评审 / 门禁修复）17/18 步均已 settle（1.78 亿 token），阶段 5–6 由主代理接管。
+
+### 6.1 终门 G0 五门机检（主代理实跑）
+
+| 门 | §5.5 基线（2026-09-29） | 本批（2026-10-02） |
+|----|------|------|
+| `npm test` | 238 / 0 fail | **495 / 0 fail**（+257） |
+| `npm run typecheck` | exit 0 | exit 0 |
+| `npm run test:bridge` | 7 / 0 fail（09-29 worker-A 后 baseline 13） | **29 / 0 fail**（+16） |
+| `npm run validate:shell` | 54 / 0 failed | **66 / 0 failed**（+12） |
+| D4/P4 grep | 0 命中 | 0 命中 |
+
+### 6.2 子线完成状态
+
+| 子线 | 完成项 | 证据 |
+|------|--------|------|
+| **A** | A-3 口径勘正（CONTEXT.md / architecture.md 「6 包」→「8 包」，238 → 495）；A-2 待 owner 裁定带 DevEco 机器后写 linter 实操手册（本机无 SDK 无从实测） | 本节 + 工作流 commit 1c9b85b |
+| **B-1** disco relay 0x04–0x09 | packages/disco/src/relay.ts + relay.test.ts | commit 1c9b85b |
+| **B-2** netcheck 引擎调度 | packages/netcheck/src/{engine,plan,addr,opt,regions,report}.ts + 4 个测试 | commit 1c9b85b |
+| **B-3** DERP 随机选节点 | packages/derp/src/region.ts + regiondial.ts + regionpick.test.ts | commit 1c9b85b |
+| **C-A** netmap→WG + 状态机（双臂评审通过） | packages/control/src/{netmap,wgderive,peerconn,derproute,smconsts}.ts + 5 测试；评审 actor#6 一轮 approved=true | commit 1c9b85b |
+| **C-B** LocalAPI/PeerAPI/MagicDNS + TUN mock | packages/control/src/{localapi,peerapi,magicdns,netaddr}.ts + 4 测试；app/bridge/src/{mock-localapi,mock-peerapi,mock-tun}.ts + 2 测试；validate-shell V9 组 12 检 | commit 1c9b85b |
+| **D** | 方案成文 docs/research/2026-10-02-D-interop-plan.md（原始纪实含内部主机，仅仓库内可见，不入公仓链路）；对外版 2026-10-02-D-interop-plan-public.md 入仓；真跑待 owner 在带 docker/远端的环境执行 | commit 93c59f3 + 1c9b85b |
+| **E** | 保持冻结 WAITING_EVENT，未被推进（真机日待办见下） | — |
+
+### 6.3 真机验证日待办（解冻子线 E 时的步骤清单）
+
+按 HARMONY_AGENT_TASK.md，解冻后首答 CU6（ets loader 是否接受 `.ts` specifier）：
+
+1. 准备 DevEco Studio 6.x + HarmonyOS SDK（API 12+ ets/native/previewer 工具链）+ 鸿蒙 NEXT 真机；
+2. `npm install`（已验证）；
+3. `cd app` → `hvigorw assembleHap --mode module -p product=default`（或用 DevEco 打开）；
+4. 首次编译预计报错（VpnExtensionAbility stub / mock 总线需替换为真能力），按错误逐项替换为 ArkTS 兼容的 net/tstun/peer 等 API；
+5. `hdc install` 安装 HAP；
+6. 启动 → 触发 VPN 权限授权 → 设备注册到隔离 headscale → 验证 peer 互连；
+7. 若 CU6 失败：回退方案为 hvigor 构建前批量改写 import 为 `.js` 或开 ArkTS loader 自定义。
+
+### 6.4 遗留/已知风险（如实告知）
+
+- **Mimosa 安全扫描**（每次 commit 前机检）：`interop/upload_server.py:26` [high] 路径穿越、`interop/arkts-check.js:24` [high] 路径穿越（上线遗留）；本批新增 `app/bridge/src/mock-peerapi.ts:175` [high] 疑似 SQL 注入（answerDns）+ [medium] 跨文件污点。mock-peerapi.ts 是纯 TS mock，按 mock 语义理解不直接接 SQL，但「跨文件污点」需安全复审。
+- 子线 D 真实互操作回归未跑（环境受限），交付了脚本骨架与红线清单，ran=false，待 owner 在带远端 docker 的环境复跑。
+- D-interop-plan 原始研究纪实含内部主机 IP/CLI 旗标现场记录，仅入仓库不 commit 公仓链路，对外版 `*-public.md` 才入仓。
+- WORKFLOW 在 2026-10-01 worker-A round 1 触发 GT/Tailscale 协议层语义修正的 5 处错误教训仍是本仓护栏（绝不凭记忆写协议语义）。

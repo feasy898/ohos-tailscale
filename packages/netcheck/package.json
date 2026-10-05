@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "STUN wire format core for the netcheck engine (tailscale net/stun aligned): binding request/response codec with SOFTWARE+FINGERPRINT attrs, XOR-MAPPED-ADDRESS parsing, and a deterministic StunTransaction building block. Engine scheduling (endpoint enumeration / port-mapping protocols) is phase 2.",
+  "description": "STUN wire format core + netcheck probe engine scheduling (tailscale net/netcheck aligned): binding request/response codec, deterministic StunTransaction, clock-driven probe-plan state machine (initial/incremental plans, debounce, early-stop), report aggregation with PreferredDERP hysteresis. Wire/IO (UDP sockets, DNS, timers, HTTPS/ICMP/portmapper probes) is injected by the app bridge.",
   "exports": {
     ".": "./src/index.ts"
   },

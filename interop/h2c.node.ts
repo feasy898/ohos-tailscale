@@ -11,9 +11,28 @@
  * - HPACK 用"字面量、不索引、不 Huffman"编码请求头（Go hpack 解码器标准支持）；
  * - 响应不解析 HEADERS（按帧长度跳过），只收 stream N 的 DATA 帧直到 END_STREAM；
  * - 忽略 WINDOW_UPDATE/PING/GOAWAY 之外的杂项帧（收到 GOAWAY 抛错）。
+ *
+ * 文件末尾另有 CLI 薄壳（interop/regress.mjs 阶段 3 入口，PLAN P0-5 三缺陷之三）：
+ * 建 Noise 会话 + 发一次 h2 请求 + 打印 H2C PASS。类本体保持零 process 面；
+ * 薄壳仅持 process.argv/console.log，且仅在本文件为入口时执行——register/derp
+ * 以模块形态 import 本文件，薄壳必须对它们不可见。
  */
 
-import type { ControlBaseSession, ControlBaseDuplex } from '../packages/noise/src/controlbase.ts';
+import http from 'node:http';
+import { randomBytes } from 'node:crypto';
+
+import { ArrayRng } from '../packages/common/src/index.ts';
+import { x25519GenerateKeyPair } from '../packages/crypto/src/index.ts';
+import {
+  controlbaseBuildInitiation,
+  controlbaseCompleteHandshake,
+  type ControlBaseDuplex,
+  type ControlBaseSession,
+} from '../packages/noise/src/controlbase.ts';
+import {
+  TAILCFG_CURRENT_CAPABILITY_VERSION,
+  encodeRegisterRequest,
+} from '../packages/control/src/index.ts';
 
 const H2_PREFACE: string = 'PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n';
 
@@ -278,4 +297,224 @@ function ascii(b: Uint8Array): string {
     out += String.fromCharCode(b[i]);
   }
   return out;
+}
+
+// ---------------------------------------------------------------- CLI 薄壳
+// 以下仅在本文件被当作入口执行（interop/regress.mjs 阶段 3）；被 register/derp
+// 以模块形态 import 时全部跳过。类本体（H2OverNoise 及其私有方法）不碰 process。
+
+const isCliEntry: boolean = (process.argv[1] ?? '').endsWith('h2c.node.ts');
+
+function fail(message: string): never {
+  console.error('FAIL: ' + message);
+  process.exit(1);
+}
+
+/** /key 端点发现控制面 Noise 静态公钥（与 register.node.ts 同解析，兼容 hex 与 mkey JSON 两形态）。 */
+function fetchControlKey(baseUrl: string): Promise<Uint8Array> {
+  return new Promise<Uint8Array>((resolve: (k: Uint8Array) => void, reject: (e: Error) => void) => {
+    http
+      .get(baseUrl + '/key?v=' + String(TAILCFG_CURRENT_CAPABILITY_VERSION), (res: http.IncomingMessage) => {
+        let body: string = '';
+        res.on('data', (d: Buffer) => {
+          body += String(d);
+        });
+        res.on('end', () => {
+          const raw: string = body.trim();
+          let hex: string = raw;
+          if (raw.startsWith('{')) {
+            try {
+              const parsed = JSON.parse(raw) as { publicKey?: string };
+              hex = (parsed.publicKey === undefined ? '' : parsed.publicKey).toLowerCase();
+            } catch (e) {
+              reject(new Error('/key JSON parse failed: ' + String(e)));
+              return;
+            }
+          } else {
+            hex = raw.toLowerCase();
+          }
+          hex = hex.replace(/^pubkey:/, '').replace(/^mkey:/, '').trim();
+          if (!/^[0-9a-f]{64}$/.test(hex)) {
+            reject(new Error('/key returned unexpected payload: ' + body.slice(0, 80)));
+            return;
+          }
+          const out: Uint8Array = new Uint8Array(32);
+          for (let i = 0; i < 32; i += 1) {
+            out[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+          }
+          resolve(out);
+        });
+      })
+      .on('error', reject);
+  });
+}
+
+/** node socket → ControlBaseDuplex 适配（含噪声响应之后残留字节的归还通道）。 */
+class CliSocketDuplex implements ControlBaseDuplex {
+  private readonly queue: Buffer[] = [];
+  private waiter: ((b: Uint8Array) => void) | null = null;
+  private readonly socket: import('node:net').Socket;
+
+  public constructor(socket: import('node:net').Socket, prefix: Buffer) {
+    this.socket = socket;
+    if (prefix.length > 0) {
+      this.queue.push(prefix);
+    }
+    socket.on('data', (d: Buffer) => {
+      this.queue.push(d);
+      if (this.waiter !== null) {
+        const w = this.waiter;
+        this.waiter = null;
+        w(new Uint8Array(this.queue.shift() as Buffer));
+      }
+    });
+    socket.on('close', () => {
+      if (this.waiter !== null) {
+        const w = this.waiter;
+        this.waiter = null;
+        w(new Uint8Array(0));
+      }
+    });
+    socket.on('error', () => {
+      /* close 事件随后到达 */
+    });
+  }
+
+  public async send(data: Uint8Array): Promise<void> {
+    this.socket.write(Buffer.from(data));
+  }
+
+  public prepend(data: Uint8Array): void {
+    if (data.length === 0) {
+      return;
+    }
+    this.queue.unshift(Buffer.from(data));
+    if (this.waiter !== null) {
+      const w = this.waiter;
+      this.waiter = null;
+      w(new Uint8Array(this.queue.shift() as Buffer));
+    }
+  }
+
+  public async receive(): Promise<Uint8Array> {
+    const queued: Buffer | undefined = this.queue.shift();
+    if (queued !== undefined) {
+      return new Uint8Array(queued);
+    }
+    if (this.socket.destroyed) {
+      return new Uint8Array(0);
+    }
+    return new Promise<Uint8Array>((resolve: (b: Uint8Array) => void) => {
+      this.waiter = resolve;
+    });
+  }
+
+  public async close(): Promise<void> {
+    this.socket.destroy();
+  }
+}
+
+/** POST /ts2021 协议升级；initiation 内嵌 X-Tailscale-Handshake 头。 */
+function upgradeRequest(baseUrl: string, initFrame: Uint8Array): Promise<import('node:net').Socket> {
+  const url: URL = new URL(baseUrl + '/ts2021');
+  return new Promise<import('node:net').Socket>((resolve: (s: import('node:net').Socket) => void, reject: (e: Error) => void) => {
+    const req: http.ClientRequest = http.request(
+      {
+        host: url.hostname,
+        port: Number(url.port),
+        method: 'POST',
+        path: url.pathname,
+        headers: {
+          Host: url.host,
+          Connection: 'upgrade',
+          Upgrade: 'tailscale-control-protocol',
+          'X-Tailscale-Handshake': Buffer.from(initFrame).toString('base64'),
+        },
+      },
+      (res: http.IncomingMessage) => {
+        let body: string = '';
+        res.on('data', (d: Buffer) => {
+          body += String(d);
+        });
+        res.on('end', () => reject(new Error('upgrade refused: HTTP ' + String(res.statusCode) + ' ' + body.slice(0, 200))));
+      },
+    );
+    req.on('upgrade', (_res: http.IncomingMessage, socket: import('node:net').Socket, _head: Buffer) => {
+      resolve(socket);
+    });
+    req.on('error', reject);
+    req.end();
+  });
+}
+
+/** 精确读满 n 字节（允许单次多读，尾巴留给 EarlyNoise）。 */
+async function readExactAllowExtra(duplex: ControlBaseDuplex, n: number): Promise<Uint8Array> {
+  const acc: Uint8Array[] = [];
+  let total: number = 0;
+  while (total < n) {
+    const chunk: Uint8Array = await duplex.receive();
+    if (chunk.length === 0) {
+      fail('connection closed during noise handshake response（收到 ' + String(total) + '/' + String(n) + ' 字节）');
+    }
+    acc.push(chunk);
+    total += chunk.length;
+  }
+  const out: Uint8Array = new Uint8Array(total);
+  let off: number = 0;
+  for (const c of acc) {
+    out.set(c, off);
+    off += c.length;
+  }
+  return out;
+}
+
+async function cliMain(baseUrl: string, authKey: string): Promise<void> {
+  console.log('[1/4] /key 密钥发现');
+  const controlKey: Uint8Array = await fetchControlKey(baseUrl);
+
+  console.log('[2/4] 生成机器身份并构建 initiation');
+  const machine = x25519GenerateKeyPair(new ArrayRng(randomBytes(64)));
+  const node = x25519GenerateKeyPair(new ArrayRng(randomBytes(64)));
+  const init = controlbaseBuildInitiation(machine.privateKey, controlKey, new ArrayRng(randomBytes(64)));
+
+  console.log('[3/4] POST /ts2021 升级 + Noise IK 握手');
+  const socket: import('node:net').Socket = await upgradeRequest(baseUrl, init.frame);
+  const duplex: CliSocketDuplex = new CliSocketDuplex(socket, Buffer.alloc(0));
+  const respBytes: Uint8Array = await readExactAllowExtra(duplex, 51);
+  const session: ControlBaseSession = controlbaseCompleteHandshake(init, respBytes.slice(0, 51));
+  duplex.prepend(respBytes.slice(51));
+
+  console.log('[4/4] HTTP/2 over Noise：POST /machine/register');
+  const h2: H2OverNoise = new H2OverNoise(session, duplex);
+  const body: string = encodeRegisterRequest({
+    capabilityVersion: TAILCFG_CURRENT_CAPABILITY_VERSION,
+    nodeKeyPublic: node.publicKey,
+    oldNodeKeyPublic: null,
+    authKey: authKey,
+    expiryRfc3339: '2030-01-01T00:00:00Z',
+    hostname: 'ohos-h2c-interop-node',
+    os: 'OpenHarmony',
+    ephemeral: false,
+  });
+  const respBody: Uint8Array = await h2.post(new URL(baseUrl).host, '/machine/register', body);
+  const text: string = new TextDecoder().decode(respBody);
+  if (text.length === 0) {
+    fail('register 响应体为空——h2 帧层未收到 DATA（帧层坏了，不是鉴权问题）');
+  }
+  console.log('      register 响应: ' + text.slice(0, 200));
+
+  await session.close(duplex);
+  console.log('');
+  console.log('H2C PASS: Noise 握手 + HTTP/2 over Noise 往返全链路打通');
+  process.exit(0);
+}
+
+if (isCliEntry) {
+  const [, , baseUrlArg, authKeyArg] = process.argv;
+  if (baseUrlArg === undefined || authKeyArg === undefined) {
+    fail('usage: node --experimental-strip-types interop/h2c.node.ts <baseUrl> <authKey>');
+  }
+  cliMain(baseUrlArg.replace(/\/$/, ''), authKeyArg).catch((e: unknown) => {
+    fail(e instanceof Error ? e.message : String(e));
+  });
 }

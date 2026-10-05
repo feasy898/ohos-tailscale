@@ -1,0 +1,564 @@
+{
+ "model_status": [
+  {
+   "status": "completed",
+   "error_type": null,
+   "n": 90217,
+   "retries": 0,
+   "ctx_exceeded": 0
+  },
+  {
+   "status": "completed",
+   "error_type": "rate_limited",
+   "n": 3559,
+   "retries": 5750,
+   "ctx_exceeded": 0
+  },
+  {
+   "status": "completed",
+   "error_type": "timeout",
+   "n": 1272,
+   "retries": 2501,
+   "ctx_exceeded": 0
+  },
+  {
+   "status": "completed",
+   "error_type": "stream_idle_timeout",
+   "n": 604,
+   "retries": 840,
+   "ctx_exceeded": 0
+  },
+  {
+   "status": "error",
+   "error_type": "stream_idle_timeout",
+   "n": 203,
+   "retries": 11,
+   "ctx_exceeded": 0
+  },
+  {
+   "status": "cancelled",
+   "error_type": "cancelled",
+   "n": 151,
+   "retries": 792,
+   "ctx_exceeded": 0
+  },
+  {
+   "status": "completed",
+   "error_type": "network_error",
+   "n": 85,
+   "retries": 208,
+   "ctx_exceeded": 0
+  },
+  {
+   "status": "error",
+   "error_type": "network_error",
+   "n": 70,
+   "retries": 12,
+   "ctx_exceeded": 0
+  },
+  {
+   "status": "error",
+   "error_type": "unknown",
+   "n": 31,
+   "retries": 3,
+   "ctx_exceeded": 0
+  },
+  {
+   "status": "completed",
+   "error_type": "provider_overloaded",
+   "n": 25,
+   "retries": 66,
+   "ctx_exceeded": 0
+  },
+  {
+   "status": "error",
+   "error_type": "rate_limited",
+   "n": 19,
+   "retries": 20,
+   "ctx_exceeded": 0
+  },
+  {
+   "status": "error",
+   "error_type": "context_exceeded",
+   "n": 14,
+   "retries": 0,
+   "ctx_exceeded": 14
+  },
+  {
+   "status": "completed",
+   "error_type": "unknown",
+   "n": 13,
+   "retries": 186,
+   "ctx_exceeded": 0
+  },
+  {
+   "status": "error",
+   "error_type": "ModelProtocolError",
+   "n": 9,
+   "retries": 0,
+   "ctx_exceeded": 0
+  },
+  {
+   "status": "error",
+   "error_type": "invalid_request",
+   "n": 8,
+   "retries": 4,
+   "ctx_exceeded": 0
+  },
+  {
+   "status": "completed",
+   "error_type": "server_error",
+   "n": 4,
+   "retries": 19,
+   "ctx_exceeded": 0
+  },
+  {
+   "status": "error",
+   "error_type": "server_error",
+   "n": 4,
+   "retries": 4,
+   "ctx_exceeded": 0
+  },
+  {
+   "status": "error",
+   "error_type": "cancelled",
+   "n": 3,
+   "retries": 0,
+   "ctx_exceeded": 0
+  },
+  {
+   "status": "error",
+   "error_type": "model_error",
+   "n": 2,
+   "retries": 1,
+   "ctx_exceeded": 0
+  },
+  {
+   "status": "error",
+   "error_type": "timeout",
+   "n": 2,
+   "retries": 20,
+   "ctx_exceeded": 0
+  }
+ ],
+ "model_errors": [
+  {
+   "error_type": "cancelled",
+   "error_code": null,
+   "msg": "Model request was cancelled.",
+   "n": 154
+  },
+  {
+   "error_type": "stream_idle_timeout",
+   "error_code": null,
+   "msg": "Model stream stalled: no event received for 60000ms.",
+   "n": 141
+  },
+  {
+   "error_type": "network_error",
+   "error_code": null,
+   "msg": "Network connection failed for the provider request.",
+   "n": 70
+  },
+  {
+   "error_type": "unknown",
+   "error_code": null,
+   "msg": "output new_sensitive (1027)",
+   "n": 25
+  },
+  {
+   "error_type": "stream_idle_timeout",
+   "error_code": null,
+   "msg": "Model stream stalled: no event received for 90000ms.",
+   "n": 24
+  },
+  {
+   "error_type": "context_exceeded",
+   "error_code": null,
+   "msg": "Model request exceeded the provider context window.",
+   "n": 14
+  },
+  {
+   "error_type": "stream_idle_timeout",
+   "error_code": null,
+   "msg": "Model stream stalled: no event received for 120000ms.",
+   "n": 13
+  },
+  {
+   "error_type": "stream_idle_timeout",
+   "error_code": null,
+   "msg": "Model stream stalled: no event received for 150000ms.",
+   "n": 12
+  },
+  {
+   "error_type": "ModelProtocolError",
+   "error_code": null,
+   "msg": "Model request auth is unavailable: account:bigmodel-offpeak-idle-plan/GLM-5.3-Flash",
+   "n": 9
+  },
+  {
+   "error_type": "stream_idle_timeout",
+   "error_code": null,
+   "msg": "Model stream stalled: no event received for 180000ms.",
+   "n": 7
+  },
+  {
+   "error_type": "rate_limited",
+   "error_code": null,
+   "msg": "user concurrency limit exceeded",
+   "n": 6
+  },
+  {
+   "error_type": "invalid_request",
+   "error_code": null,
+   "msg": "exceed quota limit",
+   "n": 5
+  },
+  {
+   "error_type": "invalid_request",
+   "error_code": null,
+   "msg": "Provider rejected the model request.",
+   "n": 3
+  },
+  {
+   "error_type": "stream_idle_timeout",
+   "error_code": null,
+   "msg": "Model stream stalled: no event received for 210000ms.",
+   "n": 3
+  },
+  {
+   "error_type": "model_error",
+   "error_code": "MODEL_ERROR",
+   "msg": "Model returned no text, no tool calls, and no usage before completing the turn.",
+   "n": 2
+  }
+ ],
+ "tool_stats": [
+  {
+   "tool": "Bash",
+   "calls": 62509,
+   "fails": 1359,
+   "retries": 0,
+   "avg_ms": 18648,
+   "nonzero_exit": 4790
+  },
+  {
+   "tool": "Read",
+   "calls": 18016,
+   "fails": 555,
+   "retries": 0,
+   "avg_ms": 1000,
+   "nonzero_exit": 0
+  },
+  {
+   "tool": "Edit",
+   "calls": 10860,
+   "fails": 649,
+   "retries": 0,
+   "avg_ms": 316,
+   "nonzero_exit": 0
+  },
+  {
+   "tool": "Write",
+   "calls": 7087,
+   "fails": 202,
+   "retries": 0,
+   "avg_ms": 573,
+   "nonzero_exit": 0
+  },
+  {
+   "tool": "TodoWrite",
+   "calls": 4217,
+   "fails": 9,
+   "retries": 0,
+   "avg_ms": 67,
+   "nonzero_exit": 0
+  },
+  {
+   "tool": "mcp__node_repl__js",
+   "calls": 4033,
+   "fails": 9,
+   "retries": 0,
+   "avg_ms": 648,
+   "nonzero_exit": 0
+  },
+  {
+   "tool": "WebFetch",
+   "calls": 3646,
+   "fails": 613,
+   "retries": 0,
+   "avg_ms": 21551,
+   "nonzero_exit": 0
+  },
+  {
+   "tool": "submit_result",
+   "calls": 2012,
+   "fails": 146,
+   "retries": 0,
+   "avg_ms": 67,
+   "nonzero_exit": 0
+  },
+  {
+   "tool": "TaskOutput",
+   "calls": 1186,
+   "fails": 27,
+   "retries": 0,
+   "avg_ms": 229648,
+   "nonzero_exit": 0
+  },
+  {
+   "tool": "WebSearch",
+   "calls": 754,
+   "fails": 75,
+   "retries": 0,
+   "avg_ms": 32201,
+   "nonzero_exit": 0
+  },
+  {
+   "tool": "CreateWorkflow",
+   "calls": 442,
+   "fails": 40,
+   "retries": 0,
+   "avg_ms": 766,
+   "nonzero_exit": 0
+  },
+  {
+   "tool": "TaskStop",
+   "calls": 225,
+   "fails": 10,
+   "retries": 0,
+   "avg_ms": 244,
+   "nonzero_exit": 0
+  },
+  {
+   "tool": "Agent",
+   "calls": 181,
+   "fails": 26,
+   "retries": 0,
+   "avg_ms": 397724,
+   "nonzero_exit": 0
+  },
+  {
+   "tool": "GetWorkflowRun",
+   "calls": 126,
+   "fails": 5,
+   "retries": 0,
+   "avg_ms": 211,
+   "nonzero_exit": 0
+  },
+  {
+   "tool": "AmendWorkflow",
+   "calls": 113,
+   "fails": 5,
+   "retries": 0,
+   "avg_ms": 1361,
+   "nonzero_exit": 0
+  },
+  {
+   "tool": "Skill",
+   "calls": 69,
+   "fails": 34,
+   "retries": 0,
+   "avg_ms": 1751,
+   "nonzero_exit": 0
+  },
+  {
+   "tool": "EvalWorkflowSnippet",
+   "calls": 53,
+   "fails": 8,
+   "retries": 0,
+   "avg_ms": 45455,
+   "nonzero_exit": 0
+  },
+  {
+   "tool": "TodoRead",
+   "calls": 34,
+   "fails": 0,
+   "retries": 0,
+   "avg_ms": 42,
+   "nonzero_exit": 0
+  },
+  {
+   "tool": "ListWorkflowRuns",
+   "calls": 33,
+   "fails": 22,
+   "retries": 0,
+   "avg_ms": 29,
+   "nonzero_exit": 0
+  },
+  {
+   "tool": "escalate",
+   "calls": 32,
+   "fails": 0,
+   "retries": 0,
+   "avg_ms": 1185939,
+   "nonzero_exit": 0
+  },
+  {
+   "tool": "ResolveWorkflowQuestion",
+   "calls": 32,
+   "fails": 0,
+   "retries": 0,
+   "avg_ms": 31,
+   "nonzero_exit": 0
+  },
+  {
+   "tool": "ListModels",
+   "calls": 25,
+   "fails": 2,
+   "retries": 0,
+   "avg_ms": 23,
+   "nonzero_exit": 0
+  },
+  {
+   "tool": "AskUserQuestion",
+   "calls": 20,
+   "fails": 1,
+   "retries": 0,
+   "avg_ms": 39,
+   "nonzero_exit": 0
+  },
+  {
+   "tool": "mcp__plugin_mimosa_mimosa__security_scan_status",
+   "calls": 17,
+   "fails": 0,
+   "retries": 0,
+   "avg_ms": 116,
+   "nonzero_exit": 0
+  },
+  {
+   "tool": "ResumeWorkflowRun",
+   "calls": 16,
+   "fails": 1,
+   "retries": 0,
+   "avg_ms": 1425,
+   "nonzero_exit": 0
+  }
+ ],
+ "local_plane_roles": [
+  {
+   "role": "merger",
+   "sessions": 33,
+   "model_fails": 0,
+   "model_min": 70.0,
+   "out_tokens": 208882
+  },
+  {
+   "role": "other",
+   "sessions": 18,
+   "model_fails": 0,
+   "model_min": 175.0,
+   "out_tokens": 741082
+  },
+  {
+   "role": "planner",
+   "sessions": 9,
+   "model_fails": 1,
+   "model_min": 223.0,
+   "out_tokens": 715991
+  },
+  {
+   "role": "worker",
+   "sessions": 24,
+   "model_fails": 2,
+   "model_min": 168.0,
+   "out_tokens": 578674
+  }
+ ],
+ "dwf_runs": [
+  {
+   "status": "cancelled",
+   "n": 81,
+   "spent_Mtok": 677.7
+  },
+  {
+   "status": "completed",
+   "n": 303,
+   "spent_Mtok": 5496.4
+  },
+  {
+   "status": "failed",
+   "n": 68,
+   "spent_Mtok": 1083.0
+  },
+  {
+   "status": "running",
+   "n": 10,
+   "spent_Mtok": 97.4
+  }
+ ],
+ "local_plane_tool_errors": [
+  {
+   "tool": "Edit",
+   "error_type": "tool_execution_failed",
+   "msg": "File has not been read yet. Read it first before writing to it.",
+   "n": 18
+  },
+  {
+   "tool": "Edit",
+   "error_type": "tool_execution_failed",
+   "msg": "File has been modified since read, either by the user or by a linter. Read it again before attempting to write it.",
+   "n": 9
+  },
+  {
+   "tool": "Edit",
+   "error_type": "tool_execution_failed",
+   "msg": "String to replace not found in file. String: 用法：python aggregate.py --run-dir <run 目录> --pack <pack 目录> [--out <matrix.json> 路径] 退出码：0 聚合完成且",
+   "n": 2
+  },
+  {
+   "tool": "Write",
+   "error_type": "tool_execution_failed",
+   "msg": "File has not been read yet. Read it first before writing to it.",
+   "n": 2
+  },
+  {
+   "tool": "Edit",
+   "error_type": "tool_execution_failed",
+   "msg": "File does not exist. Note: your current working directory is D:\\workspace\\local-plane-ensemble\\20261004-ot0003\\slot2-glm-b.",
+   "n": 1
+  },
+  {
+   "tool": "Edit",
+   "error_type": "tool_execution_failed",
+   "msg": "File does not exist. Note: your current working directory is D:\\workspace\\local-plane.",
+   "n": 1
+  },
+  {
+   "tool": "Edit",
+   "error_type": "tool_execution_failed",
+   "msg": "String to replace not found in file. String: # CURRENT-STATE · 现状快照（planner 每轮更新；单行单 id 查重） > 格式纪律：一行一个事实，`id: 状态词： 一句话说明`。追加前先 id 查重。最近更新：2",
+   "n": 1
+  },
+  {
+   "tool": "Edit",
+   "error_type": "tool_execution_failed",
+   "msg": "String to replace not found in file. String: - 上车三件复核：PROTOCOL v1.1 → REGISTRY（7 项目在册，merger 在册仓 3 个）→ DEV-PLAN §4.2（本机 D:\\workspace\\collab-",
+   "n": 1
+  },
+  {
+   "tool": "Edit",
+   "error_type": "tool_execution_failed",
+   "msg": "String to replace not found in file. String: - 累计验收：**17 任务交付全 PASS**（第六轮 2 张：PU-0003/PU-0004，均独立亲跑复核——PU-0003 verify 亲跑 exit 0+独立 sha256×2 ",
+   "n": 1
+  },
+  {
+   "tool": "Edit",
+   "error_type": "tool_execution_failed",
+   "msg": "String to replace not found in file. String: - 逐仓实查（GitHub API 2026-10-04T02:56Z）：collab-plane open PR=**0**（幂等表唯一条目 PR#3 维持 MERGED 终态，无新开无漂",
+   "n": 1
+  },
+  {
+   "tool": "Edit",
+   "error_type": "tool_execution_failed",
+   "msg": "String to replace not found in file. String: | SF-0005 | WS4-A dev 题池构建（首发三型 8 题+oracle+三层用例+L1/L2 双层判分器；D1-D4 机械面） | any | P0 | active | —（",
+   "n": 1
+  },
+  {
+   "tool": "Edit",
+   "error_type": "tool_execution_failed",
+   "msg": "String to replace not found in file. String: | SF-0005 | WS4-A dev 题池构建（首发三型 8 题+oracle+三层用例+L1/L2 双层判分器；D1-D4 机械面） | any | P0 | backlog | —",
+   "n": 1
+  }
+ ]
+}

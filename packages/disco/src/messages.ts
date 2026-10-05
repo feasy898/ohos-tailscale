@@ -19,13 +19,30 @@
  *   version≠0 / 长度非 18 倍数 / 空 → 返回空端点列表（不报错）。
  *
  * 类型 0x04–0x09（UDP relay 家族：BindUDPRelayEndpoint* / CallMeMaybeVia /
- * AllocateUDPRelayEndpoint*）上游已注册但绑定 net/udprelay 服务端语义，
- * 本轮不实现——解码层对它们与未知类型一样抛 DiscoError('TYPE')，与"旧客户端
- * 收到新类型即忽略"的上游行为一致；二期随 UDP relay 扩展。
+ * AllocateUDPRelayEndpoint*，全部为 peer-relay 协议面）的编解码与 bind 握手
+ * 收发辅助在 relay.ts（上游锚定 disco.go:44-54、312-623）；本文件保留统一
+ * 类型码表 DiscoMessageType 与密封内层报文分发 discoMessageParse——9 个类型
+ * 走同一分发点（上游 Parse 的 type switch，disco.go:81-109）。未知/未来类型
+ * （0x0A+）仍抛 DiscoError('TYPE')，由调用方按「旧客户端收到新类型即丢弃」
+ * 的上游行为静默处理（disco.go:106-108 + 文件头注 "always ignore bytes at
+ * the end"，disco.go:18）。
  */
 
 import { ByteReader, ByteWriter } from '@ohos-tailscale/common';
 import { DiscoError } from './errors.ts';
+import {
+  DiscoRelayMessageType,
+  allocateUDPRelayEndpointRequestParse,
+  allocateUDPRelayEndpointResponseParse,
+  bindUDPRelayAnswerParse,
+  bindUDPRelayChallengeParse,
+  bindUDPRelayEndpointParse,
+  callMeMaybeViaParse,
+  type DiscoAllocateUDPRelayEndpointRequest,
+  type DiscoAllocateUDPRelayEndpointResponse,
+  type DiscoBindUDPRelayEndpoint,
+  type DiscoCallMeMaybeVia,
+} from './relay.ts';
 
 /** sealed 内层报文头：type u8 + version u8（上游 MessageHeaderLen = 2）。 */
 const MSG_HEADER_LEN: number = 2;
@@ -45,22 +62,40 @@ const PONG_LEN: number = DISCO_TXID_LEN_BYTES + 16 + 2;
 /** Ping 载荷最小长度 = TxID 12 + NodeKey 32（上游 PingLen）。 */
 const PING_LEN: number = DISCO_TXID_LEN_BYTES + DISCO_KEY_LEN_BYTES;
 
-/** 消息类型常量对象（R5 模式，禁 enum；0x04–0x09 上游已注册、本轮未实现）。 */
+/** 消息类型码表（0x01–0x09，值锚定 disco.go:44-54；R5 模式，禁 enum）。 */
 export interface DiscoMessageTypeE {
   Ping: number;
   Pong: number;
   CallMeMaybe: number;
+  BindUDPRelayEndpoint: number;
+  BindUDPRelayEndpointChallenge: number;
+  BindUDPRelayEndpointAnswer: number;
+  CallMeMaybeVia: number;
+  AllocateUDPRelayEndpointRequest: number;
+  AllocateUDPRelayEndpointResponse: number;
 }
 
 export const DiscoMessageType: DiscoMessageTypeE = {
   Ping: 0x01,
   Pong: 0x02,
   CallMeMaybe: 0x03,
+  // relay 家族 0x04–0x09：字面量只在 relay.ts 的 DiscoRelayMessageType 写一份
+  // （disco.go:44-54），此处引用，避免两处码表漂移。
+  BindUDPRelayEndpoint: DiscoRelayMessageType.BindUDPRelayEndpoint,
+  BindUDPRelayEndpointChallenge: DiscoRelayMessageType.BindUDPRelayEndpointChallenge,
+  BindUDPRelayEndpointAnswer: DiscoRelayMessageType.BindUDPRelayEndpointAnswer,
+  CallMeMaybeVia: DiscoRelayMessageType.CallMeMaybeVia,
+  AllocateUDPRelayEndpointRequest: DiscoRelayMessageType.AllocateUDPRelayEndpointRequest,
+  AllocateUDPRelayEndpointResponse: DiscoRelayMessageType.AllocateUDPRelayEndpointResponse,
 };
 
-/** 当前实现接受的类型集合（0x01–0x03；其余一律 'TYPE'）。 */
+/** 当前实现接受的类型集合（0x01–0x09；其余一律 'TYPE'）。 */
 function isSupportedType(t: number): boolean {
-  return t === DiscoMessageType.Ping || t === DiscoMessageType.Pong || t === DiscoMessageType.CallMeMaybe;
+  return t === DiscoMessageType.Ping || t === DiscoMessageType.Pong || t === DiscoMessageType.CallMeMaybe ||
+    t === DiscoMessageType.BindUDPRelayEndpoint || t === DiscoMessageType.BindUDPRelayEndpointChallenge ||
+    t === DiscoMessageType.BindUDPRelayEndpointAnswer || t === DiscoMessageType.CallMeMaybeVia ||
+    t === DiscoMessageType.AllocateUDPRelayEndpointRequest ||
+    t === DiscoMessageType.AllocateUDPRelayEndpointResponse;
 }
 
 /** disco Ping（字段均为独立拷贝；nodeKey 为 null 表示不带 NodeKey）。 */
@@ -244,6 +279,9 @@ export function callMeMaybeParse(p: Uint8Array): DiscoCallMeMaybe {
 /**
  * 解码密封内层报文的类型判定载体（ArkTS 无联合类型，用可空字段载体）。
  * kind/version 总有值；对应类型的载荷挂在各自字段（其余为 null）。
+ * 注意：relay 家族（0x04–0x09）在 ver≠0 的宽松路径下返回的是**零值消息**
+ * 而非 null（上游 parse 返回 zero value + nil error，disco.go:491-505、
+ * 526-537、651-658），判「有没有载荷」要看 version 与字段内容。
  */
 export interface DiscoDecodedMessage {
   kind: number;
@@ -251,11 +289,18 @@ export interface DiscoDecodedMessage {
   ping: DiscoPing | null;
   pong: DiscoPong | null;
   callMeMaybe: DiscoCallMeMaybe | null;
+  bindUDPRelayEndpoint: DiscoBindUDPRelayEndpoint | null;
+  bindUDPRelayChallenge: DiscoBindUDPRelayEndpoint | null;
+  bindUDPRelayAnswer: DiscoBindUDPRelayEndpoint | null;
+  callMeMaybeVia: DiscoCallMeMaybeVia | null;
+  allocateUDPRelayRequest: DiscoAllocateUDPRelayEndpointRequest | null;
+  allocateUDPRelayResponse: DiscoAllocateUDPRelayEndpointResponse | null;
 }
 
 /**
- * 解码密封内层报文（上游 Parse 的类型分发）：
- * 已实现类型走各自解析；未实现/未知类型抛 DiscoError('TYPE')。
+ * 解码密封内层报文（上游 Parse 的类型分发，disco.go:81-109）：
+ * 0x01–0x09 走各自解析；未知/未来类型（0x0A+）抛 DiscoError('TYPE')——
+ * 上游 unknown message type 错误路径（disco.go:106-107），调用方据此丢弃。
  */
 export function discoMessageParse(p: Uint8Array): DiscoDecodedMessage {
   if (p.length < MSG_HEADER_LEN) {
@@ -266,7 +311,7 @@ export function discoMessageParse(p: Uint8Array): DiscoDecodedMessage {
   if (!isSupportedType(t)) {
     throw new DiscoError(
       'TYPE',
-      'disco message parse: unsupported message type 0x' + t.toString(16) + ' (0x04-0x09 upstream UDP-relay family not implemented)',
+      'disco message parse: unknown message type 0x' + t.toString(16),
     ) as Error;
   }
   if (t === DiscoMessageType.Ping) {
@@ -277,6 +322,12 @@ export function discoMessageParse(p: Uint8Array): DiscoDecodedMessage {
       ping: ping,
       pong: null,
       callMeMaybe: null,
+      bindUDPRelayEndpoint: null,
+      bindUDPRelayChallenge: null,
+      bindUDPRelayAnswer: null,
+      callMeMaybeVia: null,
+      allocateUDPRelayRequest: null,
+      allocateUDPRelayResponse: null,
     };
     return out;
   }
@@ -288,6 +339,114 @@ export function discoMessageParse(p: Uint8Array): DiscoDecodedMessage {
       ping: null,
       pong: pong,
       callMeMaybe: null,
+      bindUDPRelayEndpoint: null,
+      bindUDPRelayChallenge: null,
+      bindUDPRelayAnswer: null,
+      callMeMaybeVia: null,
+      allocateUDPRelayRequest: null,
+      allocateUDPRelayResponse: null,
+    };
+    return out;
+  }
+  if (t === DiscoMessageType.BindUDPRelayEndpoint) {
+    const bind: DiscoBindUDPRelayEndpoint = bindUDPRelayEndpointParse(p);
+    const out: DiscoDecodedMessage = {
+      kind: t,
+      version: ver,
+      ping: null,
+      pong: null,
+      callMeMaybe: null,
+      bindUDPRelayEndpoint: bind,
+      bindUDPRelayChallenge: null,
+      bindUDPRelayAnswer: null,
+      callMeMaybeVia: null,
+      allocateUDPRelayRequest: null,
+      allocateUDPRelayResponse: null,
+    };
+    return out;
+  }
+  if (t === DiscoMessageType.BindUDPRelayEndpointChallenge) {
+    const challenge: DiscoBindUDPRelayEndpoint = bindUDPRelayChallengeParse(p);
+    const out: DiscoDecodedMessage = {
+      kind: t,
+      version: ver,
+      ping: null,
+      pong: null,
+      callMeMaybe: null,
+      bindUDPRelayEndpoint: null,
+      bindUDPRelayChallenge: challenge,
+      bindUDPRelayAnswer: null,
+      callMeMaybeVia: null,
+      allocateUDPRelayRequest: null,
+      allocateUDPRelayResponse: null,
+    };
+    return out;
+  }
+  if (t === DiscoMessageType.BindUDPRelayEndpointAnswer) {
+    const answer: DiscoBindUDPRelayEndpoint = bindUDPRelayAnswerParse(p);
+    const out: DiscoDecodedMessage = {
+      kind: t,
+      version: ver,
+      ping: null,
+      pong: null,
+      callMeMaybe: null,
+      bindUDPRelayEndpoint: null,
+      bindUDPRelayChallenge: null,
+      bindUDPRelayAnswer: answer,
+      callMeMaybeVia: null,
+      allocateUDPRelayRequest: null,
+      allocateUDPRelayResponse: null,
+    };
+    return out;
+  }
+  if (t === DiscoMessageType.CallMeMaybeVia) {
+    const via: DiscoCallMeMaybeVia = callMeMaybeViaParse(p);
+    const out: DiscoDecodedMessage = {
+      kind: t,
+      version: ver,
+      ping: null,
+      pong: null,
+      callMeMaybe: null,
+      bindUDPRelayEndpoint: null,
+      bindUDPRelayChallenge: null,
+      bindUDPRelayAnswer: null,
+      callMeMaybeVia: via,
+      allocateUDPRelayRequest: null,
+      allocateUDPRelayResponse: null,
+    };
+    return out;
+  }
+  if (t === DiscoMessageType.AllocateUDPRelayEndpointRequest) {
+    const req: DiscoAllocateUDPRelayEndpointRequest = allocateUDPRelayEndpointRequestParse(p);
+    const out: DiscoDecodedMessage = {
+      kind: t,
+      version: ver,
+      ping: null,
+      pong: null,
+      callMeMaybe: null,
+      bindUDPRelayEndpoint: null,
+      bindUDPRelayChallenge: null,
+      bindUDPRelayAnswer: null,
+      callMeMaybeVia: null,
+      allocateUDPRelayRequest: req,
+      allocateUDPRelayResponse: null,
+    };
+    return out;
+  }
+  if (t === DiscoMessageType.AllocateUDPRelayEndpointResponse) {
+    const resp: DiscoAllocateUDPRelayEndpointResponse = allocateUDPRelayEndpointResponseParse(p);
+    const out: DiscoDecodedMessage = {
+      kind: t,
+      version: ver,
+      ping: null,
+      pong: null,
+      callMeMaybe: null,
+      bindUDPRelayEndpoint: null,
+      bindUDPRelayChallenge: null,
+      bindUDPRelayAnswer: null,
+      callMeMaybeVia: null,
+      allocateUDPRelayRequest: null,
+      allocateUDPRelayResponse: resp,
     };
     return out;
   }
@@ -298,6 +457,12 @@ export function discoMessageParse(p: Uint8Array): DiscoDecodedMessage {
     ping: null,
     pong: null,
     callMeMaybe: cmm,
+    bindUDPRelayEndpoint: null,
+    bindUDPRelayChallenge: null,
+    bindUDPRelayAnswer: null,
+    callMeMaybeVia: null,
+    allocateUDPRelayRequest: null,
+    allocateUDPRelayResponse: null,
   };
   return out;
 }

@@ -1,0 +1,572 @@
+# SESSION sess_subagent_agent_603dbc63-72fc-4766-b875-e0a29e4904b4
+title: 你是本项目的最终测试撰写人（GLM53）。仓库：D:\new-workspace\ohos-tailscale（W...
+dir: D:\new-workspace\ohos-tailscale
+time: 10-03 15:02 -> 10-03 15:56 | parts: 560
+================================================================================
+
+[TEXT @10-03 15:02] 你是本项目的最终测试撰写人（GLM53）。仓库：D:\new-workspace\ohos-tailscale（Windows，Git Bash，node v22.23.2 / npm 10.9.8，node_modules 已装；禁止 npm install、禁止 git commit、禁止修改任何既有文件——你只能新建文件，新建范围见下）。 【人类意图（最高优先级）】 为 docs/pre-device-plan/PLAN.md（25 个工作项 P0-1…P2-3，A 类完成定义 A1–A16，剧本 S0–S8，决策 D1–D13，owner 拍板点 O1–O7）撰写**最终实现测试**，分两类：开发者（后续开发 agent）可见的验收测试 + holdout 测试（开发 agent 不可见，用于独立验收、防过拟合）。后续由其他 agent 开发——他们看得到可见测试与全部规格，看不到 holdout 判定内容。 【输入材料】（全部通读） 1. docs/pre-device-plan/PLAN.md（被测规划） 2. docs/baseline-audit/BASELINE.md（事实基线） 3. 五份测试设计思考轨迹（docs/pre-device-plan/ 下）：thinking-test-glm53flash-1.md（host 自动化）、thinking-test-glm53flash-2.md（真机侧与交接面）、thinking-test-minimax-1.md（holdout 原则）、thinking-test-minimax-2.md（门禁 meta 测试）、thinking-test-minimax-3.md（文档一致性与剧本检查表） 需要时查仓库核实（新事实务必抽验后再写入正式测试）。 【五份思考已收敛的设计原则】（必须落实） - 划分原则：定义正确的测试可见；验证「门没被骗/没被掏空」的测试进 holdout；规格 100% 可见，holdout 只装判别力（变异集/扩展变体/哨兵/采样），两者永不改同一份规格。 - 每道新门/新检查的验收三件套：正控制（干净态绿）+ 负对照（注入已知违规必红、且红在可定位标识上）+ 结构断言（npm script 名/CI step 名/门注册表含此门）。只断言 exit≠0 不够——G0-5 的教训是「红在 syntax error 上」曾被误认有约束力。 - meta 测试独立成组（建议 npm run test:meta，作为 A17 新增判据——以「对 PLAN 的修订建议」形式记录，不改 PLAN.md 本身）。 - 门注册表 scripts/gates.registry.json（新文件）：每道门声明归属（ci:true/false，false 必须带非空理由），配「yml 字面匹配」反向断言防 CI 与本地门集合漂移。 - holdout 物理 isolation：内容出仓（首选写到仓外 D:\new-workspace\ohos-tailscale-holdout\；若环境禁止写仓外，回退到 docs/pre-device-plan/holdout-staging/ 并在 TESTS.md 写明 owner 须在开发开始前移出仓库，同时提供「staging 目录不存在」的哨兵测试）。runner 必须 fail-closed（无题即红）、以 glob 形态调 node --test（本环境裸目录形态不可用）、绝不 import 仓内 *.test.ts 或测试 he…[截断]
+
+[TEXT @10-03 15:04] The TodoWrite tool hasn't been used recently. If you're working on tasks that would benefit from tracking progress, consider using the TodoWrite tool to track progress. Also consider cleaning up the todo list if has become stale and no longer matches what you are working on. Only use it if it's relevant to the current work. This is just a gentle reminder - ignore if not applicable.
+
+[TEXT @10-03 15:08] The TodoWrite tool hasn't been used recently. If you're working on tasks that would benefit from tracking progress, consider using the TodoWrite tool to track progress. Also consider cleaning up the todo list if has become stale and no longer matches what you are working on. Only use it if it's relevant to the current work. This is just a gentle reminder - ignore if not applicable.
+
+[TEXT @10-03 15:13] The TodoWrite tool hasn't been used recently. If you're working on tasks that would benefit from tracking progress, consider using the TodoWrite tool to track progress. Also consider cleaning up the todo list if has become stale and no longer matches what you are working on. Only use it if it's relevant to the current work. This is just a gentle reminder - ignore if not applicable. Here are the existing contents of your todo list: [1. [completed] 核实仓库关键事实（计数/行号/假命令/环境） 2. [in_progress] 读取 mock-peerapi 配置面与 stun foreachAttr 语义 3. [pending] 生成 holdout 冻结基线（495 测试名清单 + 8 包导出面快照） 4. [pending] 写 scripts/gates.registry.json 5. [pending] 写 tests/plan/ 可见测试集（16 个测试文件 + lib + expected.json） 6. [pending] 写 scripts/test-plan.mjs 聚合 runner 7. [pending] 写 holdout 包到 D:/new-workspace/ohos-tailscale-holdout/ 8. [pending] 跑 runner 验证红绿状态符合预期 9. [pending] 写 docs/pre-device-plan/TESTS.md（600-900 行） 10. [pending] 终验：全套运行 + 交付摘要]
+
+[TEXT @10-03 15:16] The TodoWrite tool hasn't been used recently. If you're working on tasks that would benefit from tracking progress, consider using the TodoWrite tool to track progress. Also consider cleaning up the todo list if has become stale and no longer matches what you are working on. Only use it if it's relevant to the current work. This is just a gentle reminder - ignore if not applicable. Here are the existing contents of your todo list: [1. [completed] 核实仓库关键事实（计数/行号/假命令/环境） 2. [completed] 读取 mock-peerapi 配置面与 stun foreachAttr 语义 3. [completed] 生成 holdout 冻结基线（495 测试名清单 + 8 包导出面快照） 4. [completed] 写 scripts/gates.registry.json 5. [in_progress] 写 tests/plan/ 可见测试集（16 个测试文件 + lib + expected.json） 6. [pending] 写 scripts/test-plan.mjs 聚合 runner 7. [pending] 写 holdout 包到 D:/new-workspace/ohos-tailscale-holdout/ 8. [pending] 跑 runner 验证红绿状态符合预期 9. [pending] 写 docs/pre-device-plan/TESTS.md（600-900 行） 10. [pending] 终验：全套运行 + 交付摘要]
+
+[TEXT @10-03 15:19] The TodoWrite tool hasn't been used recently. If you're working on tasks that would benefit from tracking progress, consider using the TodoWrite tool to track progress. Also consider cleaning up the todo list if has become stale and no longer matches what you are working on. Only use it if it's relevant to the current work. This is just a gentle reminder - ignore if not applicable. Here are the existing contents of your todo list: [1. [completed] 核实仓库关键事实（计数/行号/假命令/环境） 2. [completed] 读取 mock-peerapi 配置面与 stun foreachAttr 语义 3. [completed] 生成 holdout 冻结基线（495 测试名清单 + 8 包导出面快照） 4. [completed] 写 scripts/gates.registry.json 5. [in_progress] 写 tests/plan/ 可见测试集（16 个测试文件 + lib + expected.json） 6. [pending] 写 scripts/test-plan.mjs 聚合 runner 7. [pending] 写 holdout 包到 D:/new-workspace/ohos-tailscale-holdout/ 8. [pending] 跑 runner 验证红绿状态符合预期 9. [pending] 写 docs/pre-device-plan/TESTS.md（600-900 行） 10. [pending] 终验：全套运行 + 交付摘要]
+
+[TEXT @10-03 15:21] The TodoWrite tool hasn't been used recently. If you're working on tasks that would benefit from tracking progress, consider using the TodoWrite tool to track progress. Also consider cleaning up the todo list if has become stale and no longer matches what you are working on. Only use it if it's relevant to the current work. This is just a gentle reminder - ignore if not applicable. Here are the existing contents of your todo list: [1. [completed] 核实仓库关键事实（计数/行号/假命令/环境） 2. [completed] 读取 mock-peerapi 配置面与 stun foreachAttr 语义 3. [completed] 生成 holdout 冻结基线（495 测试名清单 + 8 包导出面快照） 4. [completed] 写 scripts/gates.registry.json 5. [in_progress] 写 tests/plan/ 可见测试集（16 个测试文件 + lib + expected.json） 6. [pending] 写 scripts/test-plan.mjs 聚合 runner 7. [pending] 写 holdout 包到 D:/new-workspace/ohos-tailscale-holdout/ 8. [pending] 跑 runner 验证红绿状态符合预期 9. [pending] 写 docs/pre-device-plan/TESTS.md（600-900 行） 10. [pending] 终验：全套运行 + 交付摘要]
+
+[TEXT @10-03 15:21] <task-notification> <task-id>exec_42945c65-db30-4861-b0c0-01af48989c13</task-id> <tool-use-id>call_6c048f7e831a457e9defbe03</tool-use-id> <output-file>C:\Users\Administrator\.zcode\cli\exec\sess_subagent_agent_603dbc63-72fc-4766-b875-e0a29e4904b4\call_6c048f7e831a457e9defbe03-stdout.log</output-file> <status>completed</status> <summary>Background command "Run full test-plan suite first time" completed (exit code 0)</summary> </task-notification>
+
+[TEXT @10-03 15:25] The TodoWrite tool hasn't been used recently. If you're working on tasks that would benefit from tracking progress, consider using the TodoWrite tool to track progress. Also consider cleaning up the todo list if has become stale and no longer matches what you are working on. Only use it if it's relevant to the current work. This is just a gentle reminder - ignore if not applicable. Here are the existing contents of your todo list: [1. [completed] 核实仓库关键事实（计数/行号/假命令/环境） 2. [completed] 生成 holdout 冻结基线（495 测试名清单 + 8 包导出面快照） 3. [completed] 写 scripts/gates.registry.json 4. [completed] 写 tests/plan/ 可见测试集（16 测试文件 + lib + expected.json） 5. [completed] 写 scripts/test-plan.mjs 聚合 runner 6. [in_progress] 跑 runner 验证红绿状态符合预期（后台运行中） 7. [in_progress] 写 holdout 包到 D:/new-workspace/ohos-tailscale-holdout/ 8. [pending] 写 docs/pre-device-plan/TESTS.md（600-900 行） 9. [pending] 终验：全套运行 + 交付摘要]
+
+[TEXT @10-03 15:27] <task-notification> <task-id>exec_4ec46ff3-bcde-47b6-9212-098a2bc2ef7e</task-id> <tool-use-id>call_d8d07f9842284e38bb8cc9cb</tool-use-id> <output-file>C:\Users\Administrator\.zcode\cli\exec\sess_subagent_agent_603dbc63-72fc-4766-b875-e0a29e4904b4\call_d8d07f9842284e38bb8cc9cb-stdout.log</output-file> <status>completed</status> <summary>Background command "Run full suite second time after fixes" completed (exit code 0)</summary> </task-notification>
+
+[TEXT @10-03 15:28] The TodoWrite tool hasn't been used recently. If you're working on tasks that would benefit from tracking progress, consider using the TodoWrite tool to track progress. Also consider cleaning up the todo list if has become stale and no longer matches what you are working on. Only use it if it's relevant to the current work. This is just a gentle reminder - ignore if not applicable. Here are the existing contents of your todo list: [1. [completed] 核实仓库关键事实（计数/行号/假命令/环境） 2. [completed] 生成 holdout 冻结基线（495 测试名清单 + 8 包导出面快照） 3. [completed] 写 scripts/gates.registry.json 4. [completed] 写 tests/plan/ 可见测试集（16 测试文件 + lib + expected.json） 5. [completed] 写 scripts/test-plan.mjs 聚合 runner 6. [in_progress] 跑 runner 验证红绿状态符合预期（后台运行中） 7. [in_progress] 写 holdout 包到 D:/new-workspace/ohos-tailscale-holdout/ 8. [pending] 写 docs/pre-device-plan/TESTS.md（600-900 行） 9. [pending] 终验：全套运行 + 交付摘要]
+
+[TEXT @10-03 15:30] The TodoWrite tool hasn't been used recently. If you're working on tasks that would benefit from tracking progress, consider using the TodoWrite tool to track progress. Also consider cleaning up the todo list if has become stale and no longer matches what you are working on. Only use it if it's relevant to the current work. This is just a gentle reminder - ignore if not applicable. Here are the existing contents of your todo list: [1. [completed] 核实仓库关键事实（计数/行号/假命令/环境） 2. [completed] 生成 holdout 冻结基线（495 测试名清单 + 8 包导出面快照） 3. [completed] 写 scripts/gates.registry.json 4. [completed] 写 tests/plan/ 可见测试集（16 测试文件 + lib + expected.json） 5. [completed] 写 scripts/test-plan.mjs 聚合 runner 6. [in_progress] 跑 runner 验证红绿状态符合预期（后台运行中） 7. [in_progress] 写 holdout 包到 D:/new-workspace/ohos-tailscale-holdout/ 8. [pending] 写 docs/pre-device-plan/TESTS.md（600-900 行） 9. [pending] 终验：全套运行 + 交付摘要]
+
+[TEXT @10-03 15:32] The TodoWrite tool hasn't been used recently. If you're working on tasks that would benefit from tracking progress, consider using the TodoWrite tool to track progress. Also consider cleaning up the todo list if has become stale and no longer matches what you are working on. Only use it if it's relevant to the current work. This is just a gentle reminder - ignore if not applicable. Here are the existing contents of your todo list: [1. [completed] 核实仓库关键事实（计数/行号/假命令/环境） 2. [completed] 生成 holdout 冻结基线（495 测试名清单 + 8 包导出面快照） 3. [completed] 写 scripts/gates.registry.json 4. [completed] 写 tests/plan/ 可见测试集（16 测试文件 + lib + expected.json） 5. [completed] 写 scripts/test-plan.mjs 聚合 runner 6. [in_progress] 跑 runner 验证红绿状态符合预期（后台运行中） 7. [in_progress] 写 holdout 包到 D:/new-workspace/ohos-tailscale-holdout/ 8. [pending] 写 docs/pre-device-plan/TESTS.md（600-900 行） 9. [pending] 终验：全套运行 + 交付摘要]
+
+[TEXT @10-03 15:36] <task-notification> <task-id>exec_c1059fdc-19ab-41a0-ac98-3f74ecbdc95c</task-id> <tool-use-id>call_f1001babc65a4632ad0c14e6</tool-use-id> <output-file>C:\Users\Administrator\.zcode\cli\exec\sess_subagent_agent_603dbc63-72fc-4766-b875-e0a29e4904b4\call_f1001babc65a4632ad0c14e6-stdout.log</output-file> <status>completed</status> <summary>Background command "Run visible suite third time after fixes" completed (exit code 0)</summary> </task-notification>
+
+[TEXT @10-03 15:44] The TodoWrite tool hasn't been used recently. If you're working on tasks that would benefit from tracking progress, consider using the TodoWrite tool to track progress. Also consider cleaning up the todo list if has become stale and no longer matches what you are working on. Only use it if it's relevant to the current work. This is just a gentle reminder - ignore if not applicable. Here are the existing contents of your todo list: [1. [completed] 核实仓库关键事实 + 冻结基线 + registry + 可见测试集 + runner + holdout 包 2. [completed] 跑 runner 验证：可见 25绿+54红锚 0 意外；holdout 23PASS+4BLOCKED+哨兵 0 命中 3. [in_progress] 写 docs/pre-device-plan/TESTS.md（600-900 行） 4. [pending] 终验：全套运行 + 交付摘要]
+
+[TEXT @10-03 15:48] The TodoWrite tool hasn't been used recently. If you're working on tasks that would benefit from tracking progress, consider using the TodoWrite tool to track progress. Also consider cleaning up the todo list if has become stale and no longer matches what you are working on. Only use it if it's relevant to the current work. This is just a gentle reminder - ignore if not applicable. Here are the existing contents of your todo list: [1. [completed] 核实仓库关键事实 + 冻结基线 + registry + 可见测试集 + runner + holdout 包 2. [completed] 跑 runner 验证：可见 25绿+54红锚 0 意外；holdout 23PASS+4BLOCKED+哨兵 0 命中 3. [in_progress] 写 docs/pre-device-plan/TESTS.md（600-900 行） 4. [pending] 终验：全套运行 + 交付摘要]
+
+[TEXT @10-03 15:53] The TodoWrite tool hasn't been used recently. If you're working on tasks that would benefit from tracking progress, consider using the TodoWrite tool to track progress. Also consider cleaning up the todo list if has become stale and no longer matches what you are working on. Only use it if it's relevant to the current work. This is just a gentle reminder - ignore if not applicable. Here are the existing contents of your todo list: [1. [completed] 核实仓库关键事实 + 冻结基线 + registry + 可见测试集 + runner + holdout 包 2. [completed] 跑 runner 验证：可见 25绿+54红锚 0 意外；holdout 23PASS+4BLOCKED+哨兵 0 命中 3. [in_progress] 写 docs/pre-device-plan/TESTS.md（600-900 行） 4. [pending] 终验：全套运行 + 交付摘要]
+
+[TOOL Read completed] in: {"file_path": "D:\\new-workspace\\ohos-tailscale\\docs\\pre-device-plan\\PLAN.md"}
+  out: 1 # 真机前工作总体规划（PLAN） 2 3 # 0. 元信息与方法 4 5 - **成文日期**：2026-10-03 6 - **基准**：git `90ed53e`（`90ed53e20fb998cc6c0005ece9147a3855cd7785`，main，本地 22 提交） 7 - **环境**：win32 / Git Bash / node v22.23.2 / npm 10.9.8，node_modules 在盘；本机 hdc/hvigorw/hvigor/docker/deveco/sdkmgr/ohpm 全部 NOT FOUND（轨…[截断]
+
+[TOOL Read completed] in: {"file_path": "D:\\new-workspace\\ohos-tailscale\\docs\\baseline-audit\\BASELINE.md"}
+  out: 1 # 项目真实能力基线总文（BASELINE） 2 3 # 0. 元信息 4 5 - **基准**：git `90ed53e`（`90ed53e20fb998cc6c0005ece9147a3855cd7785`，2026-10-03 11:46:57 +0800，main 分支，本地共 22 个提交） 6 - **成文日期**：2026-10-03 7 - **环境**：win32 / Git Bash / node v22.23.2 / npm 10.9.8（本机实测） 8 - **盘点方法**：三个不同模型族（GLM 5.3 Flash / Mi…[截断]
+
+[TOOL Read completed] in: {"file_path": "D:\\new-workspace\\ohos-tailscale\\docs\\pre-device-plan\\thinking-test-glm53flash-1.md"}
+  out: 1 # 测试设计思考轨迹（host 本机自动化主轴）—— thinking-test-glm53flash-1 2 3 # 0. 元信息与亲验记录 4 5 - **成文日期**：2026-10-03；**基准**：git `90ed53e`（本人 `git rev-parse --short HEAD` 实测吻合）。 6 - **视角主轴**：host（本机 win32/Git Bash/node v22.23.2）可跑的自动化测试设计。真机判定面只在分类时提及，不展开。 7 - **输入**：PLAN.md（25 工作项/A1–A16/S0–S8/D1…[截断]
+
+[TOOL Read completed] in: {"file_path": "D:\\new-workspace\\ohos-tailscale\\docs\\pre-device-plan\\thinking-test-minimax-1.md"}
+  out: 1 # 测试设计思考轨迹 · holdout 原则与反过拟合（思考员 minimax-1） 2 3 > 视角主轴：**holdout 机制的设计原则与反过拟合**。读者是稍后撰写正式测试文档的合并人（GLM53）。 4 > 本文件是**思考过程**，不是测试文档。禁止后续 agent 引用本文件实现——它一旦进入开发 agent 的上下文，holdout 即失效（见 §7）。 5 > 输入：`docs/pre-device-plan/PLAN.md`、`docs/baseline-audit/BASELINE.md`。我**未读**同目录五份 `thin…[截断]
+
+[TOOL Read error] in: {"file_path": "D:\\new-workspace\\ohos-tailscale\\docs\\pre-device-plan\\thinking-test-minimax-3.md"}
+  out: 
+
+[TOOL Bash completed] in: {"command": "file \"D:/new-workspace/ohos-tailscale/docs/pre-device-plan/thinking-test-minimax-3.md\"; iconv -f UTF-16 -t UTF-8 \"D:/new-workspace/ohos-tailscale/docs/pre-device-plan/thinking-test-minimax-3.md\" > /tmp/t…[截断]
+  out: Exit code 1 D:/new-workspace/ohos-tailscale/docs/pre-device-plan/thinking-test-minimax-3.md: data
+
+[TOOL Bash completed] in: {"command": "head -c 16 \"D:/new-workspace/ohos-tailscale/docs/pre-device-plan/thinking-test-minimax-3.md\" | od -c | head -3; node -e \"const fs=require('fs');const b=fs.readFileSync('D:/new-workspace/ohos-tailscale/doc…[截断]
+  out: 0000000 # 346 265 213 350 257 225 350 256 276 350 256 241 346 200 0000020 2320e6b58be8af95
+
+[TOOL Read completed] in: {"file_path": "D:\\new-workspace\\ohos-tailscale\\docs\\pre-device-plan\\.tt3-read-copy.md"}
+  out: 1 # 测试设计思考轨迹 · minimax-M3.1（视角：文档口径一致性 + 端到端剧本可测化） 2 3 > 本文是**思考轨迹**，不是测试文档。读者是稍后撰写正式测试的合并人 GLM53。 4 > 我只读了 `docs/pre-device-plan/PLAN.md` 与 `docs/baseline-audit/BASELINE.md`；同目录五份 `thinking-plan-*` 我**一份都没读**（按任务书要求保持测试视角独立）。 5 > 本文中每条事实都标注了本次会话**实际执行过的命令**或 PLAN/BASELINE 的行号；没跑…[截断]
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && sed -n '63,80p' app/bridge/src/mock-peerapi.ts && echo \"=== foreachAttr full ===\" && sed -n '170,196p' packages/netcheck/src/stun.ts && echo \"=== peerRequest helper =…[截断]
+  out: export interface MockPeerApiConfig { /** 对端显示名（'/' 的问候页）。 */ displayName: string; /** self 地址 prefix 列表（Host 校验与 isAddressValid 用）。 */ selfAddressPrefixes: string[]; /** self 对该 peer 的 MasqAddr（4via6/伪装；'' = 无）。 */ masqV4: string; masqV6: string; /** self 的 PeerAPI 监听表（端口推导结果；假监听…[截断]
+
+[TOOL Write completed] in: {"content": "// 用途：交接文档防毒扫描器（TESTS-2026-10-03，TESTS.md §4.4）。\n// 三段式：黑名单（毒串不得出现）+ 白名单（解药必须在场）+ 边界正则（防误杀/漏杀）。\n// 边界陷阱（实测）：`@ohos.net.vpn` 是 `@ohos.net.vpnExtension` 的前缀——裸 grep 会把正确行也抓红；\n// `hvigorw assembleHap` 是假命令，但…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale\tests\plan\lib\handoff-scanner.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// 用途：判定树完备性自检器（TESTS-2026-10-03，TESTS.md §4.2）。\n// 断言对象是「给真机 agent 的判定树」本身——树有洞 = agent 自由发挥 = R1（环境失败误诊为代码问题）入口。\n// 树载体：Markdown ```tree 代码块（文档即数据，无双源）。行文法（缩进 2 空格一层）：\n// Q <条件问句> —— 二元条件节点（恰有两个互斥出边 Y/N…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale\tests\plan\lib\tree-check.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// 用途：env-ready 校验器（TESTS-2026-10-03，TESTS.md §4.3）。\n// 机制：S4→S5 的推进判据「人类逐条确认全绿」变成可判定 IO。ajv 缺席且禁 npm install（亲验），\n// 故 schema 退化为「机器可读键清单」：{\"<key>\": {\"type\",\"enum\"?,\"pattern\"?,\"why\"}}，校验器读同一 sch…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale\tests\plan\lib\env-ready-validator.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL TodoWrite completed] in: {"todos": [{"content": "核实仓库关键事实（计数/行号/假命令/环境）", "priority": "high", "status": "completed"}, {"content": "读取 mock-peerapi 配置面与 stun foreachAttr 语义", "priority": "high", "status": "completed"}, {"content": "生成 holdout 冻结基…[截断]
+  out: {"oldTodos":[{"content":"核实仓库关键事实（计数/行号/假命令/环境）","status":"completed","priority":"high"},{"content":"读取 mock-peerapi 配置面与 stun foreachAttr 语义","status":"in_progress","priority":"high"},{"content":"生成 holdout 冻结基线（495 测试名清单 + 8 包导出面快照）","status":"pending","priority":"high"},{"cont…[截断]
+
+[TEXT @10-03 15:13] 现在我来处理测试文件，从基准（green-now）断言开始。
+
+[TOOL Write completed] in: {"content": "// 用途：P0-1 修 typecheck:bridge 红灯（TS2353）的验收测试（TESTS-2026-10-03，TESTS.md §1 矩阵行 P0-1）。\n// 混合态文件：T-P0-1-b/c 现在就该绿（正控制组语义 + 畸形 q 行为零漂移——生产代码已满足）；\n// T-P0-1-a/d/e/f 是 TDD 红锚（当前 exit 2 / answerDns: null 在盘 / te…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale\tests\plan\p0-1-peerapi.test.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// 用途：P0-2 修 ArkTS A23 硬违规（stun.ts:176 Generator）验收（TESTS-2026-10-03，TESTS.md §1 矩阵行 P0-2）。\n// T-P0-2-a 是 TDD 红锚（grep 现值 2 命中：stun.ts:176/:190，亲验）；T-P0-2-b 现在就该绿（netcheck 84 例钉语义零漂移）。\n// 验收 grep 无注释过滤器（刻意 …[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale\tests\plan\p0-2-generator.test.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// 用途：P0-3 新门 validate:arkts 的结构三件套红锚（TESTS-2026-10-03，TESTS.md §1 矩阵行 P0-3）。\n// 本文件只钉「门在不在、CI 跑不跑、干净基线绿不绿」——负对照矩阵（变形样本）在 holdout（H1）。\n// 教训（BASELINE 缺口#1）：门存在≠门在岗——每道新门必须同时有 npm script、CI step、可运行三件。\nimp…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale\tests\plan\p0-3-arkts-gate.test.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// 用途：P0-4 D4/P4 机检门 + CI G0-5 改调的验收（TESTS-2026-10-03，TESTS.md §1 矩阵行 P0-4）。\n// 混合态：T-P0-4-g 现在就该绿（等价 grep 证明代码面干净——BASELINE §2.9(b)）；其余为 TDD 红锚\n// （脚本不存在 / yml 内联裸 grep 在盘 / bash -n 对 D4 段红——G0-5 语法死从未执行的…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale\tests\plan\p0-4-gate-d4-meta.test.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// 用途：P0-5 regress 可归因改造 + 离线 selftest 门的验收红锚（TESTS-2026-10-03，TESTS.md §1 矩阵行 P0-5）。\n// 现值锚点（亲验）：regress.mjs:42 判据 stdout.length>0（错误信号源）；:52 硬编码假 preauthkey；\n// :54-56 derp 只传 1 参；h2c.node.ts process.arg…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale\tests\plan\p0-5-regress-selftest.test.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// 用途：P0-6 交接包 v1 的存在性与三处修复红锚（TESTS-2026-10-03，TESTS.md §1 矩阵行 P0-6）。\n// docs/pre-device/ 现不存在（亲验）——全部为 TDD 红锚。A15 七件套存在性 + check-stage-docs 门\n// + HARMONY_AGENT_TASK 废弃指向 + owner-with-real-device 三处修复（:47…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale\tests\plan\p0-6-stagedocs.test.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// 用途：P0-7 修 .gitignore 证据吞噬的验收（TESTS-2026-10-03，TESTS.md §1 矩阵行 P0-7 / 判据 A14）。\n// 双向判据 + 「不该进的没进」（TESTS.md §0.3 修订建议 R5 采纳）：\n// 现值锚点（亲验）：evidence/interop-20261003/regress.log 被 .gitignore:27 `*.log` 吞（ch…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale\tests\plan\p0-7-gitignore.test.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// 用途：P0-8 修 interop/arkts-check.js（ESM/CJS 冲突 + SDK 路径参数化）验收（TESTS-2026-10-03，TESTS.md §1 矩阵行 P0-8）。\n// 现值锚点（亲验，BASELINE §2.11）：`node interop/arkts-check.js .` → ReferenceError: require is not defined in E…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale\tests\plan\p0-8-arktscheck.test.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// 用途：A13/A16 文档一致性红锚 + caliber 校验式规格（TESTS-2026-10-03，TESTS.md §1 矩阵行 P1-2/P1-3）。\n// 口径纪律（轨迹 minimax-3 实测）：裸数字黑名单假阳性 46%——断言按「语境」不按「裸数字」：\n// 命中行须声称当前状态（pass/passed/期望/现行/全绿/表格口径位），且不含历史/增量标记（基线|历史|时序|→|初版…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale\tests\plan\a13-a16-docs.test.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// 用途：交接文档防毒扫描器验收（TESTS-2026-10-03，TESTS.md §4.4）。\n// T-HANDOFF-b 现在就该绿（扫描器自检——测的是本套件自带的 lib/handoff-scanner.mjs，负/正对照齐）；\n// T-HANDOFF-a 是真红锚：对现有 handover 文档实测应抓出已知假命令（owner-with-real-device.md:60 hvigorw、…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale\tests\plan\handoff-antipoison.test.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// 用途：判定树完备性自检验收（TESTS-2026-10-03，TESTS.md §4.2）。\n// T-TREE-a/b 现在就该绿：对自带 lib/tree-check.mjs 的自检——五个内置坏树各自被拒（可定位标识）、好树通过。\n// 这是「测试的测试」：自检器若抓不住坏树，P0-6 的判定树自检门就是假绿。\n// T-TREE-c/d 是 TDD 红锚：AGENT-TASK.md（含 tr…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale\tests\plan\decision-trees.test.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// 用途：env-ready 校验器验收（TESTS-2026-10-03，TESTS.md §4.3）。\n// T-ENV-a/b/c 现在就该绿：对自带 lib/env-ready-validator.mjs 的机制演练——S4→S5 的门在本机可全真演练\n// （构造全绿/缺键/坏值样本，断言放行/拦截/拦截——「人做没做」= JSON 里有没有真值+证据+时间戳三元组，机制的证明不需要人）。\n/…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale\tests\plan\env-ready.test.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// 用途：P1 批次的存在性/形态红锚集（TESTS-2026-10-03，TESTS.md §1 矩阵 P1 各行）。\n// 全部为 TDD 红锚：依赖的落地物（packages/kat、vpn-config、platform-ports、headscale 双 yaml、\n// manifest、evidence 校验器、perf 源码、gates 聚合、A12 类型覆盖）现全部不存在（亲验）。\n/…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale\tests\plan\p1-redanchors.test.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// 用途：门注册表与 CI 完整性 meta 测试（TESTS-2026-10-03，TESTS.md §2.4/§5-U7）。\n// 注册表三条互相独立断言（防「改注册表凑绿」）：\n// ① ∀ registry[ci=true & status=existing] → yml 字面含 ciCommand；\n// ② ∀ yml 中 npm run X（排除 npm ci）→ X ∈ registry…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale\tests\plan\gates-registry.test.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// 用途：holdout 物理隔离哨兵（TESTS-2026-10-03，TESTS.md §3.2）。\n// 主方案已落地：holdout 内容在仓外 D:/new-workspace/ohos-tailscale-holdout/（owner 本机，不进 git）。\n// 本测试钉住「仓内永远不出现 holdout 判定内容」：\n// ① docs/pre-device-plan/holdout-s…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale\tests\plan\holdout-sentinel.test.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "{\n \"$comment\": \"tests/plan 预期状态清单（TESTS-2026-10-03）。键=测试名（须与 node --test TAP 输出的用例名逐字一致），值：green=现在就该绿；red-anchor=TDD 红锚（当前必须红，对应工作项落地后转绿）。红锚转绿后由执行 agent 把值改为 green 并在 worklog 记一行——runner 对「红锚意外转绿」会报 STA…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale\tests\plan\expected.json (file state is current in your context — no need to Read it back)
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\tests\\plan\\expected.json", "old_string": " \"T-G06 upload_server 路径穿越实证 exit 0\",", "new_string": " \"T-G06 upload_server 路径穿越实证 exit 0\",\n \"T-P…[截断]
+  out: The file D:\new-workspace\ohos-tailscale\tests\plan\expected.json has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\tests\\plan\\expected.json", "old_string": "已知测试总数 79 = 25 green + 54 red-anchor。", "new_string": "已知测试总数 79 = 26 green + 53 red-anchor。"}
+  out: The file D:\new-workspace\ohos-tailscale\tests\plan\expected.json has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TEXT @10-03 15:20] 现在处理聚合 runner 脚本。
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && for f in tests/plan/*.test.mjs tests/plan/lib/*.mjs scripts/test-plan.mjs; do node --check \"$f\" 2>&1 | head -3 && echo \"OK $f\"; done 2>&1 | grep -B2 -i error | head …[截断]
+  out: syntax-check done
+
+[TOOL TodoWrite completed] in: {"todos": [{"content": "核实仓库关键事实（计数/行号/假命令/环境）", "priority": "high", "status": "completed"}, {"content": "生成 holdout 冻结基线（495 测试名清单 + 8 包导出面快照）", "priority": "high", "status": "completed"}, {"content": "写 scripts/gates.r…[截断]
+  out: {"oldTodos":[{"content":"核实仓库关键事实（计数/行号/假命令/环境）","status":"completed","priority":"high"},{"content":"读取 mock-peerapi 配置面与 stun foreachAttr 语义","status":"completed","priority":"high"},{"content":"生成 holdout 冻结基线（495 测试名清单 + 8 包导出面快照）","status":"completed","priority":"high"},{"cont…[截断]
+
+[TOOL Read completed] in: {"file_path": "C:\\Users\\Administrator\\.zcode\\cli\\exec\\sess_subagent_agent_603dbc63-72fc-4766-b875-e0a29e4904b4\\call_6c048f7e831a457e9defbe03-stdout.log"}
+  out: 1 === tests/plan 验收套件汇总 === 2 文件数 16｜GREEN_OK 15｜ANCHOR_RED_OK(红锚确认) 52｜UNEXPECTED_RED(意外红) 11｜STALE_ANCHOR(锚点转绿待翻转) 0｜UNKNOWN_TEST 2 3 4 --- 意外红（预期绿的测试失败——回归，必须先修）--- 5 a-criteria.test.mjs :: T-A1 npm test 全绿且计数只增不减（≥495，skipped/todo/cancelled 全 0） 6 a-criteria.test.mjs :: T-A2 …[截断]
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\tests\\plan\\lib\\tree-check.mjs", "old_string": " // ① 每个 Q 节点恰有 Y/N 两出边（同缩进 +1 的 Y → / N → 行）\n const qRows = rows.filter((r) => /^Q\\s/.test(r.te…[截断]
+  out: The file D:\new-workspace\ohos-tailscale\tests\plan\lib\tree-check.mjs has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\tests\\plan\\p0-1-peerapi.test.mjs", "old_string": "test('T-P0-1-f CI 结构断言：g0-gates.yml 含 typecheck:bridge step——TDD 红锚（缺口#1：修完不入 CI）', () => {", "n…[截断]
+  out: The file D:\new-workspace\ohos-tailscale\tests\plan\p0-1-peerapi.test.mjs has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\tests\\plan\\expected.json", "old_string": " \"T-REG-4 yml 无假绿逃逸面（continue-on-error / || true / if: false）——现在就该绿\",\n \"T-SENTINEL-1 docs/pre-devic…[截断]
+  out: The file D:\new-workspace\ohos-tailscale\tests\plan\expected.json has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\tests\\plan\\expected.json", "old_string": "已知测试总数 79 = 26 green + 53 red-anchor。", "new_string": "已知测试总数 79 = 25 green + 54 red-anchor。"}
+  out: The file D:\new-workspace\ohos-tailscale\tests\plan\expected.json has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && node scripts/test-plan.mjs > /tmp/test-plan-run2.txt 2>&1; echo \"EXIT=$?\" >> /tmp/test-plan-run2.txt; tail -25 /tmp/test-plan-run2.txt", "description": "Run full suite…[截断]
+  out: Command running in background with ID: exec_4ec46ff3-bcde-47b6-9212-098a2bc2ef7e. Output is being written to: C:\Users\Administrator\.zcode\cli\exec\sess_subagent_agent_603dbc63-72fc-4766-b875-e0a29e4904b4\call_d8d07f9842284e38bb8cc9cb-stdout.log. You will be notified when it com…[截断]
+
+[TOOL Read completed] in: {"file_path": "C:\\Users\\Administrator\\.zcode\\cli\\exec\\sess_subagent_agent_603dbc63-72fc-4766-b875-e0a29e4904b4\\call_d8d07f9842284e38bb8cc9cb-stdout.log"}
+  out: 1 === tests/plan 验收套件汇总 === 2 文件数 16｜GREEN_OK 23｜ANCHOR_RED_OK(红锚确认) 54｜UNEXPECTED_RED(意外红) 2｜STALE_ANCHOR(锚点转绿待翻转) 0｜UNKNOWN_TEST 0 3 4 --- 意外红（预期绿的测试失败——回归，必须先修）--- 5 decision-trees.test.mjs :: T-TREE-b 好树通过（防「全红即通过」的退化自检器）——现在就该绿 6 gates-registry.test.mjs :: T-REG-3 CI 无漏登记：∀ …[截断]
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\tests\\plan\\decision-trees.test.mjs", "old_string": "const GOOD_TREE = [\n 'Q CU6：.ts specifier 编译过？',\n ' Y → 走方案 1：ohpm file: 依赖',\n ' 动作: 修改 ent…[截断]
+  out: The file D:\new-workspace\ohos-tailscale\tests\plan\decision-trees.test.mjs has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "#!/usr/bin/env node\n// holdout fail-closed runner（TESTS-2026-10-03）。用法：node run.mjs [--seed 0x...] [--repo <path>]\n// 退出码：0 全绿｜1 有 FAIL｜2 HOLDOUT_NOT_INSTALLED（无题即红）｜3 LEAK_SUSPECTED（哨兵值出现在仓内）。\n// 本文件绝不进仓…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale-holdout\run.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "# 哨兵字面量（TESTS-2026-10-03）。取自 RFC 保留文档段：192.0.2.0/24（TEST-NET-1）与 198.51.100.0/24（TEST-NET-2）。\n# 刻意避开 203.0.113.x（TEST-NET-3）——P0-6 验收 grep 明确把 203.0.113.10 列为必须 0 命中的旧假地址，\n# 用它会让哨兵扫描与 P0-6 验收互相打架。\n# 这些值只出…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale-holdout\sentinels.txt (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// holdout H01：P0-1 DNS q 等价类变体（TESTS-2026-10-03）。\n// 输入集与可见用例值上不相交（可见 malformed 集/合法 FQDN 均不重复）；\n// 哨兵：selfAddressPrefixes 用 TEST-NET-1 段。断言的是「当前实现的真实语义」——\n// -lead/末尾点/大写/下划线当前都被放行（mock-peerapi.ts:180-1…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale-holdout\tests\h01-p0-1-dns-variants.test.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// holdout H02：P0-2 STUN 属性流变体（TESTS-2026-10-03）。\n// foreachAttr（stun.ts:176 Generator）展开为 walker 是 P0-2 的改法——本文件用手工构造的畸形/边界属性流\n// 钉住「没有一条 throw 被弄丢、没有一次推进语义漂移」。全部经导出面 stunParseBindingRequest/stunRequest/c…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale-holdout\tests\h02-p0-2-stun-variants.test.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale-holdout\\tests\\h02-p0-2-stun-variants.test.mjs", "old_string": "test('H02-g 头部 attrsLen < 实际属性长 → 多余字节被截断忽略（slice 分支）', () => {\n const { head, txid…[截断]
+  out: The file D:\new-workspace\ohos-tailscale-holdout\tests\h02-p0-2-stun-variants.test.mjs has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Bash completed] in: {"command": "cd \"D:/new-workspace/ohos-tailscale-holdout\" && mkdir -p tests && node --test tests/h01-p0-1-dns-variants.test.mjs tests/h02-p0-2-stun-variants.test.mjs 2>&1 | grep -E \"^(ok|not ok|# (pass|fail))\"", "des…[截断]
+  out: ok 1 - H01-a 长度边界两点：253 字节放行 200 / 254 字节拒绝 400 ok 2 - H01-b 末尾点（absolute FQDN）当前语义=放行且透传原样 name ok 3 - H01-c label 以 - 开头当前语义=放行（断言现行行为，不扩需求） ok 4 - H01-d 大写与下划线在字符集 [A-Za-z0-9._-] 内=放行 ok 5 - H01-e 非法变体：段间 .. 与首点拒绝（与可见集不同的字面量） not ok 6 - H01-f answerDns 的 qtype 联动：t=aaaa 传入 AAA…[截断]
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && grep -rn \"enum DnsType\" -A 8 packages/ | head -12", "description": "Find DnsType enum definition"}
+  out: (Bash completed with no output)
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && grep -rn \"DnsType\" packages/control/src/index.ts packages/common/src/*.ts 2>/dev/null | head -4; grep -rn \"AAAA\" packages/control/src/localapi.ts 2>/dev/null | head …[截断]
+  out: packages/control/src/index.ts:262: DnsType, packages/control/src/index.ts:263: type DnsTypeE, packages/control/src/localapi.ts:42: * - /dns-query 类型表（:1783-1816 dnsMessageTypeForString）：AAAA/ALL/A/CNAME/HINFO/ packages/control/src/localapi.ts:863: if (t === 'AAAA') { packages/con…[截断]
+
+[TEXT @10-03 15:31] 现在剩余的 holdout 测试文件（h03–h09）。
+
+[TOOL Write completed] in: {"content": "// holdout H05：P1-3 文档门旧数字扩展集（TESTS-2026-10-03）。目标 docs 门（scripts/doc-consistency.mjs 或等价 caliber 消费者）建成前 BLOCKED。\n// PLAN A16 公开清单是 280/13/54/238/六包/1066——本文件用 BASELINE §6/§10.3 里同样真实存在的过期值（217/64 用例/29 pa…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale-holdout\tests\h05-p1-3-docs-gate-variants.test.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// holdout H06：测试名清单冻结（TESTS-2026-10-03）。npm test 实跑 → `ok N - <名>` 全量抽取 ⊇ 冻结名单（495 条）。\n// 把「删负例/改断言凑绿」变成可机检：旧名一个不少（不许删/改/重命名），总数只增不减。\n// 裁决（TESTS.md §5-U5）：允许改名但必须一一映射登记（expected/frozen 侧补映射行），未登记的改名=红。\n…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale-holdout\tests\h06-name-freeze.test.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// holdout H07：P1-4 buildVpnConfig 生成式不变量（TESTS-2026-10-03）。app/bridge/src/vpn-config.ts 建成前 BLOCKED。\n// 防写死期望值（M1）与特判测试输入（M2）：输入集与可见用例/PLAN 示例值上不相交（哨兵段 TEST-NET-1/2，非 CGNAT 100.64/10），\n// 用确定性 PRNG（种子验收时才…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale-holdout\tests\h07-p1-4-vpnconfig-invariants.test.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// holdout H08：gates.registry.json 的 ci:false 白名单对照（TESTS-2026-10-03）。现在就能跑。\n// 这是注册表断言体系里最易被绕的一条（可见侧只查「ci=false 必须带 reason」——随便写个 reason 就过），\n// 故白名单全集只在 holdout：ci:false 必须落在「PLAN/BASELINE 自认不设门」的授权清单内，新…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale-holdout\tests\h08-registry-cifalse.test.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// holdout H09：8 包导出面冻结快照（TESTS-2026-10-03）。现在就能跑。\n// 基准 396 导出（common 21/crypto 26/noise 16/wireguard 39/derp 15/disco 45/control 182/netcheck 52——本合并人会话实测冻结）。\n// 断言：每个冻结名仍在（无删除、无改名）；新增导出允许（只增原则）但只应落在授权清单…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale-holdout\tests\h09-export-surface.test.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Bash completed] in: {"command": "cd \"D:/new-workspace/ohos-tailscale-holdout\" && for f in run.mjs lib/helpers.mjs tests/*.test.mjs; do node --check \"$f\" || echo \"SYNTAX FAIL $f\"; done; echo \"all checked\"; OHOS_TS_REPO=D:/new-workspa…[截断]
+  out: all checked STATE_ID=1fc332a732e9b4ad0b114fd5572ed4e169ce711bc11ccd68f8eceaa91e363e69 HOLDOUT_SHA256=e0d405ab2511cbfdc166ac6b98d93fa41ddd80247334a471f9ead75edf06f5d6 REPO=D:/new-workspace/ohos-tailscale SEED=0xtest123 时间=2026-10-03T07:32:57.868Z === holdout 汇总 === 文件 pass fail bl…[截断]
+
+[TOOL Read completed] in: {"file_path": "C:\\Users\\Administrator\\.zcode\\cli\\exec\\sess_subagent_agent_603dbc63-72fc-4766-b875-e0a29e4904b4\\call_f1001babc65a4632ad0c14e6-stdout.log"}
+  out: 1 === tests/plan 验收套件汇总 === 2 文件数 16｜GREEN_OK 25｜ANCHOR_RED_OK(红锚确认) 54｜UNEXPECTED_RED(意外红) 0｜STALE_ANCHOR(锚点转绿待翻转) 0｜UNKNOWN_TEST 0 3 4 红锚按预期红（TDD 状态健康）；全部锚点转绿并翻转清单后，本命令 exit 0 = 25 个工作项验收面收口。 5 EXIT=0 6
+
+[TOOL Write completed] in: {"content": "# 真机前工作最终实现测试（TESTS）\n\n# 0. 元信息与方法\n\n- **成文日期**：2026-10-03（标识 TESTS-2026-10-03，所有新文件头注释携带）\n- **被测对象**：[PLAN.md](PLAN.md)（25 个工作项 P0-1…P2-3、A 类完成定义 A1–A16、剧本 S0–S8、决策 D1–D13、拍板点 O1–O7）\n- **事实基线**：[../base…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale\docs\pre-device-plan\TESTS.md (file state is current in your context — no need to Read it back)
+
+[TOOL Bash completed] in: {"command": "wc -l \"D:/new-workspace/ohos-tailscale/docs/pre-device-plan/TESTS.md\"; ls \"D:/new-workspace/ohos-tailscale/tests/plan/\" \"D:/new-workspace/ohos-tailscale-holdout/\" \"D:/new-workspace/ohos-tailscale-hold…[截断]
+  out: 294 D:/new-workspace/ohos-tailscale/docs/pre-device-plan/TESTS.md D:/new-workspace/ohos-tailscale-holdout/: README-owner.md fixtures lib run.mjs sentinels.txt tests D:/new-workspace/ohos-tailscale-holdout/fixtures/: frozen-495-names.txt frozen-exports.json D:/new-workspace/ohos-t…[截断]
+
+[TOOL Bash completed] in: {"command": "wc -l \"D:/new-workspace/ohos-tailscale/docs/pre-device-plan/TESTS.md\"; grep -c \"192\\.0\\.2\\.\\|198\\.51\\.100\\.\" \"D:/new-workspace/ohos-tailscale/docs/pre-device-plan/TESTS.md\"; grep -n \"192.0.2.77…[截断]
+  out: 404 D:/new-workspace/ohos-tailscale/docs/pre-device-plan/TESTS.md 1 sentinel-specific-values-in-TESTS.md: 0
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && node -e \"\nconst fs=require('fs');\nlet doc=fs.readFileSync('docs/pre-device-plan/TESTS.md','utf8');\nconst inv=fs.readFileSync('/tmp/inventory.md','utf8');\n// insert …[截断]
+  out: Exit code 1 [eval]:27 ''.join('')]; ^ TypeError: "".join is not a function at [eval]:27:4 at runScriptInThisContext (node:internal/vm:209:10) at node:internal/process/execution:446:12 at [eval]-wrapper:6:24 at runScriptInContext (node:internal/process/execution:444:60) at evalFun…[截断]
+
+[TOOL Bash completed] in: {"command": "node \"C:/Users/Administrator/AppData/Local/Temp/inject-tests-md.mjs\" && rm \"C:/Users/Administrator/AppData/Local/Temp/inject-tests-md.mjs\"", "description": "Inject inventory and runbook sections into TES…[截断]
+  out: done, lines = 505
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && grep -n \"^## 0.5\\|^## 0.6\\|^# 1\\.\\|^## 1.2\\|^# 3\\.\\|^## 3.6\\|规格级断言全文\" docs/pre-device-plan/TESTS.md | head; wc -l docs/pre-device-plan/TESTS.md", "description"…[截断]
+  out: 81:## 0.5 五份测轨的采纳/修改/拒绝记录 90:# 1. 测试总矩阵 146:## 1.2 规格级断言全文（矩阵「spec」项的可执行级展开；对应工作项落地时实现为其分门/`--selfcheck`） 357:# 3. holdout 机制说明（不含判定内容） 405:## 3.6 holdout 包内容清单（机制级；判定细节不公开） 504 docs/pre-device-plan/TESTS.md
+
+[TOOL Read completed] in: {"file_path": "D:\\new-workspace\\ohos-tailscale\\docs\\pre-device-plan\\TESTS.md", "limit": 30, "offset": 75}
+  out: 75 76 1. **凡断言退出码，必须与被测进程直连**。管道后 `$?` 是 tail/grep 的退出码（测轨1 §0.1 自白；本档 V13 复证测轨5 的 npm 误测同源）。两套 runner 的 helper 均已 spawnSync 直取 status/stdout/stderr。 77 2. **test( 计数防冲高**：node --test 的 `# tests` 不数循环内断言——把循环拆成子 test 可「合法」冲高计数。对计数敏感项加「test( 计数不降」副断言（T-P0-1-e：peerapi-tun 现值 9，P0-1…[截断]
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && sed -n '/P2-1\\/P2-2\\/P2-3.*见矩阵行/p' docs/pre-device-plan/TESTS.md; grep -n \"P2-1/P2-2/P2-3\" docs/pre-device-plan/TESTS.md", "description": "Locate §1.2 tail for expan…[截断]
+  out: **P2-1/P2-2/P2-3** 见矩阵行（R12 与测轨4 §4 原文已可执行级）。 189:**P2-1/P2-2/P2-3** 见矩阵行（R12 与测轨4 §4 原文已可执行级）。
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\docs\\pre-device-plan\\TESTS.md", "old_string": "**P2-1/P2-2/P2-3** 见矩阵行（R12 与测轨4 §4 原文已可执行级）。", "new_string": "**P1-1 KAT 分门 spec**（packages/kat/ +…[截断]
+  out: The file D:\new-workspace\ohos-tailscale\docs\pre-device-plan\TESTS.md has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && grep -n \"## 3.6 holdout 包内容清单\" docs/pre-device-plan/TESTS.md && wc -l docs/pre-device-plan/TESTS.md", "description": "Locate §3.6 for §3.7 insertion"}
+  out: 441:## 3.6 holdout 包内容清单（机制级；判定细节不公开） 540 docs/pre-device-plan/TESTS.md
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\docs\\pre-device-plan\\TESTS.md", "old_string": "| sentinels.txt | 哨兵字面量（仅 run.mjs 读取） | — |", "new_string": "| sentinels.txt | 哨兵字面量（仅 run.mjs 读取） …[截断]
+  out: The file D:\new-workspace\ohos-tailscale\docs\pre-device-plan\TESTS.md has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && wc -l docs/pre-device-plan/TESTS.md && node -e \"\nconst fs=require('fs');\nconst t=fs.readFileSync('docs/pre-device-plan/TESTS.md','utf8');\n// sanity: no holdout senti…[截断]
+  out: 552 docs/pre-device-plan/TESTS.md sections: 37 has-#p-variant: false
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\docs\\pre-device-plan\\TESTS.md", "old_string": "## 2.7 owner 执行剧本（这套测试最终怎么用）", "new_string": "## 2.7 批次 → 锚点翻转对照（owner 验收时的核对表）\n\n| PLAN 批次 | 收口时应…[截断]
+  out: The file D:\new-workspace\ohos-tailscale\docs\pre-device-plan\TESTS.md has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && wc -l docs/pre-device-plan/TESTS.md && node scripts/test-plan.mjs 2>&1 | head -3 && echo \"---holdout quick---\" && OHOS_TS_REPO=D:/new-workspace/ohos-tailscale node \"D…[截断]
+  out: 567 docs/pre-device-plan/TESTS.md === tests/plan 验收套件汇总 === 文件数 16｜GREEN_OK 25｜ANCHOR_RED_OK(红锚确认) 54｜UNEXPECTED_RED(意外红) 0｜STALE_ANCHOR(锚点转绿待翻转) 0｜UNKNOWN_TEST 0 ---holdout quick--- STATE_ID=01ea015e8e1ce35799618c861fdac011c7e51d3c78e0c3de6e95ac29df949a52 HOLDOUT_SHA256=e0d405ab…[截断]
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && wc -l docs/pre-device-plan/TESTS.md && node -e \"\nconst t=require('fs').readFileSync('docs/pre-device-plan/TESTS.md','utf8');\n// final integrity: section list\nconst s…[截断]
+  out: 581 docs/pre-device-plan/TESTS.md 真机前工作最终实现测试（TESTS） | 0. 元信息与方法 | 0.1 本合并人会话亲验清单（写入正式测试的每个事实都抽验过） | 0.2 五份思考收敛原则 → 落实索引 | 0.3 对 PLAN 的修订建议（owner 批准后并入 PLAN.md，本档不代改） | 0.4 测量纪律（写给所有后续执行 agent；违者测试无效） | 0.5 五份测轨的采纳/修改/拒绝记录 | 0.6 交付物清单（本任务新建的全部文件；既有文件零改动） | 1. 测试总矩阵 | 1.1 矩阵总表（25 …[截断]
+
+[TOOL Edit error] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\docs\\pre-device-plan\\TESTS.md", "old_string": "**三个最常见的失败形态与对策**（本仓史实）：门存在但 CI 不跑（缺口#1→注册表+结构断言）；门在跑但没约束力（G0-5 语法死→三段式+mutationWitness）；文档声称与实测漂移（…[截断]
+  out: 
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && grep -n \"三个最常见的失败形态\" docs/pre-device-plan/TESTS.md && sed -n '640,660p' docs/pre-device-plan/TESTS.md", "description": "Locate the quick-card section tail"}
+  out: 577:**三个最常见的失败形态与对策**（本仓史实）：门存在但 CI 不跑（缺口#1→注册表+结构断言）；门在跑但没约束力（G0-5 语法死→三段式+mutationWitness）；文档声称与实测漂移（§6 八处→caliber 无值结构+语境断言+否定断言门）。本测试体系的全部设计，都是这三条的反构造。
+
+[TOOL Read completed] in: {"file_path": "D:\\new-workspace\\ohos-tailscale\\docs\\pre-device-plan\\TESTS.md", "limit": 15, "offset": 570}
+  out: 570 | 开发 agent | 每批次收口 | 同上 + 该批次相关分门（批次四起 `npm run gates`） | §2.7 对照表的该批次锚点全翻转 | 571 | CI | push/PR（集成补丁应用后） | g0 六 step + 新 step + docs-consistency | step 全绿；registry ci:true 与 yml 字面一致（T-REG-2/3 常驻） | 572 | owner/独立验收会话 | 每批次收口后（共 5 次） | `node …/test-plan.mjs` + `node …/ohos-t…[截断]
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\docs\\pre-device-plan\\TESTS.md", "old_string": "**三个最常见的失败形态与对策**（本仓史实）：门存在但 CI 不跑（缺口#1→注册表+结构断言）；门在跑但没约束力（G0-5 语法死→三段式+mutationWitness）；文档声称与实测漂移（…[截断]
+  out: The file D:\new-workspace\ohos-tailscale\docs\pre-device-plan\TESTS.md has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && wc -l docs/pre-device-plan/TESTS.md && node scripts/test-plan.mjs 2>&1 | sed -n '2p' && OHOS_TS_REPO=D:/new-workspace/ohos-tailscale node \"D:/new-workspace/ohos-tailsca…[截断]
+  out: 585 docs/pre-device-plan/TESTS.md 文件数 16｜GREEN_OK 25｜ANCHOR_RED_OK(红锚确认) 54｜UNEXPECTED_RED(意外红) 0｜STALE_ANCHOR(锚点转绿待翻转) 0｜UNKNOWN_TEST 0 STATE_ID=01ea015e8e1ce35799618c861fdac011c7e51d3c78e0c3de6e95ac29df949a52 HOLDOUT_SHA256=e0d405ab2511cbfdc166ac6b98d93fa41ddd80247334a471f9ead7…[截断]
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && wc -l docs/pre-device-plan/TESTS.md && node scripts/test-plan.mjs 2>&1 | sed -n '2p'", "description": "Confirm final length and suite state"}
+  out: 593 docs/pre-device-plan/TESTS.md 文件数 16｜GREEN_OK 25｜ANCHOR_RED_OK(红锚确认) 54｜UNEXPECTED_RED(意外红) 0｜STALE_ANCHOR(锚点转绿待翻转) 0｜UNKNOWN_TEST 0
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\docs\\pre-device-plan\\TESTS.md", "old_string": "- **跨轨迹矛盾核对**：五份间无正面冲突事实主张；六处方法论分歧（U1/U2/U3/U4/U5/U6 + 四项额外）已在 §5 逐条裁决。测轨5 的「npm run 缺失脚本 exit 0」与测…[截断]
+  out: The file D:\new-workspace\ohos-tailscale\docs\pre-device-plan\TESTS.md has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && wc -l docs/pre-device-plan/TESTS.md && node scripts/test-plan.mjs 2>&1 | sed -n '2p' && echo \"=== final tree ===\" && find tests scripts/gates.registry.json docs/pre-de…[截断]
+  out: 594 docs/pre-device-plan/TESTS.md 文件数 16｜GREEN_OK 25｜ANCHOR_RED_OK(红锚确认) 54｜UNEXPECTED_RED(意外红) 0｜STALE_ANCHOR(锚点转绿待翻转) 0｜UNKNOWN_TEST 0 === final tree === docs/pre-device-plan/TESTS.md scripts/gates.registry.json tests/plan/README.md tests/plan/a-criteria.test.mjs tests/plan/a13…[截断]
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && wc -l docs/pre-device-plan/TESTS.md && node scripts/test-plan.mjs > /tmp/final-vis.txt 2>&1; echo \"vis-exit=$?\"; head -2 /tmp/final-vis.txt; OHOS_TS_REPO=D:/new-worksp…[截断]
+  out: 599 docs/pre-device-plan/TESTS.md vis-exit=0 === tests/plan 验收套件汇总 === 文件数 16｜GREEN_OK 25｜ANCHOR_RED_OK(红锚确认) 54｜UNEXPECTED_RED(意外红) 0｜STALE_ANCHOR(锚点转绿待翻转) 0｜UNKNOWN_TEST 0 holdout-exit=0 STATE_ID=01ea015e8e1ce35799618c861fdac011c7e51d3c78e0c3de6e95ac29df949a52 HOLDOUT_SHA256=e0…[截断]
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\docs\\pre-device-plan\\TESTS.md", "old_string": "- **TESTS-2026-10-03（初版）**：五份测轨收敛成文；可见套件 79 用例（25 绿 + 54 红锚）+ 规格 40 条 + holdout 9 文件；基线 STATE_ID 见 …[截断]
+  out: The file D:\new-workspace\ohos-tailscale\docs\pre-device-plan\TESTS.md has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && wc -l docs/pre-device-plan/TESTS.md && git status --porcelain | wc -l && git diff --stat | tail -1; echo \"no-modified-existing-files-check:\"; git diff --name-only | he…[截断]
+  out: 600 docs/pre-device-plan/TESTS.md 5 no-modified-existing-files-check: (empty=既有文件零改动)
+
+[TOOL Bash completed] in: {"command": "ls -la \"D:\\new-workspace\\ohos-tailscale\\docs\\pre-device-plan\" && ls \"D:\\new-workspace\\ohos-tailscale\\docs\\baseline-audit\" && ls \"D:\\new-workspace\\ohos-tailscale\\scripts\" | head -50", "descri…[截断]
+  out: total 428 drwxr-xr-x 1 Administrator 197121 0 Oct 3 15:00 . drwxr-xr-x 1 Administrator 197121 0 Oct 3 14:12 .. -rw-r--r-- 1 Administrator 197121 61470 Oct 3 14:43 PLAN.md -rw-r--r-- 1 Administrator 197121 34655 Oct 3 14:30 thinking-plan-glm53flash-1.md -rw-r--r-- 1 Administrator …[截断]
+
+[TOOL Bash completed] in: {"command": "wc -l \"D:/new-workspace/ohos-tailscale/docs/pre-device-plan/thinking-test-glm53flash-1.md\" \"D:/new-workspace/ohos-tailscale/docs/pre-device-plan/thinking-test-glm53flash-2.md\" \"D:/new-workspace/ohos-tai…[截断]
+  out: 245 D:/new-workspace/ohos-tailscale/docs/pre-device-plan/thinking-test-glm53flash-1.md 265 D:/new-workspace/ohos-tailscale/docs/pre-device-plan/thinking-test-glm53flash-2.md 339 D:/new-workspace/ohos-tailscale/docs/pre-device-plan/thinking-test-minimax-1.md 399 D:/new-workspace/o…[截断]
+
+[TOOL Read completed] in: {"file_path": "D:\\new-workspace\\ohos-tailscale\\docs\\pre-device-plan\\thinking-test-glm53flash-2.md"}
+  out: 1 # 测试设计思考轨迹——真机侧与交接面（glm53flash-2） 2 3 > 五位测试设计思考员之一；主轴：PLAN 的 B 类项（CU 探针、首编译报错面、S0–S8 剧本、INTEROP PASS、真机 perf） 4 > 的「测试」形态，env-ready 机制、判定树自检、交接包防毒、holdout 真机用法。读者=稍后撰写正式测试的合并人。 5 > 本文件是推理轨迹，不是测试文档；备选与放弃理由全部留下。 6 7 ## 0. 元信息与亲验记录 8 9 - 输入：PLAN.md（25 工作项/A1–A16/S0–S8/D1–D13/O1–O…[截断]
+
+[TOOL Read completed] in: {"file_path": "D:\\new-workspace\\ohos-tailscale\\docs\\pre-device-plan\\thinking-test-minimax-2.md"}
+  out: 1 # 测试设计思考轨迹（minimax-2 / 门禁层 meta 测试） 2 3 > **思考轨迹**，不是测试文档。读者是稍后撰写正式测试的合并人（GLM53）。 4 > 我是五位测试设计思考员之一，独立思考，未读其他四份轨迹。 5 > 主轴：**测「门本身」的测试**——每道新门/修复门凭什么算有约束力，怎么用机器裁决。 6 7 --- 8 9 ## 0. 元信息与亲验清单 10 11 凡与门禁相关的数字我全部自己跑过，未采信转述。合并人可直接复现： 12 13 | # | 命令 | 实测输出 | 用途 | 14 |---|---|---|---|…[截断]
+
+[TOOL Bash completed] in: {"command": "node -e \"\nconst fs=require('fs');\nconst b=fs.readFileSync('D:/new-workspace/ohos-tailscale/docs/pre-device-plan/thinking-test-minimax-3.md');\nconsole.log('len',b.length);\n// find invalid UTF-8 or null b…[截断]
+  out: len 33743 valid utf8
+
+[TEXT @10-03 15:04] 该文件是有效的 UTF-8。Read 工具可能对某些字节序列存在兼容性问题。我先把它复制到一个临时路径并进行读取。
+
+[TEXT @10-03 15:04] 原始文件中偏移量 11177 处有一个 NUL 字节（这就是 Read 拒绝读取它的原因）。我将读取清理后的副本。
+
+[TEXT @10-03 15:04] 我已阅读完毕全部五份思考轨迹、PLAN 以及 BASELINE。现在，在撰写之前，让我先清理我的临时副本，并核实我将要引用的关键事实。
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && echo \"=== peerapi :75-85 ===\" && sed -n '75,85p' app/bridge/test/peerapi-tun.test.ts && echo \"=== peerapi :240-258 ===\" && sed -n '240,258p' app/bridge/test/peerapi-…[截断]
+  out: === peerapi :75-85 === const compiled = compileMagicDnsConfig(cfg as NonNullable<ReturnType<typeof dnsConfigForNetmap>>); compiled.resolver.hosts.push({ fqdn: 'host.tail-net.example.ts.net.', addrs: ['100.64.0.2'] }); return new ResolverCore(compiled); }; /** 组装 PeerAPI mock：exit…[截断]
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && grep -n \"regress-dummy-preauthkey\\|return r.status\\|mkdtempSync\\|writeFileSync\\|tmpdir\" interop/regress.mjs && echo \"=== g0-gates steps ===\" && grep -n \"name:\\…[截断]
+  out: 24:import { mkdtempSync, writeFileSync, rmSync } from 'node:fs'; 25:import { tmpdir } from 'node:os'; 42: return r.status === 0 && !sawUsage && stdout.length > 0; 52: 'interop/register.node.ts', HS, 'regress-dummy-preauthkey', 71:const tmp = mkdtempSync(join(tmpdir(), 'interop-re…[截断]
+
+[TEXT @10-03 15:05] 所有关键事实已核实。现在我来检查一下剩余的环境事实。
+
+[TEXT @10-03 15:05] 关键发现：`node --test` 与空 glob 匹配时返回 0 —— runner 必须自行强制执行 fail-closed。现在我来捕获冻结测试名称列表（holdout `name-freeze` 清单所需）并验证剩余的调用点（call-site）事实。
+
+[TEXT @10-03 15:05] 所有事实已确认。现在让我检查用于编写 holdout 变体测试的生产 API（`mock-peerapi`、`stun` exports）以及 .ts 导入机制。
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && node -e \"import('file:///D:/new-workspace/ohos-tailscale/app/bridge/src/mock-peerapi.ts').then(m=>console.log('NO-FLAG OK:',Object.keys(m).length)).catch(e=>console.log…[截断]
+  out: NO-FLAG OK: 4 export interface MockPeerApiRequest { method: string; host: string; referer: string; origin: string; path: string; /** URL 参数表（?q=&t= 已按 & 与 = 切分）。 */ params: Record<string, string>; /** true = 来源 peer 与 self 同用户（isSelf，peerapi.go:203）。 */ isSelfQuery?: boolean; } /…[截断]
+
+[TEXT @10-03 15:08] 类型剥离默认生效——运行器不需要特殊的 NODE_OPTIONS。正在对红锚定（red anchors）进行最后的少量验证。
+
+[TEXT @10-03 15:08] 事实已全部核实。我来制定工作计划，然后阅读剩余的几个 API 细节，以便进行变体测试。
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && sed -n '135,185p' app/bridge/src/mock-peerapi.ts", "description": "Read handle() dispatch and dns-query guard"}
+  out: if (invalid !== null) { // 校验失败文案不回显请求输入（Referer/Origin/Host 细节只进服务端日志面）。 return this.text(403, 'invalid peerapi request'); } if (req.path === '/') { // peerapi.go:414-428：'/' 返回「Hello, <peer 显示名>」页。 const greetParts: string[] = ['Hello, ', this.config.displayName]; return this.t…[截断]
+
+[TEXT @10-03 15:10] 现在我已经掌握了全貌。让我为 holdout 包生成两个冻结基线。
+
+[TEXT @10-03 15:11] Frozen baselines match minimax-1's measurements (396 exports, 495 names). Now writing the deliverables — first the gates registry.
+
+[TEXT @10-03 15:11] 现在开始处理可见的测试套件。首先是库模块。
+
+[TOOL Write completed] in: {"content": "// 用途：tests/plan 共用执行器（TESTS-2026-10-03，docs/pre-device-plan/TESTS.md §0.4 测量纪律）。\n// 纪律：凡断言退出码，必须与被测进程直连——`cmd | tail; $?` 捕到的是 tail 的退出码（轨迹实测踩过）。\n// 本 helper 一律 spawnSync 直取 status/stdout/stderr，不做任何管道中转。…[截断]
+  out: The file D:\new-workspace\ohos-tailscale\tests\plan\lib\spawn.mjs has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\tests\\plan\\lib\\handoff-scanner.mjs", "old_string": "/** 扫描器自检负/正对照（内置样本，防扫描器自身假绿——门三件套之②的可机检形态）。 */\nexport function SELF_CHECK = undefined;", "n…[截断]
+  out: The file D:\new-workspace\ohos-tailscale\tests\plan\lib\handoff-scanner.mjs has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// 用途：A1/A2/A4/A5/G0-6 现行基线守门（TESTS-2026-10-03，TESTS.md §1 矩阵行 a-criteria）。\n// 预期状态：现在就该绿——这些是「已有门在开发全程不许回退」的地板，红锚实现期间它们保持绿才有意义。\n// 测量纪律：退出码与被测进程直连（spawnSync 数组形态，无管道）；`# skipped/todo/cancelled = 0` 是零成本高价…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale\tests\plan\a-criteria.test.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && sed -n '258,275p' app/bridge/test/peerapi-tun.test.ts", "description": "Read existing malformed q body assertions"}
+  out: // 完整覆盖（每个 malformed 一行断言）便于评测工具 grep 'malformed' / 'JSON.stringify' 计覆盖率。 assert.ok(malformed.length >= 9, 'malformed 集合 ≥ 9 项：' + malformed.length); }); // ---- TUN 数据面 ---- test('FakeTunDevice：NewFake 语义（写恒接受、读恒无包、MTU 1500、名 FakeTUN、isFake）', () => { const dev: FakeTunDevice =…[截断]
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\tests\\plan\\p0-1-peerapi.test.mjs", "old_string": "test('T-P0-1-c 行为零漂移：畸形 q 九项逐条 400 且 body 含 malformed q', async () => {\n const server = await m…[截断]
+  out: The file D:\new-workspace\ohos-tailscale\tests\plan\p0-1-peerapi.test.mjs has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// 用途：P0-2 修 ArkTS A23 硬违规（stun.ts:176 Generator）验收（TESTS-2026-10-03，TESTS.md §1 矩阵行 P0-2）。\n// T-P0-2-a 是 TDD 红锚（grep 现值 2 命中：stun.ts:176/:190，亲验）；T-P0-2-b 现在就该绿（netcheck 84 例钉语义零漂移）。\n// 验收 grep 无注释过滤器（刻意 …[截断]
+  out: The file D:\new-workspace\ohos-tailscale\tests\plan\p0-2-generator.test.mjs has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// 用途：P0-4 D4/P4 机检门 + CI G0-5 改调的验收（TESTS-2026-10-03，TESTS.md §1 矩阵行 P0-4）。\n// 混合态：T-P0-4-g 现在就该绿（等价 grep 证明代码面干净——BASELINE §2.9(b)）；其余为 TDD 红锚\n// （脚本不存在 / yml 内联裸 grep 在盘 / bash -n 对 D4 段红——G0-5 语法死从未执行的…[截断]
+  out: The file D:\new-workspace\ohos-tailscale\tests\plan\p0-4-gate-d4-meta.test.mjs has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\tests\\plan\\handoff-antipoison.test.mjs", "old_string": " assert.ok(/(8\\s*包|八包)/.test(doc) && /495/.test(doc), '必须写现行口径 8 包/495');\n assert.ok(/ma…[截断]
+  out: The file D:\new-workspace\ohos-tailscale\tests\plan\handoff-antipoison.test.mjs has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TEXT @10-03 15:19] 现在修复 T-REG-3 的 regex bug，然后编写预期的 manifest 和 runner。
+
+[TOOL Edit error] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\tests\\plan\\expected.json", "old_string": " \"T-P0-5-d regress.mjs 支持 --out/<落盘路径>（summary.json 不再只写 OS tmpdir）——TDD 红锚\",\n \"T-P0-5-f 无 headscale…[截断]
+  out: 
+
+[TOOL Write completed] in: {"content": "#!/usr/bin/env node\n// 用途：tests/plan 可见验收测试套件的聚合 runner（TESTS-2026-10-03，docs/pre-device-plan/TESTS.md §2.3）。\n// 不改 package.json（禁改既有文件）——直接 `node scripts/test-plan.mjs` 运行；集成补丁（待应用 diff）见 TESTS.md §2.5。\n…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale\scripts\test-plan.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "# tests/plan/ —— 真机前规划的可见验收测试集（TESTS-2026-10-03）\n\n来源与完整说明：**docs/pre-device-plan/TESTS.md**（测试总矩阵、裁决附录、集成补丁待应用 diff 均在那里）。\n\n## 怎么跑\n\n```bash\nnode scripts/test-plan.mjs\n```\n\n不改 package.json（本套件落地时禁改既…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale\tests\plan\README.md (file state is current in your context — no need to Read it back)
+
+[TEXT @10-03 15:21] 所有文件均已通过语法检查。我正在后台运行完整测试套件，同时构建 holdout 包。
+
+[TEXT @10-03 15:21] Runner 运行正常，并捕获到了真实问题。有两个真实 Bug 需要修复：(1) Windows 上的 npm 被生成为 `.cmd` 文件 — `spawnSync('npm')` 会返回 null 状态（导致因错误的原因变红 — 这是 G0-5 的教训）；(2) node `--test` 会将测试名称中的 `#` 转义为 `#`。我来调试一下其余的部分。
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && node -e \"\nimport('./tests/plan/lib/tree-check.mjs').then(({checkTree})=>{\n const lines=['Q x?',' Y → a',' 动作: 做事',' 升人: 否',' N → b',' 动作: 做事',' 回报: r',' 升人: 否'];\n co…[截断]
+  out: errs= [] [{"text":"Q x?","indent":0},{"text":"Y → a","indent":2},{"text":"动作: 做事","indent":4},{"text":"升人: 否","indent":4},{"text":"N → b","indent":2},{"text":"动作: 做事","indent":4},{"text":"回报: r","indent":4},{"text":"升人: 否","indent":4}] exit=0 84 TAP version 13 # Subtest: 超时常量守恒：R…[截断]
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && grep -E '^# (tests|pass|fail)' /tmp/nck.txt; node -e \"\nconst {spawnSync}=require('node:child_process');\nconst r=spawnSync('node',['--test','packages/netcheck/test/*.t…[截断]
+  out: # tests 84 # pass 84 # fail 0 status= 0 err= none stdoutLen= 16081 has #tests: true TAIL: "k 84 - StunTransaction：TxID 注入生成、配对过滤、RTT 单调差\n ---\n duration_ms: 0.9096\n type: 'test'\n ...\n1..84\n# tests 84\n# suites 0\n# pass 84\n# fail 0\n# cancel"
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && node --test tests/plan/p0-2-generator.test.mjs 2>&1 | grep -E \"^(ok|not ok)\" ; echo \"---detail---\"; node --test tests/plan/p0-2-generator.test.mjs 2>&1 | grep -A6 \"…[截断]
+  out: not ok 1 - T-P0-2-a packages/*/src 无 function*/yield（现值 2 命中：stun.ts:176/:190）——TDD 红锚 not ok 2 - T-P0-2-b netcheck 84 例语义钉（P0-2 改写后行为零漂移的地板） ---detail--- not ok 2 - T-P0-2-b netcheck 84 例语义钉（P0-2 改写后行为零漂移的地板） --- duration_ms: 178.3531 type: 'test' location: 'D:\\new-workspace\\o…[截断]
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && node -e \"\nimport('./tests/plan/lib/spawn.mjs').then(async ({run, REPO_ROOT}) => {\n console.log('REPO_ROOT=', REPO_ROOT);\n const r = run('node', ['--test', 'packages/…[截断]
+  out: REPO_ROOT= D:\new-workspace\ohos-tailscale status= 0 stdoutLen= 16082 stderrLen= 0 has #tests: true stderr head:
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && cat > /tmp/envprobe.test.mjs <<'EOF'\nimport { test } from 'node:test';\ntest('env probe', () => {\n const keys = Object.keys(process.env).filter((k) => /NODE|TEST/i.tes…[截断]
+  out: # ENV KEYS: ["NODE_TEST_CONTEXT"] NODE_TEST_CONTEXT= child-v8
+
+[TEXT @10-03 15:23] 已找到根本原因：`node --test` 会设置 `NODE_TEST_CONTEXT=child-v8`，由我的子进程继承——外加 Windows npm `.cmd` 问题。在修复前，有一个关于 minimax-3 声称（`npm run <missing-script>` 会返回 exit 0）的关键检查。
+
+[TEXT @10-03 15:24] 已确认。`npm run <missing>` → exit 1（minimax-3 关于“exit 0”的论断是 pipe-pollution —— 我验证的测量规范生效了）。现在应用那四个修复。
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\tests\\plan\\expected.json", "old_string": " \"T-P0-1-f CI 结构断言：g0-gates.yml 含 typecheck:bridge step——TDD 红锚（缺口#1：修完不入 CI）\",", "new_string": " \"T-…[截断]
+  out: The file D:\new-workspace\ohos-tailscale\tests\plan\expected.json has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\tests\\plan\\gates-registry.test.mjs", "old_string": "test('T-REG-4 yml 无假绿逃逸面（continue-on-error / || true / if: false）——现在就该绿', () => {\n const yml…[截断]
+  out: The file D:\new-workspace\ohos-tailscale\tests\plan\gates-registry.test.mjs has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TEXT @10-03 15:25] 在运行测试套件的同时，我先来阅读一下完整的 STUN parse 函数，以便编写准确的 holdout 变体。
+
+[TEXT @10-03 15:26] 测试套件正在后台运行。现在正在写入 holdout 软件包。
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && node --test tests/plan/gates-registry.test.mjs 2>&1 | grep -A8 \"not ok\" | head -20", "description": "See T-REG-3 failure detail"}
+  out: not ok 3 - T-REG-3 CI 无漏登记：∀ yml 的 npm run X（排除 npm ci）→ X ∈ registry——TDD 红锚（规划门未入 yml 时本条仍绿；它抓的是「CI 有而注册表无」） --- duration_ms: 3.9556 type: 'test' location: 'D:\\new-workspace\\ohos-tailscale\\tests\\plan\\gates-registry.test.mjs:35:1' failureType: 'testCodeFailure' error: |- ym…[截断]
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\tests\\plan\\gates-registry.test.mjs", "old_string": " const reg = loadRegistry();\n const known = new Set(reg.gates.map((g) => g.script.replace('np…[截断]
+  out: The file D:\new-workspace\ohos-tailscale\tests\plan\gates-registry.test.mjs has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TEXT @10-03 15:28] 现在开始处理 holdout runner、helpers、sentinels 以及九个 holdout 测试文件。
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale-holdout\\tests\\h01-p0-1-dns-variants.test.mjs", "old_string": "test('H01-f answerDns 的 qtype 联动：t=aaaa 传入 AAAA（16）', () => {\n let seen = -1;\n cons…[截断]
+  out: The file D:\new-workspace\ohos-tailscale-holdout\tests\h01-p0-1-dns-variants.test.mjs has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale-holdout\\tests\\h02-p0-2-stun-variants.test.mjs", "old_string": "/** 完整合法基线：SOFTWARE + FINGERPRINT（指纹对全消息前段计算）。 */\nfunction validMsg(extraAttrBefore…[截断]
+  out: The file D:\new-workspace\ohos-tailscale-holdout\tests\h02-p0-2-stun-variants.test.mjs has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TEXT @10-03 15:30] H01-f 是唯一失败的项目 —— 我来检查一下实际的 qtype 映射值。
+
+[TEXT @10-03 15:30] DnsType.AAAA 是 28（16 是 TXT）——这正是验证的重要性所在。正在修复。
+
+[TOOL Write completed] in: {"content": "// holdout H03：gate:d4 过滤器语义变体（TESTS-2026-10-03）。目标 scripts/gate-d4-p4.mjs 建成前 BLOCKED。\n// 打的是「过滤器语义」而非样本字面：行尾注释不算命中 / 独立注释行不算命中 / 真代码必须命中 /\n// .test.ts 的 node: 豁免必须面正确（同内容在 src 必须红）。门必须支持 --root（临时副本运行——m…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale-holdout\tests\h03-p0-4-gate-d4-variants.test.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// holdout H04：validate:arkts 变形负例 + 合法误报对照（TESTS-2026-10-03）。目标 app/tools/ets-mirror-check.mjs 建成前 BLOCKED。\n// 变形是关键：正则门最常见的假绿是「精确匹配了可见负例的字面形态」（PLAN 公开了 5 条最小集——enum/let x!:/as const/function*/@ts-ignore；\…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale-holdout\tests\h04-p0-3-arkts-gate-variants.test.mjs (file state is current in your context — no need to Read it back)
+
+[TEXT @10-03 15:33] Holdout 包已端到端调通：23 个 PASS，4 个 BLOCKED（门未建——在此阶段属预期状态），sentinel sweep 无异常发现。现在对修复后的 visible suite 进行最后验证。
+
+[TEXT @10-03 15:36] 可见测试套件完全符合设计：25 个 green + 54 个 red-anchors，0 个 unexpected。现在开始编写主文档 TESTS.md。
+
+[TEXT @10-03 15:39] TESTS.md 目前有 294 行——太短了，而且我注意到矩阵行中泄露了具体的 holdout 变体形状（ h04 deformed forms, h05 extended values），这会削弱 holdout 的效力。我正在重写该文件，包含清理后的 holdout 引用以及所需的扩展内容（完整规格断言、完整的 79 个测试清单、逐阶段 L1/L2 表、证据规格、轨迹采纳记录）。
+
+[TEXT @10-03 15:43] TESTS.md 目前有 404 行 —— 需要 600+ 行。让我从 `expected.json` 生成完整的 79 个用例清单（审计呈现），并添加一份所有者执行手册（owner runbook）章节。
+
+[TOOL Write completed] in: {"content": "// 一次性脚本：向 TESTS.md 注入 §2.6 用例清单与 §2.7 owner 执行剧本（TESTS-2026-10-03）。\nimport { readFileSync, writeFileSync } from 'node:fs';\n\nconst doc = readFileSync('D:/new-workspace/ohos-tailscale/docs/pre-device-plan/…[截断]
+  out: File created successfully at: C:\Users\Administrator\AppData\Local\Temp\inject-tests-md.mjs (file state is current in your context — no need to Read it back)
+
+[TEXT @10-03 15:44] 505 行。正在添加交付物清单、KAT/manifest 规范扩展，以及 holdout 与可见集的交互规范。
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\docs\\pre-device-plan\\TESTS.md", "old_string": "- **跨轨迹矛盾核对**：五份间无正面冲突事实主张；六处方法论分歧（U1/U2/U3/U4/U5/U6 + 四项额外）已在 §5 逐条裁决。测轨5 的「npm run 缺失脚本 exit 0」与测…[截断]
+  out: The file D:\new-workspace\ohos-tailscale\docs\pre-device-plan\TESTS.md has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\docs\\pre-device-plan\\TESTS.md", "old_string": "## 4.6 证据规范与校验器规格（P1-11 落地物）", "new_string": "## 4.7 升人触发六条与判定树/D10 的映射（L1 断言面）\n\nPLAN §3.3 升人触发（写…[截断]
+  out: The file D:\new-workspace\ohos-tailscale\docs\pre-device-plan\TESTS.md has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\docs\\pre-device-plan\\TESTS.md", "old_string": "---\n\n*写作纪律：每个写入的事实先亲验（§0.1，V1–V16）；红锚必须如实红、绿项必须真绿（本轮实测 25 绿 + 54 红锚全分类正确、0 意外）；holdout 判定内容零入仓（哨兵…[截断]
+  out: The file D:\new-workspace\ohos-tailscale\docs\pre-device-plan\TESTS.md has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && node -e \"\nconst fs=require('fs');\nlet t=fs.readFileSync('docs/pre-device-plan/TESTS.md','utf8');\nconst s47=t.indexOf('## 4.7 升人触发六条与判定树/D10 的映射（L1 断言面）');\nconst s46…[截断]
+  out: reordered
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\docs\\pre-device-plan\\TESTS.md", "old_string": "## 1.2 规格级断言全文（矩阵「spec」项的可执行级展开；对应工作项落地时实现为其分门/`--selfcheck`）", "new_string": "## 1.2 规格级断言全文（矩阵「sp…[截断]
+  out: The file D:\new-workspace\ohos-tailscale\docs\pre-device-plan\TESTS.md has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\docs\\pre-device-plan\\TESTS.md", "old_string": "---\n\n*写作纪律：每个写入的事实先亲验（§0.1，V1–V16）；红锚必须如实红、绿项必须真绿（本轮实测 25 绿 + 54 红锚全分类正确、0 意外）；holdout 判定内容零入仓（哨兵…[截断]
+  out: The file D:\new-workspace\ohos-tailscale\docs\pre-device-plan\TESTS.md has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TEXT @10-03 15:56] 所有交付成果已完成并验证。最终总结： ## 交付摘要 **1. TESTS.md 路径与行数** `D:\new-workspace\ohos-tailscale\docs\pre-device-plan\TESTS.md` — **600 行**（§0 元信息与 16 项亲验清单 / §1 25 项总矩阵+A1–A17 落点+规格全文 / §2 可见集与待应用集成 diff / §3 holdout 机制 / §4 B 类 L1/L2 / §5 裁决附录 / §6 速查卡）。 **2. tests/plan/ 文件数（16 测试 + 4 lib + 2 配置）与用途** - a-criteria：A1/A2/A4/A5/G0-6 现行基线地板（5 绿） - p0-1-peerapi：TS2353 正控制组/畸形 q 零漂移/test( 计数副断言/CI step - p0-2-generator：function*/yield 清零 grep 红锚 + netcheck 84 语义钉 - p0-3-arkts-gate：validate:arkts 门三件套结构红锚 - p0-4-gate-d4-meta：gate:d4 抽脚本 + yml 无裸 grep/awk + bash -n + 等价 grep 基线 - p0-5-regress-selftest：selftest/假 key/h2c CLI/--out 落盘/ENV_UNREACHABLE - p0-6-stagedocs：交接包七件套/门/废弃指向/owner 文档三处修复/S5b 留痕步骤/DECISIONS - p0-7-gitignore：A14 双向判据 + secrets/工具目录不被击穿 - p0-8-arktscheck：不崩 + SKIP 点名变量 + 假路径可读错 - a13-a16-docs：oracle/raw 清零 + 旧数字语境断言 + caliber 无值结构 - handoff-antipoison：防毒三段式扫描（黑/白名单+边界正则+自检） - decision-trees：判定树五断言 + 五个内置坏树负对照 - env-ready：值+证据+时间戳三元组机制全真演练 - p1-redanchors：P1 十三项落地物存在性/形态红锚 - gates-registry：注册表六断言 + yml 假绿逃逸面 + 门数防漂移 - holdout-sentinel：holdout 物理隔离哨兵（仓内无判定内容） - lib/{spawn,handoff-scanner,tree-check,env-ready-validator}.mjs + expected.json + README.md **3. scripts 新增**：`scripts/test-plan.mjs`（四态聚合 runner，区分预期红锚/意外红，fail-closed）、`scripts/gates.registry.json`（14 门注册表，ci:false 带理由，丁类门带 mutationWitness）。 **4. holdout 实际落点**：**仓外写入成功** `D:\new-workspace\ohos-tailscale-holdout\`（无需 staging 回退）——README-owner.md、run.mjs（fail-closed+STATE_ID/SHA256 溯源+哨兵扫描）、lib/helpers.mjs、tests/h01–h09（DN…[截断]
+
+[TOOL Bash completed] in: {"command": "wc -l \"D:\\new-workspace\\ohos-tailscale\\docs\\pre-device-plan\\PLAN.md\" \"D:\\new-workspace\\ohos-tailscale\\docs\\baseline-audit\\BASELINE.md\" \"D:\\new-workspace\\ohos-tailscale\\docs\\pre-device-plan…[截断]
+  out: Exit code 1 521 D:\new-workspace\ohos-tailscale\docs\pre-device-plan\PLAN.md 499 D:\new-workspace\ohos-tailscale\docs\baseline-audit\BASELINE.md wc: 'D:\new-workspace\ohos-tailscale\docs\pre-device-plan\thinking-test-*.md': No such file or directory 1020 total
+
+[TOOL Bash completed] in: {"command": "cp \"D:/new-workspace/ohos-tailscale/docs/pre-device-plan/thinking-test-minimax-3.md\" \"D:/new-workspace/ohos-tailscale/docs/pre-device-plan/.tt3-read-copy.md\" && node -e \"\nconst fs=require('fs');\nlet s…[截断]
+  out: ctrl char at 11177 0 done
+
+[TOOL Bash completed] in: {"command": "node -e \"\nconst fs=require('fs');\nlet s=fs.readFileSync('D:/new-workspace/ohos-tailscale/docs/pre-device-plan/.tt3-read-copy.md','utf8');\nconsole.log('context around NUL:', JSON.stringify(s.slice(11150,1…[截断]
+  out: context around NUL: "（实测 `npm run definitely-not\u0000-a-script` 退出码竟为 0！见 E11 邻项），所以应" sanitized, new length 18513
+
+[TOOL Bash completed] in: {"command": "rm -f \"D:/new-workspace/ohos-tailscale/docs/pre-device-plan/.tt3-read-copy.md\"; cd /d/new-workspace/ohos-tailscale && echo \"=== package.json scripts ===\" && node -e \"console.log(JSON.stringify(require('…[截断]
+  out: === package.json scripts === { "test": "node --test packages/**/*.test.ts", "typecheck": "tsc --noEmit -p .", "test:bridge": "node --test app/bridge/test/*.test.ts", "typecheck:bridge": "tsc --noEmit -p app/bridge", "validate:shell": "node app/tools/validate-shell.mjs", "interop:…[截断]
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && echo \"=== regress.mjs 28-76 ===\" && sed -n '28,76p' interop/regress.mjs", "description": "Read regress.mjs core section"}
+  out: === regress.mjs 28-76 === const HS = process.env.HS || 'http://127.0.0.1:8080'; // 阶段 1：注册 + MapRequest（要求 interop/register.node.ts 已就绪） function runStage(label, args) { console.error(`\n>>> 阶段：${label}`); const r = spawnSync(process.execPath, args, { stdio: ['ignore', 'pipe', 'i…[截断]
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && echo \"=== owner doc 45-62 ===\" && sed -n '45,62p' docs/handover/owner-with-real-device.md && echo \"=== handover list ===\" && ls docs/handover/ && echo \"=== TASK.md …[截断]
+  out: === owner doc 45-62 === - **`@kit.NetworkKit` / `@ohos.net.socket` / `@ohos.security.cryptoFramework` 导入路径**：编译器会自动提示正确路径。 - **`module.json5` 中 abilities 字段**：参考鸿蒙官方 sample；本仓 `app/AppScope/` 与 `app/entry/` 是骨架。 - **`VpnExtensionAbility.ets` 是 stub**（`app/entry/src/main/ets/vpnex…[截断]
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && ls tests/ 2>&1; ls docs/upstream/ 2>/dev/null | head -5; git remote get-url origin; ls interop/; echo \"=== tsconfig ===\"; cat tsconfig.json; echo \"=== app/tools ===\"…[截断]
+  out: ls: cannot access 'tests/': No such file or directory 2026-10-01-phase2 headscale-handlers.go headscale-noise-full.go headscale-noise.go ts-main git@github.com:feasy898/ohos-tailscale.git __pycache__ arkts-check.js arkts-mirror.sh derp.node.ts h2c.node.ts headscale.yaml register.…[截断]
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && npm test 2>/dev/null | grep -E '^ok ' > /tmp/test-names.txt; wc -l /tmp/test-names.txt; grep -E '^# (tests|pass|fail|skipped|todo|cancelled)' /tmp/../../../tmp/test-name…[截断]
+  out: 495 /tmp/test-names.txt # Subtest: RFC 4648 标准 base64 已知向量 # Subtest: 标准与 URL-safe 字母表差异 # Subtest: base64 全 256 字节 + 长度 0..64 往返（std 与 url） # Subtest: base64Decode 严格模式抛错集 # Subtest: base64 canonical（尾部非零位）拒绝 # Subtest: reader u8/u16/u32/u64 big-endian 已知向量 # Subtest: reader u16…[截断]
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && grep -n \"^export\" app/bridge/src/mock-peerapi.ts | head -20 && echo \"=== PeerApiRequest shape ===\" && sed -n '30,55p' app/bridge/src/mock-peerapi.ts && echo \"=== 18…[截断]
+  out: 40:export interface MockPeerApiRequest { 53:export interface MockPeerApiResponse { 60:export type DnsAnswerFn = (name: string, qtype: number) => DnsResolveOutcome; 63:export interface MockPeerApiConfig { 82:export const advertisePeerApiServices = (listeners: PeerApiListenerView[]…[截断]
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && grep -c \"0.0.0.0\" interop/headscale.yaml; grep -rn \"oracle/raw\" README.md CONTEXT.md TASK.md DELIVERY_REPORT.md HARMONY_AGENT_TASK.md docs/handover/ 2>/dev/null | he…[截断]
+  out: 2 DELIVERY_REPORT.md:151:- **敏感信息取舍**：oracle 取证的密钥/凭据已打码（`nodekey:/mkey:/discokey:` 只留前 8 hex，prefs 私钥由 tailscaled 自身置零，`docs/oracle/raw/README.txt`），但**控制面域名与拓扑为明文**——真实私有 tailnet 的 Headscale 域名 `headscale.example.internal` 与 tailnet 名 `edgenet` 明文出现在 `docs/oracle/protocol-notes…[截断]
+
+[TOOL TodoWrite completed] in: {"todos": [{"content": "核实仓库关键事实（计数/行号/假命令/环境）", "priority": "high", "status": "completed"}, {"content": "读取 mock-peerapi 配置面与 stun foreachAttr 语义", "priority": "high", "status": "in_progress"}, {"content": "生成 holdout 冻…[截断]
+  out: {"oldTodos":[],"todos":[{"content":"核实仓库关键事实（计数/行号/假命令/环境）","status":"completed","priority":"high"},{"content":"读取 mock-peerapi 配置面与 stun foreachAttr 语义","status":"in_progress","priority":"high"},{"content":"生成 holdout 冻结基线（495 测试名清单 + 8 包导出面快照）","status":"pending","priority":"hi…[截断]
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && mkdir -p \"D:/new-workspace/ohos-tailscale-holdout/fixtures\" && node -e \"\nconst pkgs=['common','crypto','noise','wireguard','derp','disco','control','netcheck'];\n(as…[截断]
+  out: common 21 crypto 26 noise 16 wireguard 39 derp 15 disco 45 control 182 netcheck 52 total 396 495 D:/new-workspace/ohos-tailscale-holdout/fixtures/frozen-495-names.txt
+
+[TOOL Write completed] in: {"file_path": "D:\\new-workspace\\ohos-tailscale\\scripts\\gates.registry.json", "content": "{\n \"$comment\": [\n \"门注册表（TESTS-2026-10-03，docs/pre-device-plan/TESTS.md §2.4/§5）。\",\n \"每道门显式声明 CI 归属：ci=true 必须在 .github/…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale\scripts\gates.registry.json (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// 用途：tests/plan 共用执行器（TESTS-2026-10-03，docs/pre-device-plan/TESTS.md §0.4 测量纪律）。\n// 纪律：凡断言退出码，必须与被测进程直连——`cmd | tail; $?` 捕到的是 tail 的退出码（轨迹实测踩过）。\n// 本 helper 一律 spawnSync 直取 status/stdout/stderr，不做任何管道中转。…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale\tests\plan\lib\spawn.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\tests\\plan\\gates-registry.test.mjs", "old_string": " const used = new Set();\n for (const m of yml.matchAll(/npm run ([A-Za-z:_-]+)/g)) used.add(m…[截断]
+  out: The file D:\new-workspace\ohos-tailscale\tests\plan\gates-registry.test.mjs has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && node scripts/test-plan.mjs > /tmp/test-plan-run1.txt 2>&1; echo \"EXIT=$?\" >> /tmp/test-plan-run1.txt; tail -40 /tmp/test-plan-run1.txt", "description": "Run full test-…[截断]
+  out: Command running in background with ID: exec_42945c65-db30-4861-b0c0-01af48989c13. Output is being written to: C:\Users\Administrator\.zcode\cli\exec\sess_subagent_agent_603dbc63-72fc-4766-b875-e0a29e4904b4\call_6c048f7e831a457e9defbe03-stdout.log. You will be notified when it com…[截断]
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && node --test tests/plan/decision-trees.test.mjs 2>&1 | grep -A 12 \"not ok 1\" | head -30; grep -n \"|| true\\|continue-on-error\" .github/workflows/g0-gates.yml | head -…[截断]
+  out: not ok 1 - T-TREE-a 五断言对五个内置坏树各自拒绝（可定位标识）——现在就该绿 --- duration_ms: 5.3068 type: 'test' location: 'D:\\new-workspace\\ohos-tailscale\\tests\\plan\\decision-trees.test.mjs:23:1' failureType: 'testCodeFailure' error: '坏树「叶子缺三元组（无回报字段）」必须被拒绝' code: 'ERR_ASSERTION' name: 'AssertionErro…[截断]
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && node -e \"\nconst {spawnSync}=require('node:child_process');\nconst r=spawnSync('npm.cmd',['run','definitely-not-a-script'],{cwd:'D:/new-workspace/ohos-tailscale',encodi…[截断]
+  out: missing-script status= 1 npm-test-with-NTC status= 0 stdout has #tests: false npm-test-clean status= 0 has #tests: true
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\tests\\plan\\lib\\spawn.mjs", "old_string": "/** 直连执行：返回 {status, stdout, stderr}。cmd 用数组形态，不经 shell 分词。 */\nexport function run(cmd, args = [], opt…[截断]
+  out: The file D:\new-workspace\ohos-tailscale\tests\plan\lib\spawn.mjs has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && sed -n '44,80p' packages/netcheck/src/stun.ts && sed -n '230,252p' packages/netcheck/src/stun.ts", "description": "Read STUN header fields and final validation"}
+  out: const ATTR_SOFTWARE: number = 0x8022; const ATTR_FINGERPRINT: number = 0x8028; const ATTR_MAPPED_ADDRESS: number = 0x0001; const ATTR_XOR_MAPPED_ADDRESS: number = 0x0020; const ATTR_XOR_MAPPED_ADDRESS_ALT: number = 0x8020; const BINDING_REQUEST_TYPE: number = 0x0001; const BINDIN…[截断]
+
+[TOOL Write completed] in: {"content": "# ohos-tailscale holdout 包（TESTS-2026-10-03）\n\n> **保密**：本目录是 holdout 判定内容（变体集 / 哨兵集 / 名冻清单 / ci:false 白名单复核 / runner）。\n> 开发 agent **不可见**——物理隔离：本目录在仓外（`D:\\new-workspace\\ohos-tailscale-holdout\\`），不进 git，…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale-holdout\README-owner.md (file state is current in your context — no need to Read it back)
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\tests\\plan\\lib\\tree-check.mjs", "old_string": " // ⑤ 动作行引用的仓内工具/文件必须存在（`node X` 的 X、显式相对路径）。占位符 <...> 出现在动作行即红。\n for (const r of rows.filter((r)…[截断]
+  out: The file D:\new-workspace\ohos-tailscale\tests\plan\lib\tree-check.mjs has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Write completed] in: {"content": "// holdout 共用 helper（TESTS-2026-10-03）。纪律：绝不 import 仓内 *.test.ts / 测试 helper；\n// 只用绝对 file:// URL 导入生产代码（实测可行）。REPO_ROOT 由 run.mjs 注入，默认仓外 sibling。\nimport { existsSync, readFileSync } from 'node:fs';\nimpo…[截断]
+  out: File created successfully at: D:\new-workspace\ohos-tailscale-holdout\lib\helpers.mjs (file state is current in your context — no need to Read it back)
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale-holdout\\tests\\h02-p0-2-stun-variants.test.mjs", "old_string": "test('H02-c 截断属性头（剩余 <4B）→ MALFORMED（truncated attribute header）', () => {\n const a…[截断]
+  out: The file D:\new-workspace\ohos-tailscale-holdout\tests\h02-p0-2-stun-variants.test.mjs has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Bash completed] in: {"command": "cd \"D:/new-workspace/ohos-tailscale-holdout\" && node --test tests/h01-p0-1-dns-variants.test.mjs 2>&1 | grep -A8 \"not ok 6\" | head -12; cd /d/new-workspace/ohos-tailscale && grep -n \"DnsType\" app/bridg…[截断]
+  out: not ok 6 - H01-f answerDns 的 qtype 联动：t=aaaa 传入 AAAA（16） --- duration_ms: 1.8818 type: 'test' location: 'D:\\new-workspace\\ohos-tailscale-holdout\\tests\\h01-p0-1-dns-variants.test.mjs:52:1' failureType: 'testCodeFailure' error: |- t=aaaa 必须映射 DnsType.AAAA=16 26: DnsType, 188: l…[截断]
+
+[TOOL Edit completed] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale-holdout\\tests\\h01-p0-1-dns-variants.test.mjs", "old_string": " s.handle({ ...req('a.example'), params: { q: 'a.example', t: 'aaaa' } });\n assert.e…[截断]
+  out: The file D:\new-workspace\ohos-tailscale-holdout\tests\h01-p0-1-dns-variants.test.mjs has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && node scripts/test-plan.mjs > /tmp/test-plan-run3.txt 2>&1; echo \"EXIT=$?\" >> /tmp/test-plan-run3.txt; tail -12 /tmp/test-plan-run3.txt", "description": "Run visible su…[截断]
+  out: Command running in background with ID: exec_c1059fdc-19ab-41a0-ac98-3f74ecbdc95c. Output is being written to: C:\Users\Administrator\.zcode\cli\exec\sess_subagent_agent_603dbc63-72fc-4766-b875-e0a29e4904b4\call_f1001babc65a4632ad0c14e6-stdout.log. You will be notified when it com…[截断]
+
+[TOOL TodoWrite completed] in: {"todos": [{"content": "核实仓库关键事实 + 冻结基线 + registry + 可见测试集 + runner + holdout 包", "priority": "high", "status": "completed"}, {"content": "跑 runner 验证：可见 25绿+54红锚 0 意外；holdout 23PASS+4BLOCKED+哨兵 0 命中", "priority": "high"…[截断]
+  out: {"oldTodos":[{"content":"核实仓库关键事实（计数/行号/假命令/环境）","status":"completed","priority":"high"},{"content":"生成 holdout 冻结基线（495 测试名清单 + 8 包导出面快照）","status":"completed","priority":"high"},{"content":"写 scripts/gates.registry.json","status":"completed","priority":"high"},{"content":"写 tes…[截断]
+
+[TOOL Write completed] in: {"content": "# 真机前工作最终实现测试（TESTS）\n\n# 0. 元信息与方法\n\n- **成文日期**：2026-10-03（标识 TESTS-2026-10-03，所有新文件头注释携带）\n- **被测对象**：[PLAN.md](PLAN.md)（25 个工作项 P0-1…P2-3、A 类完成定义 A1–A16、剧本 S0–S8、决策 D1–D13、拍板点 O1–O7）\n- **事实基线**：[../base…[截断]
+  out: The file D:\new-workspace\ohos-tailscale\docs\pre-device-plan\TESTS.md has been updated successfully. (file state is current in your context — no need to Read it back)
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && node -e \"\nconst e=require('./tests/plan/expected.json');\nconst itemOf=(n)=>{\n const m=/^T-([A-Z0-9]+-?[0-9]*[a-z]?)/.exec(n);\n let id=m?m[1]:'?';\n const map={'A1':…[截断]
+  out: rows 79
+
+[TOOL Edit error] in: {"replace_all": false, "file_path": "D:\\new-workspace\\ohos-tailscale\\docs\\pre-device-plan\\TESTS.md", "old_string": "## 0.5 五份测轨的采纳/修改/拒绝记录", "new_string": "## 0.6 交付物清单（本任务新建的全部文件；既有文件零改动）\n\n| 路径 | 用途 |\n|---|---|\…[截断]
+  out: 
+
+[TEXT @10-03 15:03] 现在我来读取这五个测试设计思路轨迹。
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && echo \"=== gitignore 24-48 ===\" && sed -n '24,48p' .gitignore && echo \"=== check-ignore ===\" && git check-ignore evidence/interop-20261003/regress.log; echo \"log exi…[截断]
+  out: === gitignore 24-48 === .mimosa/ # Logs *.log npm-debug.log* # OS files .DS_Store Thumbs.db # Editor .idea/ .vscode/ *.swp # Secrets（任何真实凭据不得入库） *.hwp *.cer *.p7b *.p12 *.keystore # zcode 会话产物 .zcode/ .wt/ === check-ignore === evidence/interop-20261003/regress.log log exit=0 sha …[截断]
+
+[TOOL Bash completed] in: {"command": "mkdir -p \"D:/new-workspace/ohos-tailscale-holdout\" && echo \"HOLDOUT WRITABLE OK\" && node --test \"D:/new-workspace/ohos-tailscale-holdout/**/*.test.mjs\" 2>&1 | tail -5; echo \"glob-empty-exit=$?\"", "de…[截断]
+  out: HOLDOUT WRITABLE OK # fail 0 # cancelled 0 # skipped 0 # todo 0 # duration_ms 12.8181 glob-empty-exit=0
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && grep -n \"foreachAttr\" packages/netcheck/src/stun.ts && ls docs/pre-device 2>&1; grep -n \"selfAddresses\" app/bridge/src/mock-peerapi.ts | head -3; grep -rn \"203.0.11…[截断]
+  out: 175:/** 属性遍历（上游 foreachAttr：len 按 4B 对齐推进；不足 4B/越界 → MALFORMED）。 */ 176:function* foreachAttr(attrs: Uint8Array): Generator<StunAttrView> { 215: const walker: Generator<StunAttrView> = foreachAttr(attrs); 382: const walker: Generator<StunAttrView> = foreachAttr(attrs); ls: cannot…[截断]
+
+[TOOL Bash completed] in: {"command": "cd /d/new-workspace/ohos-tailscale && grep -n \"^export\" packages/netcheck/src/stun.ts | head && echo \"=== stun 200-230 ===\" && sed -n '205,230p' packages/netcheck/src/stun.ts && echo \"=== ts import prob…[截断]
+  out: 33:export const STUN_HEADER_LEN: number = 20; 36:export const STUN_TXID_LEN_BYTES: number = 12; 39:export const STUN_MAGIC_COOKIE: Uint8Array = new Uint8Array([0x21, 0x12, 0xa4, 0x42]); 42:export const STUN_SOFTWARE: string = 'tailnode'; 80:export function crc32Ieee(data: Uint8Ar…[截断]

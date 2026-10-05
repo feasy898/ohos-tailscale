@@ -347,7 +347,7 @@ test('模拟注册全流程：dial → send(RegisterRequest) → 服务端解出
     seqNo: 42n,
     packetFilter: new Uint8Array([0x00, 0x01, 0x02, 0x03]),
     peers: [
-      { nodeKey: fixedKey(70), discoKey: fixedKey(71), endpoints: ['223.198.166.92:30387'], homeDerpRegionId: 999 },
+      { nodeKey: fixedKey(70), discoKey: fixedKey(71), endpoints: ['203.0.113.10:30387'], homeDerpRegionId: 999 },
       { nodeKey: fixedKey(80), discoKey: fixedKey(81), endpoints: [], homeDerpRegionId: 17 },
     ],
   };

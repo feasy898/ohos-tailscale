@@ -12,6 +12,7 @@ function mkNode(name: string): DerpNode {
     ipv6: '',
     stunPort: 0, // 0 = 未显式下发 → 按 STUN_DEFAULT_PORT 兜底
     derpPort: 0, // 0 = 未显式下发 → 按 DERP_DEFAULT_PORT 兜底
+    stunOnly: false, // B3 增补（上游 DERPNode.STUNOnly，derpmap.go:235-237）
     canPort80: true,
   };
   return n;
@@ -130,5 +131,6 @@ test('节点缺省字段语义结构保持（certName=""/stunPort=0/derpPort=0 �
   assert.equal(n.stunPort, 0);
   assert.equal(n.derpPort, 0);
   assert.equal(n.ipv6, '');
+  assert.equal(n.stunOnly, false);
   assert.equal(n.canPort80, true);
 });
