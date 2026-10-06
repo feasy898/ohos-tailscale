@@ -150,7 +150,10 @@ print('DST=' + u.DST, flush=True)
 print('FILES=' + json.dumps(sorted(os.listdir(u.DST)) if os.path.isdir(u.DST) else []), flush=True)
 `);
 
-const r = spawnSync(PY, ['-u', driverPath], { stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8' });
+// Windows CI 跑起器 Python stdout 默认 cp1252, 中文标签 print 即 UnicodeEncodeError——
+// 注入 PYTHONIOENCODING=utf-8 使三平台一致(GitHub Actions windows-latest 实测修复)
+const r = spawnSync(PY, ['-u', driverPath], { stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8',
+  env: { ...process.env, PYTHONIOENCODING: 'utf-8' } });
 if (r.status !== 0) {
   console.error('python driver failed:');
   console.error(r.stdout);
