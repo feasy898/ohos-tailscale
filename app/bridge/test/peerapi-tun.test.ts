@@ -254,6 +254,25 @@ test('ExitDNS：name 跨包污点边界（mock-peerapi → control ResolverCore�
   }
   // 完整覆盖（每个 malformed 一行断言）便于评测工具 grep 'malformed' / 'JSON.stringify' 计覆盖率。
   assert.ok(malformed.length >= 9, 'malformed 集合 ≥ 9 项：' + malformed.length);
+
+  // 攻击样例（2026-10-06 跨文件污点复审补强）：q=__proto__ 能过 LDH 白名单（纯下划线属合法字符），
+  // 会直达 ResolverCore——钉死 sink 形态为「Map 读、零对象键写」：__proto__ 走普通名字查询
+  // （hosts 未命中 → REFUSED 路由），且 Object.prototype 原型链零污染（ResolverCore 构造期的
+  // 键写入全部来自 config 派生值，magicdns.ts:700-722，query 路径只有 Map.get）。
+  const protoCore: ResolverCore = makeResolver();
+  const protoServer: MockPeerApiServer = makePeerServer(
+    (name: string, qtype: number): ReturnType<ResolverCore['query']> => protoCore.query(name, qtype),
+  );
+  const protoResp = protoServer.handle(peerRequest({ path: '/dns-query', params: { q: '__proto__' }, isSelfQuery: true }));
+  assert.equal(protoResp.status, 200, '__proto__ 过 LDH 校验属预期（合法字符集，不得误拒）');
+  const protoPayload = JSON.parse(protoResp.body) as { RCode: number };
+  assert.equal(
+    protoPayload.RCode,
+    DnsRCode.REFUSED,
+    '__proto__ 在 ResolverCore 是普通名字查询：hosts Map 读未命中 → 无路由 → REFUSED',
+  );
+  const canary = {} as Record<string, string | undefined>;
+  assert.equal(canary.polluted, undefined, 'Object.prototype 零污染（Map sink 无动态对象键写点）');
 });
 
 test('ExitDNS：合法 q 正控制组（传真函数形态 C——answerDns 传 null 会退化成 503）', () => {

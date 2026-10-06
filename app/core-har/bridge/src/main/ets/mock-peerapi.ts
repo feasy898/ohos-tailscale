@@ -176,6 +176,13 @@ export class MockPeerApiServer {
     //     不允许以 `.` 开头（label 必须以字母或数字开头/结尾，RFC 1123 §2.1）。
     // Mimosa 误判为 SQL 注入——本路径无 SQL 字符串拼接，仅是函数调用；
     // 但跨文件污点（用户输入 → ResolverCore）是真的，故显式校验兜底。
+    // 污点复审结论（2026-10-06，全 sink 逐点核过）：误报——污点 name 在 ResolverCore.query
+    // （control/src/magicdns.ts:737）只进纯字符串变换（toLowerCase/withTrailingDot）、
+    // hosts Map **读**（:765 get，构造期键写入全部来自 config 派生值 :700-722）、
+    // endsWith 后缀判定（:126-141，无 RegExp 构造 → 无 ReDoS）；应答经 JSON.stringify
+    // 序列化（本文件 :195），无注入语境；PTR 反解路径 mock 不可达（qtype 仅 A/AAAA）。
+    // 本校验保留为纵深防御（边界收口后污点不再越过 LDH 形态）；攻击样例
+    // q=__proto__（过白名单直达 Map 读）见 peerapi-tun.test.ts 跨包污点边界用例。
     if (
       name.length === 0 ||
       name.length > 253 ||
