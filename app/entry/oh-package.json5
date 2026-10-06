@@ -6,11 +6,6 @@
   "author": "ohos-tailscale contributors",
   "license": "BSD-3-Clause",
   "dependencies": {
-    // CU6 方案 B 实测：协议库以 hvigor HAR 模块形态进工程（app/core-har/*，
-    // 由 app/tools/sync-core-har.mjs 从 packages/* 同步），entry 以 file: 目录依赖引用。
-    "@ohos-tailscale/common": "file:../core-har/common",
-    "@ohos-tailscale/crypto": "file:../core-har/crypto",
-    "@ohos-tailscale/noise": "file:../core-har/noise",
-    "@ohos-tailscale/wireguard": "file:../core-har/wireguard"
+    // CU6 方案 C 独立判据期：ohpm 依赖清空，协议库走 .ets 镜像（mirror-core-ets.mjs）。
   }
 }

@@ -8,10 +8,9 @@ import { vpnExtension } from '@kit.NetworkKit';
 import { promptAction } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
-// CU6 自检：协议库（纯 TS 包）经 ohpm file: 依赖进入 ets 编译——
-// noise 版本常量 + wireguard 纯函数（见 docs/cu6-integration.md）。
-import { NOISE_PROTOCOL_NAME } from '@ohos-tailscale/noise';
-import { WG_CONSTRUCTION, parseWgMessageType } from '@ohos-tailscale/wireguard';
+// CU6 方案 C 自检：协议库 .ets 镜像（app/tools/mirror-core-ets.mjs 复制进本模块）。
+import { NOISE_PROTOCOL_NAME } from '../protocol/noise/index';
+import { WG_CONSTRUCTION, parseWgMessageType } from '../protocol/wireguard/index';
 
 const DOMAIN: number = 0x0001;
 const TAG: string = 'OhosTsIndex';
