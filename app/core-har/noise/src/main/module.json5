@@ -1,0 +1,10 @@
+{
+  "module": {
+    "name": "noise",
+    "type": "har",
+    "deviceTypes": [
+      "phone",
+      "tablet"
+    ]
+  }
+}

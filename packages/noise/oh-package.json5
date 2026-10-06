@@ -1,0 +1,15 @@
+// ohpm 元数据（CU6 方案 A 实测）：与 package.json 并存，见 packages/common/oh-package.json5 注释。
+{
+  "name": "@ohos-tailscale/noise",
+  "version": "0.1.0",
+  "description": "Noise IK handshake + post-handshake transport encryption (ts2021).",
+  "main": "src/index.ts",
+  "author": "ohos-tailscale contributors",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    // HAR 化后由消费方（entry）oh-package.json5 overrides 拦截为本地 .har，
+    // 这里保持 registry 区间写法，避免打包后 file: 相对路径失效。
+    "@ohos-tailscale/common": "^0.1.0",
+    "@ohos-tailscale/crypto": "^0.1.0"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "module": {
+    "name": "crypto",
+    "type": "har",
+    "deviceTypes": [
+      "phone",
+      "tablet"
+    ]
+  }
+}

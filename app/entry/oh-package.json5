@@ -6,9 +6,12 @@
   "author": "ohos-tailscale contributors",
   "license": "BSD-3-Clause",
   "dependencies": {
-    // TODO(核心库集成)：以本地依赖方式引入仓库 TS 核心库 @ohos-tailscale/*（common/crypto/wireguard/noise/control/derp）。
-    // 候选写法（哪种能被 ohpm/ets loader 正确解析尚未验证，见 README-app.md「核心库本地依赖集成」与「已知未验证事项」U6）：
-    //   "@ohos-tailscale/common": "file:../../packages/common"
-    // 若 ohpm 不接受该形态，则退化为把 packages/ 源码拷入/软链进本模块，并在 app 侧加 .ets 适配层。
+    // CU6 结论（方案 B，胜出）：协议库以 hvigor HAR 模块进工程——app/core-har/* 由
+    // app/tools/sync-core-har.mjs 从 packages/* 字节级同步（协议源码零改动），
+    // entry 以 file: 目录依赖引用。三方案对比与证据见 docs/cu6-integration.md。
+    "@ohos-tailscale/common": "file:../core-har/common",
+    "@ohos-tailscale/crypto": "file:../core-har/crypto",
+    "@ohos-tailscale/noise": "file:../core-har/noise",
+    "@ohos-tailscale/wireguard": "file:../core-har/wireguard"
   }
 }

@@ -57,7 +57,14 @@ app/
 
 ## 4. 核心库（@ohos-tailscale/*）本地依赖集成
 
-核心库是 `packages/` 下六个 npm workspace TS 包（common 已冻结，crypto/wireguard/noise/control/derp 按架构契约实现）。集成目标：让 `entry/src/main/ets/**` 能 `import` 它们（A29 允许），并遵守 D4（socket/TLS/时钟/随机由 app 侧注入）。**以下方式均未在 DevEco/ohpm 实测**，按优先级试错：
+核心库是 `packages/` 下六个 npm workspace TS 包（common 已冻结，crypto/wireguard/noise/control/derp 按架构契约实现）。集成目标：让 `entry/src/main/ets/**` 能 `import` 它们（A29 允许），并遵守 D4（socket/TLS/时钟/随机由 app 侧注入）。
+
+> **2026-10-06 CU6 实测更新**：三方案已在官方 CLT 下逐一实测，**HAR 模块化（方案 3）胜出并已落地**
+> （`app/core-har/*` + `app/tools/sync-core-har.mjs` + `entry/oh-package.json5` 的 `file:../core-har/<p>`），
+> 证据与三方案对比见 `docs/cu6-integration.md`。要点：① 方案 1（`file:` 直指 packages/）不可行
+> （ets-loader OhmUrl 归属规则 10311002 + 归一化 URL 相对导入禁令 00309001）；② `.ts` specifier
+> 本身被 loader 接受（方案 2/3 均实测通过，U6 已消除）；③ HAR 公开入口必须用 TS 入口
+> （`main: src/main/ets/index.ts`），用 `.ets` barrel 会触发 10605999。
 
 1. **ohpm 本地目录依赖**：在 `entry/oh-package.json5` 的 dependencies 中写 `"@ohos-tailscale/common": "file:../../packages/common"`（预留 TODO 已在文件中）。风险：核心包是 npm workspace 形态（`exports: ./src/index.ts`），ohpm 期望 HAR/HSP 或含 `oh-package.json5` 的模块目录——不匹配则走方案 2/3。
 2. **源码并入**：把 `packages/*/src` 拷贝/软链到 `entry/src/main/ets/core/` 下，import 改相对路径或包名别名。注意 P2（包内相对导入带 `.ts` 后缀）与未验证项 U6（ets loader 是否接受 `.ts` specifier——**这是方案 2 的成败点**；若不接受，需在 app 侧加一层 `.ets` 适配文件或批量改写后缀）。
@@ -96,7 +103,7 @@ UI 停止: vpnExtension.stopVpnExtensionAbility(want) ──▶ onDestroy → co
 2. **`@kit.NetworkKit` 导入路径**：`VpnExtensionAbility` 基类与 `vpnExtension` 均按 OpenHarmony 官方文档写为 `import { ... } from '@kit.NetworkKit'`（API 11+）；以本地 SDK `.d.ts` 实际导出为准。
 3. **`"type": "vpn"` 识别问题**：DevEco/SDK 校验器可能不识别（官方指南明示），处理见 §2 第 5 步。
 4. **版本基线假设**：`compatibleSdkVersion: "5.0.0(12)"` 与 hvigor `modelVersion: "5.0.0"` 是保守起点，与你安装的 DevEco 版本可能不匹配（DevEco 打开时按提示升级即可）。`VpnConfig` 部分字段（`vpnId` API 20+、`destroy(vpnId)` API 20+、want.parameters 透传 API 22+）高于基线，本工程未使用。
-5. **U6 `.ts` specifier**：ets loader 对 `./x.ts` 导入形态的支持未验证（约束文档 §6-U6），决定核心库集成方案取舍。
+5. **U6 `.ts` specifier（已消除，2026-10-06）**：ets loader 接受 `./x.ts` 导入形态（方案 2/3 实测通过）；真正的约束是 ohpm 外部模块内相对导入（归一化 URL 下 00309001 禁止）与 OhmUrl 文件归属规则（10311002，文件必须在 hvigor 模块目录或 oh_modules 下）——见 `docs/cu6-integration.md`。
 6. **`createVpnConnection` 调用时机**：官方文档要求「先 startVpnExtensionAbility 启用 VPN 功能后再调用」，扩展内 `onCreate` 时序已满足，但真机表现未验证。
 7. **UI 启停接线**：`startVpnExtensionAbility/stopVpnExtensionAbility` 的 Want 形态按官方示例写（bundleName + abilityName），未真机验证；授权弹窗生命周期与 `createVpnObserver` 监听未接线。
 8. **authKey 传递**： Want.parameters 透传仅 API 22+ 支持且不安全，桩内按「Asset Store/preferences 中转」TODO 处理，加密存储 API（Asset Store Kit）未验证。
