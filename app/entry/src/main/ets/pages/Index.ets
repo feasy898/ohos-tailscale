@@ -11,7 +11,7 @@ import { hilog } from '@kit.PerformanceAnalysisKit';
 
 const DOMAIN: number = 0x0001;
 const TAG: string = 'OhosTsIndex';
-const BUNDLE_NAME: string = 'com.ohostailscale.app'; // 与 AppScope/app.json5 的 bundleName 保持一致
+const BUNDLE_NAME: string = 'tailnet.o.01'; // 与 AppScope/app.json5 的 bundleName 保持一致
 const VPN_ABILITY_NAME: string = 'VpnExtensionAbility'; // 与 module.json5 extensionAbilities[].name 保持一致
 
 // 连接状态常量表（docs/arkts-constraints.md A34：禁 enum；按 A18 用「显式 interface + 常量对象」替代）
