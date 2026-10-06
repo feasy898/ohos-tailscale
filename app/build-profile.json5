@@ -10,7 +10,7 @@
         "buildOption": {
         "strictMode": {
           "caseSensitiveCheck": true,
-          "useNormalizedOHMUrl": false
+          "useNormalizedOHMUrl": true
         }
         }
       }
@@ -36,6 +36,23 @@
           ]
         }
       ]
+    },
+    // CU6 方案 B：协议库 HAR 化（源 = packages/*，经 app/tools/sync-core-har.mjs 同步）
+    {
+      "name": "common",
+      "srcPath": "./core-har/common"
+    },
+    {
+      "name": "crypto",
+      "srcPath": "./core-har/crypto"
+    },
+    {
+      "name": "noise",
+      "srcPath": "./core-har/noise"
+    },
+    {
+      "name": "wireguard",
+      "srcPath": "./core-har/wireguard"
     }
   ]
 }

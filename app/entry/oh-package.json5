@@ -6,11 +6,11 @@
   "author": "ohos-tailscale contributors",
   "license": "BSD-3-Clause",
   "dependencies": {
-    // CU6 方案 A 实测：file: 本地目录依赖直指仓库 packages/* 纯 TS 源码（noise/wireguard 及其
-    // 内部依赖 common/crypto）。各包已加 oh-package.json5（main: src/index.ts），package.json 未动。
-    "@ohos-tailscale/common": "file:../../packages/common",
-    "@ohos-tailscale/crypto": "file:../../packages/crypto",
-    "@ohos-tailscale/noise": "file:../../packages/noise",
-    "@ohos-tailscale/wireguard": "file:../../packages/wireguard"
+    // CU6 方案 B 实测：协议库以 hvigor HAR 模块形态进工程（app/core-har/*，
+    // 由 app/tools/sync-core-har.mjs 从 packages/* 同步），entry 以 file: 目录依赖引用。
+    "@ohos-tailscale/common": "file:../core-har/common",
+    "@ohos-tailscale/crypto": "file:../core-har/crypto",
+    "@ohos-tailscale/noise": "file:../core-har/noise",
+    "@ohos-tailscale/wireguard": "file:../core-har/wireguard"
   }
 }

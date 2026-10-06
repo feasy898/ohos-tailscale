@@ -1,0 +1,13 @@
+// 由 app/tools/sync-core-har.mjs 生成（CU6 方案 B）：源 = packages/noise
+{
+  "name": "@ohos-tailscale/noise",
+  "version": "0.1.0",
+  "description": "Noise IK handshake (Noise_IK_25519_ChaChaPoly_BLAKE2s) and post-handshake transport encryption for the ts2021 control-plane session, plus channel framing - see docs/architecture.md section 6.",
+  "main": "src/main/ets/index.ts",
+  "author": "ohos-tailscale contributors",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "@ohos-tailscale/common": "file:../common",
+    "@ohos-tailscale/crypto": "file:../crypto"
+  }
+}

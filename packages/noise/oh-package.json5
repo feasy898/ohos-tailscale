@@ -7,7 +7,9 @@
   "author": "ohos-tailscale contributors",
   "license": "BSD-3-Clause",
   "dependencies": {
-    "@ohos-tailscale/common": "file:../common",
-    "@ohos-tailscale/crypto": "file:../crypto"
+    // HAR 化后由消费方（entry）oh-package.json5 overrides 拦截为本地 .har，
+    // 这里保持 registry 区间写法，避免打包后 file: 相对路径失效。
+    "@ohos-tailscale/common": "^0.1.0",
+    "@ohos-tailscale/crypto": "^0.1.0"
   }
 }

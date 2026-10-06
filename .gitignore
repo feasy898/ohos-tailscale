@@ -57,3 +57,6 @@ __pycache__/
 
 # ohpm 安装产物（CU6 探测期）
 oh_modules/
+
+# hvigor 生成物
+**/BuildProfile.ets

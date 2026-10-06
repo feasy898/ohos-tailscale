@@ -1,0 +1,9 @@
+// 由 app/tools/sync-core-har.mjs 生成（CU6 方案 B）：源 = packages/common
+{
+  "name": "@ohos-tailscale/common",
+  "version": "0.1.0",
+  "description": "Shared interfaces (Clock/Rng/HttpTransport), byte codec, encodings and constants. Frozen public API - see docs/architecture.md.",
+  "main": "src/main/ets/index.ts",
+  "author": "ohos-tailscale contributors",
+  "license": "BSD-3-Clause",
+}

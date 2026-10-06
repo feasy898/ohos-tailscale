@@ -1,0 +1,10 @@
+{
+  "module": {
+    "name": "wireguard",
+    "type": "har",
+    "deviceTypes": [
+      "phone",
+      "tablet"
+    ]
+  }
+}
