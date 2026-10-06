@@ -1,0 +1,12 @@
+// 由 app/tools/sync-core-har.mjs 生成（CU6 方案 B）：源 = packages/netcheck
+{
+  "name": "@ohos-tailscale/netcheck",
+  "version": "0.1.0",
+  "description": "STUN wire format core + netcheck probe engine scheduling (tailscale net/netcheck aligned): binding request/response codec, deterministic StunTransaction, clock-driven probe-plan state machine (initial/incremental plans, debounce, early-stop), report aggregation with PreferredDERP hysteresis. Wire/IO (UDP sockets, DNS, timers, HTTPS/ICMP/portmapper probes) is injected by the app bridge.",
+  "main": "src/main/ets/index.ts",
+  "author": "ohos-tailscale contributors",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "@ohos-tailscale/common": "file:../common"
+  }
+}

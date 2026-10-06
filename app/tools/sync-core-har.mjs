@@ -20,22 +20,55 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const packagesDir = join(repoRoot, 'packages');
 const harRoot = join(repoRoot, 'app', 'core-har');
 
-// noise/wireguard 依赖 common/crypto；四包即 CU6 判据所需闭包。
-const PACKAGES = ['common', 'crypto', 'noise', 'wireguard'];
+// 全部八个协议包（CU6 后续步骤 1：control/derp/disco/netcheck 补齐入包）。
+// DEPS 按 packages/*/src 实际 import 闭包写（不照抄 package.json——derp 的
+// package.json 只声明 common，但 src/client.ts 实际还 import crypto）。
+// control 的 netmap/wgderive 是包内文件（packages/control/src/*.ts），非独立包。
+const PACKAGES = ['common', 'crypto', 'noise', 'wireguard', 'control', 'derp', 'disco', 'netcheck'];
 const DEPS = {
   common: {},
   crypto: { '@ohos-tailscale/common': 'file:../common' },
   noise: { '@ohos-tailscale/common': 'file:../common', '@ohos-tailscale/crypto': 'file:../crypto' },
   wireguard: { '@ohos-tailscale/common': 'file:../common', '@ohos-tailscale/crypto': 'file:../crypto' },
+  control: {
+    '@ohos-tailscale/common': 'file:../common',
+    '@ohos-tailscale/crypto': 'file:../crypto',
+    '@ohos-tailscale/noise': 'file:../noise',
+  },
+  derp: { '@ohos-tailscale/common': 'file:../common', '@ohos-tailscale/crypto': 'file:../crypto' },
+  disco: { '@ohos-tailscale/common': 'file:../common', '@ohos-tailscale/crypto': 'file:../crypto' },
+  netcheck: { '@ohos-tailscale/common': 'file:../common' },
 };
 
 const readDesc = (p) => JSON.parse(readFileSync(join(packagesDir, p, 'package.json'), 'utf8'));
 
+// bridge（壳侧 TS 桥，app/bridge）同走 HAR 化：源 = app/bridge/src（非 packages/），
+// 依赖 = 其实际 import 的六个协议包（app/bridge/README.md 依赖方向图）。
+const BRIDGE = {
+  name: 'bridge',
+  srcDir: join(repoRoot, 'app', 'bridge', 'src'),
+  desc: {
+    name: '@ohos-tailscale/bridge',
+    version: '0.1.0',
+    description: '壳侧 TS 桥：mock 注入层（mock-http-transport/mock-control-plane/mock-udp-bus）+ 数据面 mock（mock-localapi/mock-peerapi/mock-tun）+ 壳会话/发现/状态门面',
+  },
+  deps: {
+    '@ohos-tailscale/common': 'file:../common',
+    '@ohos-tailscale/crypto': 'file:../crypto',
+    '@ohos-tailscale/noise': 'file:../noise',
+    '@ohos-tailscale/control': 'file:../control',
+    '@ohos-tailscale/disco': 'file:../disco',
+    '@ohos-tailscale/netcheck': 'file:../netcheck',
+  },
+};
+
 let changed = 0;
-for (const p of PACKAGES) {
-  const srcDir = join(packagesDir, p, 'src');
+for (const p of [...PACKAGES, BRIDGE.name]) {
+  const isBridge = p === BRIDGE.name;
+  const srcDir = isBridge ? BRIDGE.srcDir : join(packagesDir, p, 'src');
   const dstEts = join(harRoot, p, 'src', 'main', 'ets');
-  const desc = readDesc(p);
+  const desc = isBridge ? BRIDGE.desc : readDesc(p);
+  const deps = isBridge ? BRIDGE.deps : DEPS[p];
 
   // 1) 源码同步：清掉旧 .ts 再整目录拷贝（防删源残留）
   if (existsSync(dstEts)) {
@@ -54,16 +87,16 @@ for (const p of PACKAGES) {
   // 2) 壳模板（缺失才生成）
   const ohPkg = join(harRoot, p, 'oh-package.json5');
   if (!existsSync(ohPkg)) {
-    const deps = Object.entries(DEPS[p])
+    const depsLiteral = Object.entries(deps)
       .map(([k, v]) => `    "${k}": "${v}"`)
       .join(',\n');
     writeFileSync(
       ohPkg,
-      `// 由 app/tools/sync-core-har.mjs 生成（CU6 方案 B）：源 = packages/${p}\n` +
+      `// 由 app/tools/sync-core-har.mjs 生成（CU6 方案 B）：源 = ${isBridge ? 'app/bridge' : 'packages/' + p}\n` +
         `{\n  "name": "${desc.name}",\n  "version": "${desc.version}",\n` +
         `  "description": "${(desc.description || '').replace(/"/g, "'")}",\n` +
         `  "main": "src/main/ets/index.ts",\n  "author": "ohos-tailscale contributors",\n  "license": "BSD-3-Clause",\n` +
-        (deps ? `  "dependencies": {\n${deps}\n  }\n` : '') +
+        (depsLiteral ? `  "dependencies": {\n${depsLiteral}\n  }\n` : '') +
         `}\n`
     );
     changed++;
@@ -91,4 +124,4 @@ for (const p of PACKAGES) {
     changed++;
   }
 }
-console.log(`sync-core-har: ${PACKAGES.length} 个 HAR 模块就绪（同步 ${changed} 个文件写入）→ ${harRoot.replace(repoRoot + '/', '')}`);
+console.log(`sync-core-har: ${PACKAGES.length + 1} 个 HAR 模块就绪（8 协议包 + bridge）（同步 ${changed} 个文件写入）→ ${harRoot.replace(repoRoot + '/', '')}`);

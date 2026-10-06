@@ -9,6 +9,10 @@ import { Want } from '@kit.AbilityKit';
 import { vpnExtension, VpnExtensionAbility as VpnAbilityBase } from '@kit.NetworkKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+// VPN 壳 bridge 层（app/bridge → HAR）：壳状态模型经桥接口类型对齐——
+// 真平台注入（@ohos.net.http / @ohos.net.socket / cryptoFramework / vpnConnection.protect(fd)）
+// 替换 mock 时只换实现、不动接口（对接表见 handTunFdToCore 内 TODO）。
+import { idleStatus, ShellStatus, TUN_FAKE_MTU, TUN_FAKE_NAME } from '@ohos-tailscale/bridge';
 
 const DOMAIN: number = 0x0200;
 const TAG: string = 'OhosTsVpnExt';
@@ -16,9 +20,13 @@ const TAG: string = 'OhosTsVpnExt';
 export default class VpnExtensionAbility extends VpnAbilityBase {
   private tunFd: number = -1;
   private vpnConnection: vpnExtension.VpnConnection | null = null;
+  // 壳状态快照（bridge ShellStatus 接口类型对齐；真平台注入前恒为 idle）
+  private bridgeStatus: ShellStatus = idleStatus();
 
   onCreate(want: Want): void {
     hilog.info(DOMAIN, TAG, '%{public}s', 'VpnExtensionAbility onCreate（系统已获得用户 VPN 授权）');
+    hilog.info(DOMAIN, TAG, 'bridge: mock-tun ready · %{public}s mtu=%{public}d state=%{public}d',
+      TUN_FAKE_NAME, TUN_FAKE_MTU, this.bridgeStatus.sessionState);
 
     // 步骤 1：读取登录信息 ------------------------------------------------------
     // TODO(登录信息)：登录页（pages/Index.ets）在 startVpnExtensionAbility 之前已把 authKey
@@ -79,6 +87,15 @@ export default class VpnExtensionAbility extends VpnAbilityBase {
     //
     // TODO(状态回传)：连接状态变化经 commonEventManager 自定义事件广播给 UI（AppStorage 不跨进程），
     // 并按官方「VPN 应用的显示体验」要求在通知栏展示连接状态（通知为后续迭代项）。
+    //
+    // ---- 平台注入对接表（真平台注入 = 按 bridge 接口替换 mock 实现，接口类型零改动）----
+    // TODO(@ohos.net.http)      → 替换 bridge MockHttpTransport（common 冻结接口 HttpTransport）
+    // TODO(@ohos.net.socket)    → 替换 bridge UdpSocket（mock-udp-bus 同 send/receive 语义，事件化适配）
+    // TODO(cryptoFramework)     → 替换 bridge 假随机数（common Rng 注入面）
+    // TODO(系统时钟)            → 替换 bridge 确定性 Clock（common Clock 注入面）
+    // TODO(conn.protect(fd))    → bridge UdpSocket 自建 fd 防环路（上方方案 A 关键步骤）
+    // TODO(@ohos.file.fs 读 fd) → 替换 bridge TunDevice（mock-tun TunCable 双端内存网线 → 真 tunFd 收发）
+    // TODO(DERP TLS 拨号)       → 替换 derp 包 Dialer 注入面（bridge 侧 mock 拨号器）
   }
 
   onDestroy(): void {

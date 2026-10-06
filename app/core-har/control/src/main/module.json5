@@ -1,0 +1,10 @@
+{
+  "module": {
+    "name": "control",
+    "type": "har",
+    "deviceTypes": [
+      "phone",
+      "tablet"
+    ]
+  }
+}

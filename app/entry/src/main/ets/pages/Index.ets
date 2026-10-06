@@ -12,6 +12,15 @@ import { hilog } from '@kit.PerformanceAnalysisKit';
 // 并调用 wireguard 纯函数 parseWgMessageType 自检 import 链路（详见 docs/cu6-integration.md）。
 import { NOISE_PROTOCOL_NAME } from '@ohos-tailscale/noise';
 import { WG_CONSTRUCTION, parseWgMessageType } from '@ohos-tailscale/wireguard';
+// CU6 后续步骤 1：剩余四协议包（control/derp/disco/netcheck）HAR 化入包，
+// 同样以真实调用点把符号带进 ets/modules.abc（判据见 docs/cu6-integration.md）。
+import { parseControlTlvType } from '@ohos-tailscale/control';
+import { DERP_MAX_FRAME_BYTES, parseDerpFrameType } from '@ohos-tailscale/derp';
+import { DISCO_NONCE_LEN_BYTES, looksLikeDisco } from '@ohos-tailscale/disco';
+import { STUN_HEADER_LEN, STUN_MAGIC_COOKIE } from '@ohos-tailscale/netcheck';
+// VPN 壳 bridge 层（app/bridge → HAR）：mock 注入层 + 壳状态模型真实调用点。
+// ShellConnState 与本文件 ConnState 常量表逐值镜像（app/bridge/test 锁定），此处运行时互检。
+import { idleStatus, ShellConnState, TUN_FAKE_MTU, TUN_FAKE_NAME } from '@ohos-tailscale/bridge';
 
 const DOMAIN: number = 0x0001;
 const TAG: string = 'OhosTsIndex';
@@ -101,6 +110,24 @@ struct Index {
         .fontSize(11)
         .fontColor($r('app.color.text_secondary'))
       Text(`wireguard: ${WG_CONSTRUCTION} · msgType(1)=${parseWgMessageType(1)}`)
+        .fontSize(11)
+        .fontColor($r('app.color.text_secondary'))
+
+      Text(`control: tlvType(1)=${parseControlTlvType(1)} · tlvType(9)=${parseControlTlvType(9)}`)
+        .fontSize(11)
+        .fontColor($r('app.color.text_secondary'))
+      Text(`derp: maxFrame=${DERP_MAX_FRAME_BYTES} · frameType(1)=${parseDerpFrameType(1)}`)
+        .fontSize(11)
+        .fontColor($r('app.color.text_secondary'))
+      Text(`disco: nonceLen=${DISCO_NONCE_LEN_BYTES} · looksLikeDisco=${looksLikeDisco(new Uint8Array(0))}`)
+        .fontSize(11)
+        .fontColor($r('app.color.text_secondary'))
+      Text(`netcheck: stunHeader=${STUN_HEADER_LEN} · cookie0=${STUN_MAGIC_COOKIE[0]}`)
+        .fontSize(11)
+        .fontColor($r('app.color.text_secondary'))
+
+      // ---- bridge 状态行：mock-tun/壳状态模型经 HAR import 链路真实求值 ----
+      Text(`bridge: mock-tun ready · ${TUN_FAKE_NAME} mtu=${TUN_FAKE_MTU} · mirror=${ShellConnState.Connected === ConnState.Connected ? 'OK' : 'MISMATCH'} · idle=${idleStatus().detail}`)
         .fontSize(11)
         .fontColor($r('app.color.text_secondary'))
 

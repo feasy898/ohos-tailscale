@@ -1,0 +1,13 @@
+// 由 app/tools/sync-core-har.mjs 生成（CU6 方案 B）：源 = packages/derp
+{
+  "name": "@ohos-tailscale/derp",
+  "version": "0.1.0",
+  "description": "DERP relay frame protocol (codec + cross-chunk reassembly), region data structures and client state machine skeleton. Network IO fully injected via in-package DerpDialer.",
+  "main": "src/main/ets/index.ts",
+  "author": "ohos-tailscale contributors",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "@ohos-tailscale/common": "file:../common",
+    "@ohos-tailscale/crypto": "file:../crypto"
+  }
+}

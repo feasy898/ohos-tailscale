@@ -141,11 +141,85 @@ type-stripping 未启用）；须用 CLT 自带 node v24.14.1：
 
 ## 6. 后续步骤（真机前）
 
-1. **补齐剩余四包**：`control/derp/disco/netcheck` 同样 HAR 化（`sync-core-har.mjs` 的 `PACKAGES`
-   数组加名字即可；control 无内部依赖，derp→common，disco→common+crypto，netcheck→common）；
+1. ~~**补齐剩余四包**~~ → **✅ 已完成（2026-10-06，见 §7）**；
 2. **真机/模拟器冒烟**：Index.ets 自检文案真机可见 + hilog 打点（模拟器需 `devecocli auth login`）；
 3. **平台注入层**：`HttpTransport`/`Rng`/`Clock`/UDP socket（`@ohos.net.http` / cryptoFramework /
    `@ohos.net.socket` + `vpnConnection.protect(fd)`）按 README-app.md §4 注入；
 4. **签名**：CSR→AGC→`devecocli signature`（材料已备：鸿蒙tailscale-certs/ohos-debug.csr）；
 5. **CI**：CNB 流水线加 `node app/tools/sync-core-har.mjs` + `devecocli build` 步骤
    （云端等价路径已验证可产同款未签名 HAP，见 build-linux.md）。
+
+## 7. 后续步骤 1 完成：剩余四包 HAR 化 + VPN 壳 bridge 层接入（2026-10-06，分支 `probe/har-rest`）
+
+> 同一判据体系（§0）复验：`BUILD SUCCESSFUL` + hap 体积增长 + 协议/bridge 符号进 `ets/modules.abc`。
+> 本节全部数字为本机实跑（CLT 26.0.0.851，环境同 build-linux.md）。
+
+### 7.1 剩余四包（control/derp/disco/netcheck）HAR 化
+
+接线（`app/tools/sync-core-har.mjs`）：`PACKAGES` 扩为全 8 包；`DEPS` 按 `packages/*/src`
+**实际 import 闭包**写（不照抄 package.json——derp 的 package.json 只声明 common，
+但 `src/client.ts:22` 实际还 import crypto）。control 的 netmap/wgderive 是**包内文件**
+（`packages/control/src/{netmap,wgderive}.ts`），不是独立包，无需额外处理。
+`app/build-profile.json5` modules 注册 4 个新 HAR；`app/entry/oh-package.json5` 加 4 个
+`file:../core-har/<p>` 依赖。
+
+**关键实证（import 图裁剪）**：HAR 模块建好后若 entry 不 import，其代码**不进 abc**——
+首测 hap 仅 386,407→387,151 B、新符号 MISSING；在 `Index.ets` 补 4 包真实调用点
+（`parseControlTlvType` / `DERP_MAX_FRAME_BYTES`+`parseDerpFrameType` /
+`DISCO_NONCE_LEN_BYTES`+`looksLikeDisco` / `STUN_HEADER_LEN`+`STUN_MAGIC_COOKIE`，
+首页各渲染一行自检文案）后：
+
+```
+devecocli build --build-mode debug --modules entry → BUILD SUCCESSFUL（110 tasks）
+hap：386,407 → 1,101,064 B；modules.abc：204,368 → 574,832 B
+abc 符号：parseControlTlvType/controlTlvDecode/registerRequestEncode/ControlClient、
+  parseDerpFrameType/derpFrameEncode/DERP_MAGIC/DerpFrameType、
+  looksLikeDisco/discoSeal/DISCO_MAGIC/DiscoPing、
+  STUN_MAGIC_COOKIE/StunTransaction/stunParseBindingRequest  全 FOUND
+```
+
+### 7.2 VPN 壳 bridge 层接入（方案 B 同路径：HAR 化，非镜像）
+
+`app/bridge/src/*.ts`（mock 注入层 mock-http-transport/mock-control-plane/mock-udp-bus +
+数据面 mock-localapi/mock-peerapi/mock-tun + 壳会话/发现/状态门面）经
+`sync-core-har.mjs` 新增 bridge 段同步为第 9 个 HAR 模块 `app/core-har/bridge`
+（源 = `app/bridge/src`，非 packages/；依赖 = 其实际 import 的 6 个协议包）。
+bridge 源零 Node API（无 Buffer/process/setTimeout），与协议包同走 ets-loader TS 编译零改动通过。
+
+调用点（两处）：
+- `entry/src/main/ets/pages/Index.ets`：`import { idleStatus, ShellConnState, TUN_FAKE_MTU, TUN_FAKE_NAME }
+  from '@ohos-tailscale/bridge'`，首页渲染状态行
+  `bridge: mock-tun ready · FakeTUN mtu=1500 · mirror=OK · idle=idle`
+  （`ShellConnState.Connected === ConnState.Connected` 运行时互检 = bridge 壳状态模型镜像校验）；
+- `entry/src/main/ets/vpnextensionability/VpnExtensionAbility.ets`：`import { idleStatus, ShellStatus,
+  TUN_FAKE_MTU, TUN_FAKE_NAME } from '@ohos-tailscale/bridge'`，`bridgeStatus: ShellStatus = idleStatus()`
+  类型对齐字段 + onCreate hilog `bridge: mock-tun ready`；
+  `handTunFdToCore()` 增平台注入对接表——真平台注入保持 TODO
+  （`@ohos.net.http`→MockHttpTransport/HttpTransport、`@ohos.net.socket`→UdpSocket、
+  cryptoFramework→Rng、系统时钟→Clock、`conn.protect(fd)`、`@ohos.file.fs` 读 fd→TunDevice、
+  DERP TLS→Dialer），只换实现、接口类型零改动。
+
+```
+devecocli build --build-mode debug --modules entry → BUILD SUCCESSFUL
+hap：1,101,064 → 1,243,004 B；modules.abc：574,832 → 649,040 B
+abc 符号：MockHttpTransport/MockControlPlane/MockLocalApiServer/MockPeerApiServer/MockIpnBackend/
+  FakeTunDevice/MemoryTunDevice/TsTunWrapper/TunCable/UdpDatagramBus/MockStunServer/
+  ShellControlSession/ShellDiscoClient/ShellStunProbe/idleStatus/buildDetail/uiConnStateOf/
+  callLocalApi/TUN_FAKE_NAME/ShellConnState/ShellSessionState  21/21 FOUND
+npm run typecheck:bridge → exit 0
+```
+
+### 7.3 回归（本机实跑，node v24.14.1）
+
+```
+npm test              → ℹ tests 495 / ℹ pass 495 / ℹ fail 0   （基线 495 零回归）
+npm run typecheck     → exit 0
+npm run typecheck:bridge → exit 0
+npm run test:bridge   → ℹ tests 31 / ℹ pass 31 / ℹ fail 0
+npm run validate:shell → 73 passed, 0 failed
+npm run gate:d4       → D4/P4 全 4 段 0 命中，exit 0
+```
+
+备注：首次 `ohpm install` + sync 后首构建会打一条非致命 WARN（`@ohos-tailscale/bridge` SemVer +
+local modules info），warm build 复现不出、构建始终 SUCCESSFUL；既有 WARN
+（targetSdkVersion 未显式 / No signingConfig）与基线一致。

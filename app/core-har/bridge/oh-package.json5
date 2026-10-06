@@ -1,0 +1,17 @@
+// 由 app/tools/sync-core-har.mjs 生成（CU6 方案 B）：源 = app/bridge
+{
+  "name": "@ohos-tailscale/bridge",
+  "version": "0.1.0",
+  "description": "壳侧 TS 桥：mock 注入层（mock-http-transport/mock-control-plane/mock-udp-bus）+ 数据面 mock（mock-localapi/mock-peerapi/mock-tun）+ 壳会话/发现/状态门面",
+  "main": "src/main/ets/index.ts",
+  "author": "ohos-tailscale contributors",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "@ohos-tailscale/common": "file:../common",
+    "@ohos-tailscale/crypto": "file:../crypto",
+    "@ohos-tailscale/noise": "file:../noise",
+    "@ohos-tailscale/control": "file:../control",
+    "@ohos-tailscale/disco": "file:../disco",
+    "@ohos-tailscale/netcheck": "file:../netcheck"
+  }
+}

@@ -1,0 +1,13 @@
+// 由 app/tools/sync-core-har.mjs 生成（CU6 方案 B）：源 = packages/disco
+{
+  "name": "@ohos-tailscale/disco",
+  "version": "0.1.0",
+  "description": "Tailscale disco discovery protocol (upstream disco.go aligned): Ping/Pong/CallMeMaybe message codecs and the sealed UDP wrapper (magic + sender disco pub + nonce + XSalsa20-Poly1305).",
+  "main": "src/main/ets/index.ts",
+  "author": "ohos-tailscale contributors",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "@ohos-tailscale/common": "file:../common",
+    "@ohos-tailscale/crypto": "file:../crypto"
+  }
+}

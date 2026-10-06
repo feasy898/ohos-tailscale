@@ -1,0 +1,14 @@
+// 由 app/tools/sync-core-har.mjs 生成（CU6 方案 B）：源 = packages/control
+{
+  "name": "@ohos-tailscale/control",
+  "version": "0.1.0",
+  "description": "Tailscale-style control-plane client: TLV message codec over the ts2021 Noise channel (HttpTransport-injected), RegisterRequest/RegisterResponse plus a simplified NetworkMap - see docs/architecture.md section 7.",
+  "main": "src/main/ets/index.ts",
+  "author": "ohos-tailscale contributors",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "@ohos-tailscale/common": "file:../common",
+    "@ohos-tailscale/crypto": "file:../crypto",
+    "@ohos-tailscale/noise": "file:../noise"
+  }
+}

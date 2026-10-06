@@ -1,0 +1,10 @@
+{
+  "module": {
+    "name": "disco",
+    "type": "har",
+    "deviceTypes": [
+      "phone",
+      "tablet"
+    ]
+  }
+}

@@ -12,6 +12,11 @@
     "@ohos-tailscale/common": "file:../core-har/common",
     "@ohos-tailscale/crypto": "file:../core-har/crypto",
     "@ohos-tailscale/noise": "file:../core-har/noise",
-    "@ohos-tailscale/wireguard": "file:../core-har/wireguard"
+    "@ohos-tailscale/wireguard": "file:../core-har/wireguard",
+    "@ohos-tailscale/control": "file:../core-har/control",
+    "@ohos-tailscale/derp": "file:../core-har/derp",
+    "@ohos-tailscale/disco": "file:../core-har/disco",
+    "@ohos-tailscale/netcheck": "file:../core-har/netcheck",
+    "@ohos-tailscale/bridge": "file:../core-har/bridge"
   }
 }

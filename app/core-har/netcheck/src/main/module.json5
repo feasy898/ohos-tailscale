@@ -1,0 +1,10 @@
+{
+  "module": {
+    "name": "netcheck",
+    "type": "har",
+    "deviceTypes": [
+      "phone",
+      "tablet"
+    ]
+  }
+}

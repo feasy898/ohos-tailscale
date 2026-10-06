@@ -53,6 +53,28 @@
     {
       "name": "wireguard",
       "srcPath": "./core-har/wireguard"
+    },
+    // CU6 后续步骤 1：剩余四协议包 HAR 化（源 = packages/*，同脚本同步）
+    {
+      "name": "control",
+      "srcPath": "./core-har/control"
+    },
+    {
+      "name": "derp",
+      "srcPath": "./core-har/derp"
+    },
+    {
+      "name": "disco",
+      "srcPath": "./core-har/disco"
+    },
+    {
+      "name": "netcheck",
+      "srcPath": "./core-har/netcheck"
+    },
+    // VPN 壳 bridge 层（源 = app/bridge/src，壳↔协议包 mock 集成层）同走 HAR 化
+    {
+      "name": "bridge",
+      "srcPath": "./core-har/bridge"
     }
   ]
 }
