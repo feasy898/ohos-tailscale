@@ -223,3 +223,17 @@ npm run gate:d4       → D4/P4 全 4 段 0 命中，exit 0
 备注：首次 `ohpm install` + sync 后首构建会打一条非致命 WARN（`@ohos-tailscale/bridge` SemVer +
 local modules info），warm build 复现不出、构建始终 SUCCESSFUL；既有 WARN
 （targetSdkVersion 未显式 / No signingConfig）与基线一致。
+
+## 模拟器实机验证（2026-10-06，CU6 收口）
+
+环境：本地 HarmonyOS 7.0.0.107 模拟器（tailnet_emu，x86，无需华为账号；CLT 原生 Emulator 二进制 `-license accept` + `-start -noWindow` 绕过 devecocli 交互墙）。
+
+签名：hap-sign-tool localSign，AGC 调试证书（tailscale.cer + tailnetDebug.p7b + ohos-debug-legacy.p12，别名 ohostailscale）。产物 entry-signed.hap 1,288,605 字节（全 9 HAR + bridge + UI）。坑：密码明文直传不加 `pass:` 前缀；JDK21 p12 需 legacy 转存。
+
+结果（四项全过）：
+1. `hdc install -r` + `aa start` 成功，首页渲染真实 HAR 常量：`noise: Noise_IK_25519_ChaChaPoly_BLAKE2s`、`wireguard: Noise_IKpsk2_25519_ChaChaPoly_BLAKE2s · msgType(1)=1`。
+2. demo 连接后全绿：`tail0 UP · mtu 1280`、Mirror 开启（→ loopback 127.0.0.1:3310）、引擎行 `bridge: mock-tun ready`、`FakeTun mtu=1500 · mirror=OK · idle=idle`。
+3. `aa force-stop` → 重启干净未连接态，无崩溃。
+4. 签名包归档于 澄迈杯/ohos-certs/entry-signed.hap，复验脚本 agent-tools/harmony-emu/{emu-runbook.sh,sign-hap.sh}。
+
+CU6 结论：HAR 化方案在真机级系统（非 jsdom/UT）上端到端成立，后续真机只需复跑同一 runbook。
