@@ -1,0 +1,10 @@
+// ohpm 元数据（CU6 方案 A 实测）：与 package.json 并存——npm workspace 读 package.json，
+// ohpm/hvigor 读本文件。main 指向纯 TS barrel（exports 字段 ohpm 不保证支持，用 main）。
+{
+  "name": "@ohos-tailscale/common",
+  "version": "0.1.0",
+  "description": "Shared interfaces (Clock/Rng/HttpTransport), byte codec, encodings and constants.",
+  "main": "src/index.ts",
+  "author": "ohos-tailscale contributors",
+  "license": "BSD-3-Clause"
+}

@@ -54,3 +54,6 @@ __pycache__/
 # 证据目录例外（P0-7/R5 限定式豁免；仅放行 evidence/ 前缀，禁全局 !*.log）
 !evidence/
 !evidence/**/*.log
+
+# ohpm 安装产物（CU6 探测期）
+oh_modules/

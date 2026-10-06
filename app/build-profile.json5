@@ -8,10 +8,10 @@
         "compatibleSdkVersion": "5.0.0(12)",
         "runtimeOS": "HarmonyOS",
         "buildOption": {
-          "strictMode": {
-            "caseSensitiveCheck": true,
-            "useNormalizedOHMUrl": true
-          }
+        "strictMode": {
+          "caseSensitiveCheck": true,
+          "useNormalizedOHMUrl": false
+        }
         }
       }
     ],

@@ -6,9 +6,11 @@
   "author": "ohos-tailscale contributors",
   "license": "BSD-3-Clause",
   "dependencies": {
-    // TODO(核心库集成)：以本地依赖方式引入仓库 TS 核心库 @ohos-tailscale/*（common/crypto/wireguard/noise/control/derp）。
-    // 候选写法（哪种能被 ohpm/ets loader 正确解析尚未验证，见 README-app.md「核心库本地依赖集成」与「已知未验证事项」U6）：
-    //   "@ohos-tailscale/common": "file:../../packages/common"
-    // 若 ohpm 不接受该形态，则退化为把 packages/ 源码拷入/软链进本模块，并在 app 侧加 .ets 适配层。
+    // CU6 方案 A 实测：file: 本地目录依赖直指仓库 packages/* 纯 TS 源码（noise/wireguard 及其
+    // 内部依赖 common/crypto）。各包已加 oh-package.json5（main: src/index.ts），package.json 未动。
+    "@ohos-tailscale/common": "file:../../packages/common",
+    "@ohos-tailscale/crypto": "file:../../packages/crypto",
+    "@ohos-tailscale/noise": "file:../../packages/noise",
+    "@ohos-tailscale/wireguard": "file:../../packages/wireguard"
   }
 }

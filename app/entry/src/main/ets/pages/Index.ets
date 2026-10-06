@@ -8,6 +8,10 @@ import { vpnExtension } from '@kit.NetworkKit';
 import { promptAction } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+// CU6 自检：协议库（纯 TS 包）经 ohpm file: 依赖进入 ets 编译——
+// noise 版本常量 + wireguard 纯函数（见 docs/cu6-integration.md）。
+import { NOISE_PROTOCOL_NAME } from '@ohos-tailscale/noise';
+import { WG_CONSTRUCTION, parseWgMessageType } from '@ohos-tailscale/wireguard';
 
 const DOMAIN: number = 0x0001;
 const TAG: string = 'OhosTsIndex';
@@ -91,6 +95,14 @@ struct Index {
       .padding(16)
       .borderRadius(12)
       .backgroundColor($r('app.color.card_background'))
+
+      // ---- CU6 协议库自检：常量 + 纯函数在 ArkTS 侧真实求值 ----
+      Text(`noise: ${NOISE_PROTOCOL_NAME}`)
+        .fontSize(11)
+        .fontColor($r('app.color.text_secondary'))
+      Text(`wireguard: ${WG_CONSTRUCTION} · msgType(1)=${parseWgMessageType(1)}`)
+        .fontSize(11)
+        .fontColor($r('app.color.text_secondary'))
 
       // ---- auth key 输入框 ----
       Column({ space: 8 }) {

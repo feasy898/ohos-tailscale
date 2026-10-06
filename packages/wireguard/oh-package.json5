@@ -1,0 +1,13 @@
+// ohpm 元数据（CU6 方案 A 实测）：与 package.json 并存，见 packages/common/oh-package.json5 注释。
+{
+  "name": "@ohos-tailscale/wireguard",
+  "version": "0.1.0",
+  "description": "WireGuard data-plane protocol core: Noise_IKpsk2 handshake + AEAD transport.",
+  "main": "src/index.ts",
+  "author": "ohos-tailscale contributors",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "@ohos-tailscale/common": "file:../common",
+    "@ohos-tailscale/crypto": "file:../crypto"
+  }
+}
